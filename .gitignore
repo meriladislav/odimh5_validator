@@ -1,0 +1,25 @@
+#ignore eclipse files and folders
+.cproject
+.project
+.ptp-sync
+.settings
+*/.ptp-sync-folder
+
+#ignore all binaries, but track directories
+obj/*
+!obj/.gitkeep
+lib/*
+!lib/.gitkeep
+bin/*
+!bin/.gitkeep
+
+#ignore output files
+out/*
+!out/.gitkeep
+#data/*
+#!data/.gitkeep
+tmp/*
+!tmp/.gitkeep
+
+#ignore makefile-commons link
+src/makefile-commons.in
