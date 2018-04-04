@@ -44,7 +44,7 @@ class MyHdf5Unit {
   void close();
   int numberOfLinksInGroup();
   int linkNameSizeByIndex(int index);
-  char *linkNameByIndex(int index, int &nameSize);
+  std::string linkNameByIndex(int index, int &nameSize);
   int numberOfAttributes();
   bool hasAttribute(const std::string& name);
   void getAttribute(const std::string& name, char *&value, int &valueSize);

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdint.h>
 #include <cstring>
+#include <stdexcept>
 
 #include "class_MyHdf5Unit.hpp"
 
@@ -32,7 +33,7 @@ Hdf5UnitType MyHdf5Unit::type() const {
 void MyHdf5Unit::checkId_() {
   if ( id_ < 0 ) {
     id_ = 0;
-    throw -1;
+    throw std::runtime_error{"hdf5 ID is negative"};
   }
 }
 
@@ -47,16 +48,20 @@ bool MyHdf5Unit::isOpen() const {
 
 void MyHdf5Unit::openFile(const std::string& fileName, Hdf5UnitAccess access) {
   if ( isOpen() ) close();
+  
   switch (access) {
     case READ_: {
+      if ( !H5Fis_hdf5(fileName.c_str()) ) {
+        throw std::runtime_error{"File "+fileName+" is not a hdf5 file"};
+      }
       FILE* f = fopen(fileName.c_str(), "rb");
-      if ( !f ) throw -1;
+      if ( !f ) throw std::runtime_error{"File "+fileName+" is not opened"};;
       fclose(f);
       //break missing to skip to case READWRITE_
     }
     case READWRITE_: {
       if ( !H5Fis_hdf5(fileName.c_str()) ) {
-        throw -1;
+        throw std::runtime_error{"File "+fileName+" is not a hdf5 file"};
       }
       unsigned int flag = H5F_ACC_RDONLY;
       if ( access == READWRITE_ ) flag = H5F_ACC_RDWR;
@@ -71,24 +76,21 @@ void MyHdf5Unit::openFile(const std::string& fileName, Hdf5UnitAccess access) {
       type_ = FILE_;  
       break;
     default:
-      throw -1;
+      throw std::runtime_error{"Unknown Hdf5UnitAccess"};
       break;
   }
 }
 
 void MyHdf5Unit::closeFile() {
-  //printf("dbg - MyHdf5Unit::closeFile - p01\n");
-  //printf("dbg - MyHdf5Unit::closeFile - isOpen = %d\n", isOpen());
   if ( isOpen() ) {
-    if (H5Fclose(id_)<0) throw -1;
+    if (H5Fclose(id_)<0) throw std::runtime_error{"File not closed"};
     reset_();
   }
-  //printf("dbg - MyHdf5Unit::closeFile - p02\n");
 }
 
 void MyHdf5Unit::openGroup(const MyHdf5Unit &sourceUnit, const std::string& groupName) {
   if ( isOpen() ) close();
-  if ( !sourceUnit.isOpen() ) throw -1;
+  if ( !sourceUnit.isOpen() ) throw std::runtime_error{"SourceUnit is not opened"};
   id_ = H5Gopen( sourceUnit.id(), groupName.c_str(), H5P_DEFAULT );
   checkId_();
   type_ = GROUP_;
@@ -96,14 +98,14 @@ void MyHdf5Unit::openGroup(const MyHdf5Unit &sourceUnit, const std::string& grou
 
 void MyHdf5Unit::closeGroup() {
   if ( isOpen() ) {
-    if (H5Gclose(id_)<0) throw -1;
+    if (H5Gclose(id_)<0) throw std::runtime_error{"Group not closed"};
     reset_();
   }
 }
 
 void MyHdf5Unit::openDataset(const MyHdf5Unit &sourceUnit, const std::string& datasetName) {
   if ( isOpen() ) close();
-  if ( !sourceUnit.isOpen() ) throw -1;
+  if ( !sourceUnit.isOpen() ) throw std::runtime_error{"SourceUnit is not opened"};
   id_ = H5Dopen( sourceUnit.id(), datasetName.c_str(), H5P_DEFAULT );
   checkId_();
   type_ = DATASET_;
@@ -111,7 +113,7 @@ void MyHdf5Unit::openDataset(const MyHdf5Unit &sourceUnit, const std::string& da
 
 void MyHdf5Unit::closeDataset() {
   if ( isOpen() ) {
-    if (H5Dclose(id_)<0) throw -1;
+    if (H5Dclose(id_)<0) throw std::runtime_error{"Dataset not closed"};
     reset_();
   }
 }
@@ -170,14 +172,15 @@ int MyHdf5Unit::linkNameSizeByIndex(int index) {
   return nameSize;
 }
 
-char *MyHdf5Unit::linkNameByIndex(int index, int &nameSize) {
+std::string MyHdf5Unit::linkNameByIndex(int index, int &nameSize) {
   nameSize = linkNameSizeByIndex(index);
-  char *linkName=0;
-  linkName = new char[nameSize];
+  char* linkName = new char[nameSize];
   if ( !linkName ) throw -1;
   for (int i=0; i<nameSize; i++) linkName[i] = '\0';
   H5Lget_name_by_idx (id_, ".", H5_INDEX_NAME, H5_ITER_INC, index, linkName, (size_t) nameSize, H5P_DEFAULT);
-  return linkName;
+  std::string result{linkName};
+  delete[] linkName;
+  return result;
 }
 
 int MyHdf5Unit::numberOfAttributes() {
