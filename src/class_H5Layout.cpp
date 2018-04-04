@@ -10,7 +10,7 @@
 
 namespace myh5 {
 
-static herr_t findGroupsAndDatasets(hid_t loc_id, const char* name, 
+static herr_t fillGroupsAndDatasets(hid_t loc_id, const char* name, 
                                     const H5O_info_t* info, void* ph5explorer);
 static herr_t getAttribueName(hid_t loc_id, const char* name, const H5A_info_t* ainfo, void* pNameStr);
 
@@ -24,19 +24,28 @@ H5Layout::~H5Layout() {
 
 void H5Layout::explore(const std::string& h5FilePath) {
   reset_();
+  checkAndOpenFile_(h5FilePath);
+  findGroupsAndDatasets_();
+  findAttributes_();
+}
+
+void H5Layout::checkAndOpenFile_(const std::string& h5FilePath) {
+  if ( H5Fis_hdf5(h5FilePath.c_str()) <= 0 ) {
+    throw std::runtime_error{"ERROR - file "+h5FilePath+" is not a HDF5 file"};
+  }
   
   h5FileID_ = H5Fopen(h5FilePath.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);    
   if ( h5FileID_ < 0 ) {
-    throw std::runtime_error{"ERROR - h5FileID_ "+h5FilePath+" not opened"};
+    throw std::runtime_error{"ERROR - file "+h5FilePath+" not opened"};
   }
-  herr_t status;
-  
-  status = H5Ovisit(h5FileID_, H5_INDEX_NAME, H5_ITER_NATIVE, findGroupsAndDatasets, this);
+  h5FilePath_ = h5FilePath;
+}
+
+void H5Layout::findGroupsAndDatasets_() {
+  herr_t status = H5Ovisit(h5FileID_, H5_INDEX_NAME, H5_ITER_NATIVE, fillGroupsAndDatasets, this);
   if ( status < 0 ) {
-    throw std::runtime_error{"ERROR - error while iterating objects in h5FileID_ "+h5FilePath};
+    throw std::runtime_error{"ERROR - error while iterating objects in h5FileID_ "+h5FilePath_};
   }
-  
-  findAttributes_();
 }
 
 void H5Layout::findAttributes_() {
@@ -75,7 +84,7 @@ void H5Layout::reset_() {
 }
 
 
-herr_t findGroupsAndDatasets(hid_t loc_id, const char* name, 
+herr_t fillGroupsAndDatasets(hid_t loc_id, const char* name, 
                              const H5O_info_t* info, void* ph5explorer) {
   H5Layout* h5exp = static_cast<H5Layout*>(ph5explorer);
   std::string objName{"/"};
