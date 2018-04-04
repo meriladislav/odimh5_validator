@@ -7,12 +7,15 @@
 
 #include <stdexcept>
 #include <hdf5.h>
+#include <algorithm>
 
 namespace myh5 {
 
 static herr_t fillGroupsAndDatasets(hid_t loc_id, const char* name, 
                                     const H5O_info_t* info, void* ph5explorer);
 static herr_t getAttribueName(hid_t loc_id, const char* name, const H5A_info_t* ainfo, void* pNameStr);
+void splitAttributeToPathAndName(const std::string& attrName, 
+                                 std::string& path, std::string& name);
 
 H5Layout::H5Layout(const std::string& h5FilePath) {
   explore(h5FilePath);
@@ -27,6 +30,32 @@ void H5Layout::explore(const std::string& h5FilePath) {
   checkAndOpenFile_(h5FilePath);
   findGroupsAndDatasets_();
   findAttributes_();
+}
+
+bool H5Layout::hasAttribute(const std::string& attrName) const {
+  return std::find(attributes.begin(), attributes.end(), attrName) != attributes.end();
+}
+
+std::string H5Layout::filePath() const {
+  return h5FilePath_;
+}
+
+void H5Layout::getAttributeValue(const std::string& attrName, std::string& value) const {
+  value = "";
+  if ( hasAttribute(attrName) ) {
+    std::string path, name;
+    splitAttributeToPathAndName(attrName, path, name);
+    auto parent = H5Gopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+    printf("dbg - opening %s ...\n", attrName.c_str());
+    auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+    auto type = H5Aget_type(attr);
+    if ( H5Tget_class(type) != H5T_STRING ) throw -1;
+    char str[1024] = {'\0'};
+    auto ret  = H5Aread(attr, type, str);
+    ret =  H5Aclose(attr);
+    value = str;
+    H5Gclose(parent);
+  }
 }
 
 void H5Layout::checkAndOpenFile_(const std::string& h5FilePath) {
@@ -50,25 +79,28 @@ void H5Layout::findGroupsAndDatasets_() {
 
 void H5Layout::findAttributes_() {
   herr_t status;
-  std::string attrName;
-  for (const auto& group : groups) {
+  std::vector<std::string> attrNames;
+  for (auto group : groups) {
     hid_t g = H5Gopen2(h5FileID_, group.c_str(), H5P_DEFAULT);
     if ( g < 0 ) throw std::runtime_error{"ERROR - group "+group+" not opened"};
-    status = H5Aiterate2(g, H5_INDEX_NAME, H5_ITER_INC, NULL, getAttribueName, &attrName);
+    status = H5Aiterate2(g, H5_INDEX_NAME, H5_ITER_INC, NULL, getAttribueName, &attrNames);
     if ( status < 0 ) throw std::runtime_error{"ERROR - error while iterating attributes in group "+group};
     status = H5Gclose(g);
     if ( status < 0 ) throw std::runtime_error{"ERROR - error while closing group "+group};
-    attributes.push_back(group+"/"+attrName);
+    if ( group.back() != '/' ) group += "/";
+    for (const auto& attrName : attrNames ) attributes.push_back(group+attrName);
   }
   
-  for (const auto& dataset : datasets) {
+  attrNames.clear();
+  for (auto dataset : datasets) {
     hid_t d = H5Dopen2(h5FileID_, dataset.c_str(), H5P_DEFAULT);
     if ( d < 0 ) throw std::runtime_error{"ERROR - dataset "+dataset+" not opened"};
-    status = H5Aiterate2(d, H5_INDEX_NAME, H5_ITER_INC, NULL, getAttribueName, &attrName);
+    status = H5Aiterate2(d, H5_INDEX_NAME, H5_ITER_INC, NULL, getAttribueName, &attrNames);
     if ( status < 0 ) throw std::runtime_error{"ERROR - error while iterating attributes in dataset "+dataset};
     status = H5Dclose(d);
     if ( status < 0 ) throw std::runtime_error{"ERROR - error while closing dataset "+dataset};
-    attributes.push_back(dataset+"/"+attrName);
+    if ( dataset.back() != '/' ) dataset += "/";
+    for (const auto& attrName : attrNames ) attributes.push_back(dataset+attrName);
   }
 }
 
@@ -88,7 +120,7 @@ herr_t fillGroupsAndDatasets(hid_t loc_id, const char* name,
                              const H5O_info_t* info, void* ph5explorer) {
   H5Layout* h5exp = static_cast<H5Layout*>(ph5explorer);
   std::string objName{"/"};
-  if (name[0] == '.')  {       /* Root group, do not print '.' */
+  if (name[0] == '.')  {       /* Root group */
     h5exp->groups.push_back(objName);
   }
   else {
@@ -109,10 +141,17 @@ herr_t fillGroupsAndDatasets(hid_t loc_id, const char* name,
   return 0;
 }
 
-herr_t getAttribueName(hid_t loc_id, const char* name, const H5A_info_t* ainfo, void* pNameStr){
-  std::string* nameStr = static_cast<std::string*>(pNameStr);
-  *nameStr = name;
+herr_t getAttribueName(hid_t loc_id, const char* name, const H5A_info_t* ainfo, void* pNames){
+  std::vector<std::string>* names = static_cast<std::vector<std::string>*>(pNames);
+  names->emplace_back(std::string{name});
   return 0;
+}
+
+void splitAttributeToPathAndName(const std::string& attrName, 
+                                 std::string& path, std::string& name) {
+  auto found = attrName.find_last_of('/');
+  path = attrName.substr(0,found+1);
+  name = attrName.substr(found+1);
 }
 
 

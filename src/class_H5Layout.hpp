@@ -20,6 +20,9 @@ class H5Layout {
     H5Layout(const std::string& h5FilePath);
     ~H5Layout();
     void explore(const std::string& h5FilePath);
+    bool hasAttribute(const std::string& attrName) const;
+    std::string filePath() const;
+    void getAttributeValue(const std::string& attrName, std::string& value) const;
     
   private:
     std::string h5FilePath_{""};

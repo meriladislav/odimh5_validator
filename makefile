@@ -12,7 +12,8 @@ BIN_LIST = $(BIN_DIR)/odimh5-validate
 
 OBJ_LIST = $(OBJ_DIR)/class_H5Layout.o \
            $(OBJ_DIR)/class_OdimEntry.o \
-           $(OBJ_DIR)/class_OdimStandard.o
+           $(OBJ_DIR)/class_OdimStandard.o \
+           $(OBJ_DIR)/module_Compare.o
 
 all : $(LIB_LIST) $(BIN_LIST)
 	@echo ""
@@ -51,5 +52,11 @@ $(OBJ_DIR)/class_H5Layout.o: $(SRC_DIR)/class_H5Layout.cpp $(SRC_DIR)/class_H5La
 $(OBJ_DIR)/class_OdimEntry.o: $(SRC_DIR)/class_OdimEntry.cpp $(SRC_DIR)/class_OdimEntry.hpp 
 	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -c -o $@ $(SRC_DIR)/class_OdimEntry.cpp  
 
-$(OBJ_DIR)/class_OdimStandard.o: $(SRC_DIR)/class_OdimStandard.cpp $(SRC_DIR)/class_OdimStandard.hpp 
+$(OBJ_DIR)/class_OdimStandard.o: $(SRC_DIR)/class_OdimStandard.cpp $(SRC_DIR)/class_OdimStandard.hpp \
+                                 $(OBJ_DIR)/class_OdimEntry.o
 	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -c -o $@ $(SRC_DIR)/class_OdimStandard.cpp
+
+$(OBJ_DIR)/module_Compare.o: $(SRC_DIR)/module_Compare.cpp $(SRC_DIR)/module_Compare.hpp \
+                             $(OBJ_DIR)/class_H5Layout.o \
+                             $(OBJ_DIR)/class_OdimStandard.o
+	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -c -o $@ $(SRC_DIR)/module_Compare.cpp
