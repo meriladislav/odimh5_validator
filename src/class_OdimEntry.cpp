@@ -1,4 +1,4 @@
-// class_odimEntry.cpp
+// class_OdimEntry.cpp
 // class to work with ODIM specification entries
 // Ladislav Meri, SHMU
 // v_0.0, 04.2018
