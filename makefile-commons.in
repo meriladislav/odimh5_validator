@@ -30,7 +30,7 @@ BIN_DIR = $(HOME_DIR)/bin
 
 INC_FLAGS = -I$(INC_DIR) 
 LIB_FLAGS = -L$(LIB_DIR) \
-            -Wl,--start-group -lmyhdf5 \
+            -Wl,--start-group -lmyodimh5 \
             -lhdf5 -lpthread
 LIB_FLAGS += $(shell h5cc -showconfig | \
                      grep "Extra libraries:" | \

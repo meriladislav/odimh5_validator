@@ -6,9 +6,11 @@
 
 include makefile-commons.in
 
-LIB_LIST = $(LIB_DIR)/libmyhdf5.a 
+LIB_LIST = $(LIB_DIR)/libmyodimh5.a 
            
 BIN_LIST = $(BIN_DIR)/odimh5-validate
+
+OBJ_LIST = $(OBJ_DIR)/class_H5Layout.o
 
 all : $(LIB_LIST) $(BIN_LIST)
 	@echo ""
@@ -28,21 +30,18 @@ cleanmy:
 	       $(OBJ_DIR)/*
 	       
 	       
-$(LIB_DIR)/libmyhdf5.a: $(SRC_DIR)/lib_myhdf5/*.cpp \
-                        $(SRC_DIR)/lib_myhdf5/*.hpp 
+$(LIB_DIR)/libmyodimh5.a: $(OBJ_LIST)
 	@echo "checking h5cc ..."
 	h5cc -showconfig
 	@echo "h5cc OK"
-	@echo "Compiling libmyhdf5 ..."
-	$(MAKE) -f $(SRC_DIR)/lib_myhdf5/makefile all
-	cp -f $(SRC_DIR)/lib_myhdf5/*.hpp $(INC_DIR)
-	@echo "Compiling libmyhdf5 ... OK"
-	@echo ""
+	$(AR) $(ARFLAGS) $@ $(OBJ_LIST) 
 
 
-	
 $(BIN_DIR)/odimh5-validate: $(SRC_DIR)/odimh5-validate.cpp $(LIB_LIST)
 	@echo "Compiling binaries ..."
 	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -o $@ $(SRC_DIR)/odimh5-validate.cpp $(LIB_FLAGS) 
 	@echo "Compiling binaries ... OK"
 	@echo ""
+	
+$(OBJ_DIR)/class_H5Layout.o: $(SRC_DIR)/class_H5Layout.cpp $(SRC_DIR)/class_H5Layout.hpp 
+	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -c -o $@ $(SRC_DIR)/class_H5Layout.cpp 
