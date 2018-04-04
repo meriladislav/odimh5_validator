@@ -46,7 +46,6 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::string& value
     std::string path, name;
     splitAttributeToPathAndName(attrName, path, name);
     auto parent = H5Gopen(h5FileID_, path.c_str(), H5P_DEFAULT);
-    printf("dbg - opening %s ...\n", attrName.c_str());
     auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
     auto type = H5Aget_type(attr);
     if ( H5Tget_class(type) != H5T_STRING ) throw -1;
@@ -81,6 +80,7 @@ void H5Layout::findAttributes_() {
   herr_t status;
   std::vector<std::string> attrNames;
   for (auto group : groups) {
+    attrNames.clear();
     hid_t g = H5Gopen2(h5FileID_, group.c_str(), H5P_DEFAULT);
     if ( g < 0 ) throw std::runtime_error{"ERROR - group "+group+" not opened"};
     status = H5Aiterate2(g, H5_INDEX_NAME, H5_ITER_INC, NULL, getAttribueName, &attrNames);
@@ -91,8 +91,8 @@ void H5Layout::findAttributes_() {
     for (const auto& attrName : attrNames ) attributes.push_back(group+attrName);
   }
   
-  attrNames.clear();
   for (auto dataset : datasets) {
+    attrNames.clear();
     hid_t d = H5Dopen2(h5FileID_, dataset.c_str(), H5P_DEFAULT);
     if ( d < 0 ) throw std::runtime_error{"ERROR - dataset "+dataset+" not opened"};
     status = H5Aiterate2(d, H5_INDEX_NAME, H5_ITER_INC, NULL, getAttribueName, &attrNames);

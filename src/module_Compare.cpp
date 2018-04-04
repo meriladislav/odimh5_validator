@@ -12,7 +12,7 @@ namespace myodim {
 
 const std::string csvDirPathEnv{"ODIMH5_VALIDATOR_CSV_DIR"};
 
-std::string getStandardDefinitionCsvFileNameFrom(const myh5::H5Layout& h5layout) {
+std::string getCsvFileNameFrom(const myh5::H5Layout& h5layout) {
   std::string result;
   const char* csvDir = std::getenv(csvDirPathEnv.c_str());
   if ( csvDir ) {
@@ -42,6 +42,10 @@ std::string getStandardDefinitionCsvFileNameFrom(const myh5::H5Layout& h5layout)
   result += conventions+"_"+object+".csv";
    
   return result;
+}
+
+bool compare(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard) {
+  return false;
 }
 
 }
