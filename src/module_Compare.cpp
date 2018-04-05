@@ -13,16 +13,16 @@ namespace myodim {
 const std::string csvDirPathEnv{"ODIMH5_VALIDATOR_CSV_DIR"};
 
 std::string getCsvFileNameFrom(const myh5::H5Layout& h5layout) {
-  std::string result;
+  std::string csvFileName;
   const char* csvDir = std::getenv(csvDirPathEnv.c_str());
   if ( csvDir ) {
-    result = csvDir;
+    csvFileName = csvDir;
   }
   else {
     throw std::runtime_error{"ERROR - environment variable "+csvDirPathEnv+" not found. "+
                              "Please specify it: export "+csvDirPathEnv+"=your_csv_data_directory_path"};
   }
-  if ( result.back() != '/' ) result += "/";
+  if ( csvFileName.back() != '/' ) csvFileName += "/";
   
   std::string conventions;
   h5layout.getAttributeValue("/Conventions", conventions);
@@ -39,12 +39,13 @@ std::string getCsvFileNameFrom(const myh5::H5Layout& h5layout) {
                              " has no /what/object attribute, probably not an ODIM_H5 file."};
   }
   
-  result += conventions+"_"+object+".csv";
+  csvFileName += conventions+"_"+object+".csv";
    
-  return result;
+  return csvFileName;
 }
 
 bool compare(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard) {
+  
   return false;
 }
 
