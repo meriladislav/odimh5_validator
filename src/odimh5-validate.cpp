@@ -29,6 +29,7 @@ int main(int argc, char* argv[]) {
   //load the ODIM_H5 standard definition 
   if ( csvFile.empty() ) {
     csvFile = myodim::getCsvFileNameFrom(h5layout);
+    std::cout << "INFO - using the default " << csvFile << " standard definition table" << std::endl;
   }
   myodim::OdimStandard odimStandard(csvFile);
   std::cout << "dbg - " << odimStandard.entries.size() << " ODIM standard entries loaded" << std::endl;

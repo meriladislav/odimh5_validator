@@ -16,13 +16,18 @@ class H5Layout {
     std::vector<std::string> groups;
     std::vector<std::string> datasets;
     std::vector<std::string> attributes;
+    
     H5Layout() = default;
     H5Layout(const std::string& h5FilePath);
     ~H5Layout();
+    
     void explore(const std::string& h5FilePath);
     bool hasAttribute(const std::string& attrName) const;
     std::string filePath() const;
     void getAttributeValue(const std::string& attrName, std::string& value) const;
+    bool isStringAttribute(const std::string& attrName) const;
+    bool isReal64Attribute(const std::string& attrName) const;
+    bool isInt64Attribute(const std::string& attrName) const;
     
   private:
     std::string h5FilePath_{""};

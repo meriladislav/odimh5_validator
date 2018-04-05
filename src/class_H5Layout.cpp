@@ -45,7 +45,7 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::string& value
   if ( hasAttribute(attrName) ) {
     std::string path, name;
     splitAttributeToPathAndName(attrName, path, name);
-    auto parent = H5Gopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+    auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
     auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
     auto type = H5Aget_type(attr);
     if ( H5Tget_class(type) != H5T_STRING ) throw -1;
@@ -53,8 +53,44 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::string& value
     auto ret  = H5Aread(attr, type, str);
     ret =  H5Aclose(attr);
     value = str;
-    H5Gclose(parent);
+    H5Oclose(parent);
   }
+}
+
+bool H5Layout::isStringAttribute(const std::string& attrName) const {
+  std::string path, name;
+  splitAttributeToPathAndName(attrName, path, name);
+  auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+  auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+  auto type = H5Aget_type(attr);
+  bool isString{H5Tget_class(type) == H5T_STRING};
+  H5Aclose(attr);
+  H5Oclose(parent);
+  return isString;
+}
+
+bool H5Layout::isReal64Attribute(const std::string& attrName) const {
+  std::string path, name;
+  splitAttributeToPathAndName(attrName, path, name);
+  auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+  auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+  auto type = H5Aget_type(attr);
+  bool isReal64{H5Tget_class(type) == H5T_FLOAT && H5Tget_precision(type) == 64};
+  H5Aclose(attr);
+  H5Oclose(parent);
+  return isReal64;
+}
+
+bool H5Layout::isInt64Attribute(const std::string& attrName) const {
+  std::string path, name;
+  splitAttributeToPathAndName(attrName, path, name);
+  auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+  auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+  auto type = H5Aget_type(attr);
+  bool isInt64{H5Tget_class(type) == H5T_INTEGER && H5Tget_precision(type) == 64};
+  H5Aclose(attr);
+  H5Oclose(parent);
+  return isInt64;
 }
 
 void H5Layout::checkAndOpenFile_(const std::string& h5FilePath) {

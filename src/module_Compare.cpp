@@ -5,12 +5,16 @@
 
 #include <cstdlib>  // getenv
 #include <stdexcept>
-#include <algorithm>
+#include <algorithm> // replace
+#include <regex>
+#include <iostream>
 #include "module_Compare.hpp"
 
 namespace myodim {
 
 const std::string csvDirPathEnv{"ODIMH5_VALIDATOR_CSV_DIR"};
+static bool checkCompliance(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard);
+bool checkExtraFeatures(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard);
 
 std::string getCsvFileNameFrom(const myh5::H5Layout& h5layout) {
   std::string csvFileName;
@@ -46,7 +50,148 @@ std::string getCsvFileNameFrom(const myh5::H5Layout& h5layout) {
 
 bool compare(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard) {
   
-  return false;
+  bool isCompliant = checkCompliance(h5layout, odimStandard);
+  
+  bool extrasPresent = checkExtraFeatures(h5layout, odimStandard);
+  
+  return isCompliant;
 }
+
+bool checkCompliance(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard) {
+  bool isCompliant{true};
+  
+  for (const auto& entry : odimStandard.entries) {
+    
+    bool entryExists{false};
+    bool hasProperDatatype{true};
+    bool hasProperValue{true};
+    
+    std::regex nodeRegex{entry.node};
+    std::string failedValueMessage;
+    switch (entry.category) {
+      case OdimEntry::Group :
+        for (const auto& g : h5layout.groups) {
+          if ( std::regex_match(g, nodeRegex) ) {
+            entryExists = true;
+            break;
+          }
+        }
+        break;
+      case OdimEntry::Dataset :
+        for (const auto& d : h5layout.datasets) {
+          if ( std::regex_match(d, nodeRegex) ) {
+            entryExists = true;
+            break;
+          }
+        }
+        break;
+      case OdimEntry::Attribute :
+        for (const auto& a : h5layout.attributes) {
+          if ( std::regex_match(a, nodeRegex) ) {
+            entryExists = true;
+            switch (entry.type) {
+              case OdimEntry::string :
+                hasProperDatatype = h5layout.isStringAttribute(a);
+                if ( !entry.possibleValues.empty() ) {
+                  std::regex valueRegex{entry.possibleValues};
+                  std::string value;
+                  h5layout.getAttributeValue(a, value);
+                  hasProperValue = std::regex_match(value, valueRegex);
+                  if ( !hasProperValue ) {
+                    failedValueMessage = "with value \"" + value + "\" doesn`t match the " + 
+                                         entry.possibleValues + " assumed value";
+                  }
+                }
+                if ( !hasProperDatatype || !hasProperValue ) goto end_attribute_loop;
+                break;
+              case OdimEntry::real :
+                hasProperDatatype = h5layout.isReal64Attribute(a);
+                break;
+              case OdimEntry::integer :
+                hasProperDatatype = h5layout.isInt64Attribute(a);
+                break;
+              default :
+                break;
+            }
+            break;
+          }
+        }
+        end_attribute_loop:
+        break;
+      default :
+        break;
+    }
+    
+    if ( !entryExists ) {
+      if ( entry.isMandatory) {
+        isCompliant = false;
+        std::cout << "WARNING - mandatory entry \"" << entry.node << "\" doesn`t exist in the file." << std::endl;
+      }
+      else {
+        std::cout << "INFO - optional entry \"" << entry.node << "\" doesn`t exist in the file." << std::endl;
+      }
+    }
+    
+    if ( !hasProperDatatype ) {
+      std::string message;
+      if ( entry.isMandatory) {
+        isCompliant = false;
+        message = "WARNING - mandatory ";
+      }
+      else {
+        message = "INFO - optional ";
+      }
+      switch (entry.type) {
+        case OdimEntry::string :
+          message += "entry \"" + entry.node + "\" has non-standard datatype - it`s supposed to be a string, but isn`t.";
+          break;
+        case OdimEntry::real :
+          message += "entry \"" + entry.node + "\" has non-standard datatype - it`s supposed to be a 64-bit real, but isn`t.";
+          break;
+        case OdimEntry::integer :
+          message += "entry \"" + entry.node + "\" has non-standard datatype - it`s supposed to be a 64-bit integer, but isn`t.";
+          break;
+        default :
+          break;
+      }
+      std::cout << message << std::endl;
+    }
+    
+    if ( !hasProperValue ) {
+      std::string message;
+      if ( entry.isMandatory) {
+        isCompliant = false;
+        message = "WARNING - mandatory ";
+      }
+      else {
+        message = "INFO - optional ";
+      }
+      message += "entry \"" + entry.node + "\" " + failedValueMessage + ".";
+      std::cout << message << std::endl;
+    }
+    
+  }
+  
+  return isCompliant;
+}
+
+bool checkExtraFeatures(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard) {
+  bool extrasPresent{false};
+  
+  for (const auto& group : h5layout.groups) {
+    
+  }
+  
+  for (const auto& dataset : h5layout.datasets) {
+    
+  }
+  
+  for (const auto& attribute : h5layout.attributes) {
+    
+  }
+  
+  return extrasPresent;
+}
+
 
 }
