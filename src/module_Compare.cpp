@@ -68,6 +68,7 @@ bool checkCompliance(const myh5::H5Layout& h5layout, const OdimStandard& odimSta
     
     std::regex nodeRegex{entry.node};
     std::string failedValueMessage;
+    //std::cout << "dbg - checking " << entry.node << std::endl; 
     switch (entry.category) {
       case OdimEntry::Group :
         for (const auto& g : h5layout.groups) {
@@ -179,15 +180,47 @@ bool checkExtraFeatures(const myh5::H5Layout& h5layout, const OdimStandard& odim
   bool extrasPresent{false};
   
   for (const auto& group : h5layout.groups) {
-    
+    bool isExtra{true};
+    for (const auto& entry : odimStandard.entries) {
+      if ( entry.category != OdimEntry::Group ) continue;
+      std::regex nodeRegex{entry.node};
+      if ( std::regex_match(group, nodeRegex) ) isExtra = false;
+    }
+    if ( isExtra ) {
+      std::cout << "INFO - extra feature - entry \"" + group + "\" is not mentioned in the standard." << std::endl;
+      extrasPresent = true;
+    }
   }
   
   for (const auto& dataset : h5layout.datasets) {
-    
+    bool isExtra{true};
+    for (const auto& entry : odimStandard.entries) {
+      if ( entry.category != OdimEntry::Dataset ) continue;
+      std::regex nodeRegex{entry.node};
+      if ( std::regex_match(dataset, nodeRegex) ) isExtra = false;
+    }
+    if ( isExtra ) {
+      std::cout << "INFO - extra feature - entry \"" + dataset + "\" is not mentioned in the standard." << std::endl;
+      extrasPresent = true;
+    }
   }
   
   for (const auto& attribute : h5layout.attributes) {
-    
+    bool isExtra{true};
+    for (const auto& entry : odimStandard.entries) {
+      if ( entry.category != OdimEntry::Attribute ) continue;
+      std::regex nodeRegex{entry.node};
+      if ( std::regex_match(attribute, nodeRegex) ) isExtra = false;
+    }
+    if ( isExtra ) {
+      std::cout << "INFO - extra feature - entry \"" + attribute + "\" is not mentioned in the standard." << std::endl;
+      extrasPresent = true;
+    }
+    if ( !(h5layout.isInt64Attribute(attribute) || 
+           h5layout.isReal64Attribute(attribute) || 
+           h5layout.isStringAttribute(attribute)) ) {
+      std::cout << "INFO - extra feature - entry \"" + attribute + "\" has non-standard datatype." << std::endl;
+    }
   }
   
   return extrasPresent;

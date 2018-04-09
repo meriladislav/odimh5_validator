@@ -28,6 +28,7 @@ class H5Layout {
     bool isStringAttribute(const std::string& attrName) const;
     bool isReal64Attribute(const std::string& attrName) const;
     bool isInt64Attribute(const std::string& attrName) const;
+    bool isBooleanAttribute(const std::string& attrName) const;
     
   private:
     std::string h5FilePath_{""};

@@ -39,6 +39,7 @@ void OdimEntry::parseType_(const std::string typeStr) {
   if ( typeStr == "string" ) type = Type::string;
   else if ( typeStr == "real" ) type = Type::real;
   else if ( typeStr == "integer" ) type = Type::integer;
+  else if ( typeStr == "boolean" ) type = Type::boolean;
   else throw std::invalid_argument{"Unknown type - "+typeStr};
 }
     

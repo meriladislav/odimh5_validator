@@ -93,6 +93,18 @@ bool H5Layout::isInt64Attribute(const std::string& attrName) const {
   return isInt64;
 }
 
+bool H5Layout::isBooleanAttribute(const std::string& attrName) const {
+  std::string path, name;
+  splitAttributeToPathAndName(attrName, path, name);
+  auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+  auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+  auto type = H5Aget_type(attr);
+  bool isBool{H5Tget_class(type) == H5T_NATIVE_HBOOL};
+  H5Aclose(attr);
+  H5Oclose(parent);
+  return isBool;
+}
+
 void H5Layout::checkAndOpenFile_(const std::string& h5FilePath) {
   if ( H5Fis_hdf5(h5FilePath.c_str()) <= 0 ) {
     throw std::runtime_error{"ERROR - file "+h5FilePath+" is not a HDF5 file"};
