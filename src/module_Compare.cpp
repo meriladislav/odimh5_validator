@@ -12,9 +12,12 @@
 
 namespace myodim {
 
-const std::string csvDirPathEnv{"ODIMH5_VALIDATOR_CSV_DIR"};
-static bool checkCompliance(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard);
-bool checkExtraFeatures(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard);
+bool printInfo{true};
+
+static const std::string csvDirPathEnv{"ODIMH5_VALIDATOR_CSV_DIR"};
+static bool checkCompliance(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard,
+                            const bool checkOptional);
+static bool checkExtraFeatures(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard);
 
 std::string getCsvFileNameFrom(const myh5::H5Layout& h5layout) {
   std::string csvFileName;
@@ -48,19 +51,49 @@ std::string getCsvFileNameFrom(const myh5::H5Layout& h5layout) {
   return csvFileName;
 }
 
-bool compare(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard) {
+std::string getCsvFileNameFrom(const myh5::H5Layout& h5layout, std::string version) { 
+  std::string csvFileName;
+  const char* csvDir = std::getenv(csvDirPathEnv.c_str());
+  if ( csvDir ) {
+    csvFileName = csvDir;
+  }
+  else {
+    throw std::runtime_error{"ERROR - environment variable "+csvDirPathEnv+" not found. "+
+                             "Please specify it: export "+csvDirPathEnv+"=your_csv_data_directory_path"};
+  }
+  if ( csvFileName.back() != '/' ) csvFileName += "/";
   
-  bool isCompliant = checkCompliance(h5layout, odimStandard);
+  std::replace(version.begin(), version.end(), '.', '_');
+  csvFileName += "ODIM_H5_V" + version;
   
-  bool extrasPresent = checkExtraFeatures(h5layout, odimStandard);
+  std::string object;
+  h5layout.getAttributeValue("/what/object", object);
+  if ( object.empty() ) {
+    throw std::runtime_error{"ERROR - file "+h5layout.filePath()+
+                             " has no /what/object attribute, probably not an ODIM_H5 file."};
+  }
+  
+  csvFileName += "_"+object+".csv";
+  return csvFileName;
+}
+
+bool compare(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard, 
+             const bool checkOptional, const bool checkExtras) {
+  
+  bool isCompliant = checkCompliance(h5layout, odimStandard, checkOptional);
+  
+  if ( checkExtras ) checkExtraFeatures(h5layout, odimStandard);
   
   return isCompliant;
 }
 
-bool checkCompliance(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard) {
+bool checkCompliance(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard,
+                     const bool checkOptional) {
   bool isCompliant{true};
   
   for (const auto& entry : odimStandard.entries) {
+    
+    if ( !checkOptional && !entry.isMandatory ) continue;
     
     bool entryExists{false};
     bool hasProperDatatype{true};
@@ -129,7 +162,8 @@ bool checkCompliance(const myh5::H5Layout& h5layout, const OdimStandard& odimSta
         std::cout << "WARNING - mandatory entry \"" << entry.node << "\" doesn`t exist in the file." << std::endl;
       }
       else {
-        std::cout << "INFO - optional entry \"" << entry.node << "\" doesn`t exist in the file." << std::endl;
+        if ( printInfo ) 
+          std::cout << "INFO - optional entry \"" << entry.node << "\" doesn`t exist in the file." << std::endl;
       }
     }
     
@@ -140,7 +174,8 @@ bool checkCompliance(const myh5::H5Layout& h5layout, const OdimStandard& odimSta
         message = "WARNING - mandatory ";
       }
       else {
-        message = "INFO - optional ";
+        isCompliant = false;
+        message = "WARNING - optional ";
       }
       switch (entry.type) {
         case OdimEntry::string :
@@ -165,7 +200,8 @@ bool checkCompliance(const myh5::H5Layout& h5layout, const OdimStandard& odimSta
         message = "WARNING - mandatory ";
       }
       else {
-        message = "INFO - optional ";
+        isCompliant = false;
+        message = "WARNING - optional ";
       }
       message += "entry \"" + entry.node + "\" " + failedValueMessage + ".";
       std::cout << message << std::endl;
@@ -187,7 +223,7 @@ bool checkExtraFeatures(const myh5::H5Layout& h5layout, const OdimStandard& odim
       if ( std::regex_match(group, nodeRegex) ) isExtra = false;
     }
     if ( isExtra ) {
-      std::cout << "INFO - extra feature - entry \"" + group + "\" is not mentioned in the standard." << std::endl;
+      if ( printInfo) std::cout << "INFO - extra feature - entry \"" + group + "\" is not mentioned in the standard." << std::endl;
       extrasPresent = true;
     }
   }
@@ -200,7 +236,7 @@ bool checkExtraFeatures(const myh5::H5Layout& h5layout, const OdimStandard& odim
       if ( std::regex_match(dataset, nodeRegex) ) isExtra = false;
     }
     if ( isExtra ) {
-      std::cout << "INFO - extra feature - entry \"" + dataset + "\" is not mentioned in the standard." << std::endl;
+      if ( printInfo) std::cout << "INFO - extra feature - entry \"" + dataset + "\" is not mentioned in the standard." << std::endl;
       extrasPresent = true;
     }
   }
@@ -213,12 +249,12 @@ bool checkExtraFeatures(const myh5::H5Layout& h5layout, const OdimStandard& odim
       if ( std::regex_match(attribute, nodeRegex) ) isExtra = false;
     }
     if ( isExtra ) {
-      std::cout << "INFO - extra feature - entry \"" + attribute + "\" is not mentioned in the standard." << std::endl;
+      if ( printInfo) std::cout << "INFO - extra feature - entry \"" + attribute + "\" is not mentioned in the standard." << std::endl;
       extrasPresent = true;
       if ( !(h5layout.isInt64Attribute(attribute) || 
              h5layout.isReal64Attribute(attribute) || 
              h5layout.isStringAttribute(attribute)) ) {
-        std::cout << "INFO - extra feature - entry \"" + attribute + "\" has non-standard datatype." << std::endl;
+        if ( printInfo) std::cout << "INFO - extra feature - entry \"" + attribute + "\" has non-standard datatype." << std::endl;
       }
     }
   }

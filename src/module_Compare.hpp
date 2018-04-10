@@ -12,8 +12,12 @@
 
 namespace myodim {
 
+extern bool printInfo;
+
 extern std::string getCsvFileNameFrom(const myh5::H5Layout& h5layout);
-extern bool compare(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard);
+extern std::string getCsvFileNameFrom(const myh5::H5Layout& h5layout, std::string version);
+extern bool compare(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard, 
+                    const bool checkOptional=false, const bool checkExtras=false);
 
 }
 
