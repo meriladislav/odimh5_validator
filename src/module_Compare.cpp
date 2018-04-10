@@ -215,11 +215,11 @@ bool checkExtraFeatures(const myh5::H5Layout& h5layout, const OdimStandard& odim
     if ( isExtra ) {
       std::cout << "INFO - extra feature - entry \"" + attribute + "\" is not mentioned in the standard." << std::endl;
       extrasPresent = true;
-    }
-    if ( !(h5layout.isInt64Attribute(attribute) || 
-           h5layout.isReal64Attribute(attribute) || 
-           h5layout.isStringAttribute(attribute)) ) {
-      std::cout << "INFO - extra feature - entry \"" + attribute + "\" has non-standard datatype." << std::endl;
+      if ( !(h5layout.isInt64Attribute(attribute) || 
+             h5layout.isReal64Attribute(attribute) || 
+             h5layout.isStringAttribute(attribute)) ) {
+        std::cout << "INFO - extra feature - entry \"" + attribute + "\" has non-standard datatype." << std::endl;
+      }
     }
   }
   
