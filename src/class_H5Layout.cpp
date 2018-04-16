@@ -12,7 +12,7 @@
 namespace myh5 {
 
 static herr_t fillGroupsAndDatasets(hid_t loc_id, const char* name, 
-                                    const H5O_info_t* info, void* ph5explorer);
+                                    const H5O_info_t* info, void* ph5layout);
 static herr_t getAttribueName(hid_t loc_id, const char* name, const H5A_info_t* ainfo, void* pNameStr);
 void splitAttributeToPathAndName(const std::string& attrName, 
                                  std::string& path, std::string& name);
@@ -47,11 +47,19 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::string& value
     splitAttributeToPathAndName(attrName, path, name);
     auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
     auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+    if ( attr < 0  ) {
+      throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
+    }
     auto type = H5Aget_type(attr);
-    if ( H5Tget_class(type) != H5T_STRING ) throw -1;
+    if ( H5Tget_class(type) != H5T_STRING ) {
+      throw std::runtime_error("ERROR - attribute "+attrName+" is not a STRING attribute");
+    }
     char str[1024] = {'\0'};
     auto ret  = H5Aread(attr, type, str);
-    ret =  H5Aclose(attr);
+    if ( ret < 0  ) {
+      throw std::runtime_error("ERROR - attribute "+attrName+" not read");
+    }
+    H5Aclose(attr);
     value = str;
     H5Oclose(parent);
   }
@@ -165,20 +173,21 @@ void H5Layout::reset_() {
 
 
 herr_t fillGroupsAndDatasets(hid_t loc_id, const char* name, 
-                             const H5O_info_t* info, void* ph5explorer) {
-  H5Layout* h5exp = static_cast<H5Layout*>(ph5explorer);
+                             const H5O_info_t* info, void* ph5layout) {
+  if ( loc_id < 0 ) return -1;
+  H5Layout* h5lay = static_cast<H5Layout*>(ph5layout);
   std::string objName{"/"};
   if (name[0] == '.')  {       /* Root group */
-    h5exp->groups.push_back(objName);
+    h5lay->groups.push_back(objName);
   }
   else {
     objName += std::string{name};
     switch (info->type) {
       case H5O_TYPE_GROUP:
-        h5exp->groups.push_back(objName);
+        h5lay->groups.push_back(objName);
         break;
       case H5O_TYPE_DATASET:
-        h5exp->datasets.push_back(objName);
+        h5lay->datasets.push_back(objName);
         break;
       case H5O_TYPE_NAMED_DATATYPE:
         break;
@@ -189,7 +198,8 @@ herr_t fillGroupsAndDatasets(hid_t loc_id, const char* name,
   return 0;
 }
 
-herr_t getAttribueName(hid_t loc_id, const char* name, const H5A_info_t* ainfo, void* pNames){
+herr_t getAttribueName(hid_t loc_id, const char* name, const H5A_info_t* ainfo, void* pNames) {
+  if ( loc_id < 0 || ainfo->data_size <= 0 ) return -1;
   std::vector<std::string>* names = static_cast<std::vector<std::string>*>(pNames);
   names->emplace_back(std::string{name});
   return 0;

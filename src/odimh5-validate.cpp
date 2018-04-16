@@ -29,25 +29,25 @@ int main(int argc, const char* argv[]) {
     ("noInfo", "don`t print INFO messages, only WARNINGs and ERRORs, default is False",  
         cxxopts::value<bool>()->default_value("false"));
   
-  auto result = options.parse(argc, argv);
-  if ( result.count("input") != 1 || result.count("help") > 0 ) {
+  auto cmdLineOptions = options.parse(argc, argv);
+  if ( cmdLineOptions.count("input") != 1 || cmdLineOptions.count("help") > 0 ) {
     std::cout << options.help({"Mandatory", "Optional"}) << std::endl;
     return -1;
   }
   
-  myodim::printInfo = !(result["noInfo"].as<bool>());
+  myodim::printInfo = !(cmdLineOptions["noInfo"].as<bool>());
   
   //load the hdf5 input file layout
-  std::string h5File{result["input"].as<std::string>()};
+  std::string h5File{cmdLineOptions["input"].as<std::string>()};
   myh5::H5Layout h5layout(h5File);
   
   std::string csvFile{""};
-  if ( result.count("csv") == 1 ) {
-    csvFile = result["csv"].as<std::string>();
+  if ( cmdLineOptions.count("csv") == 1 ) {
+    csvFile = cmdLineOptions["csv"].as<std::string>();
   }
   else {
-    if ( result.count("version") == 1 ) {
-      csvFile = myodim::getCsvFileNameFrom(h5layout, result["version"].as<std::string>());
+    if ( cmdLineOptions.count("version") == 1 ) {
+      csvFile = myodim::getCsvFileNameFrom(h5layout, cmdLineOptions["version"].as<std::string>());
     }
     else {
       csvFile = myodim::getCsvFileNameFrom(h5layout);
@@ -59,8 +59,8 @@ int main(int argc, const char* argv[]) {
   
   myodim::OdimStandard odimStandard(csvFile);
   
-  const bool checkOptional{result["checkOptional"].as<bool>()};
-  const bool checkExtras{result["checkExtras"].as<bool>()};
+  const bool checkOptional{cmdLineOptions["checkOptional"].as<bool>()};
+  const bool checkExtras{cmdLineOptions["checkExtras"].as<bool>()};
   
   //compare the layout to the standard
   bool isCompliant = myodim::compare(h5layout, odimStandard, checkOptional, checkExtras);

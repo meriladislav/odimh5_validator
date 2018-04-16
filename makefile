@@ -34,9 +34,11 @@ cleanmy:
 	       
 	       
 $(LIB_DIR)/libmyodimh5.a: $(OBJ_LIST)
+	@echo ""
 	@echo "checking h5cc ..."
 	h5cc -showconfig
 	@echo "h5cc OK"
+	@echo ""
 	$(AR) $(ARFLAGS) $@ $(OBJ_LIST) 
 
 
