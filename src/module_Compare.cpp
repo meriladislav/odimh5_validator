@@ -15,7 +15,7 @@ namespace myodim {
 bool printInfo{true};
 
 static const std::string csvDirPathEnv{"ODIMH5_VALIDATOR_CSV_DIR"};
-static bool checkCompliance(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard,
+static bool checkCompliance(myh5::H5Layout& h5layout, const OdimStandard& odimStandard,
                             const bool checkOptional);
 static bool checkExtraFeatures(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard);
 
@@ -77,7 +77,7 @@ std::string getCsvFileNameFrom(const myh5::H5Layout& h5layout, std::string versi
   return csvFileName;
 }
 
-bool compare(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard, 
+bool compare(myh5::H5Layout& h5layout, const OdimStandard& odimStandard, 
              const bool checkOptional, const bool checkExtras) {
   
   bool isCompliant = checkCompliance(h5layout, odimStandard, checkOptional);
@@ -87,7 +87,7 @@ bool compare(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard,
   return isCompliant;
 }
 
-bool checkCompliance(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard,
+bool checkCompliance(myh5::H5Layout& h5layout, const OdimStandard& odimStandard,
                      const bool checkOptional) {
   bool isCompliant{true};
   
@@ -101,35 +101,38 @@ bool checkCompliance(const myh5::H5Layout& h5layout, const OdimStandard& odimSta
     
     std::regex nodeRegex{entry.node};
     std::string failedValueMessage;
-    //std::cout << "dbg - checking " << entry.node << std::endl; 
+    
     switch (entry.category) {
       case OdimEntry::Group :
-        for (const auto& g : h5layout.groups) {
-          if ( std::regex_match(g, nodeRegex) ) {
+        for (auto& g : h5layout.groups) {
+          if ( std::regex_match(g.name(), nodeRegex) ) {
             entryExists = true;
-            break;
+            g.wasFound() = true;
+            //break;
           }
         }
         break;
       case OdimEntry::Dataset :
-        for (const auto& d : h5layout.datasets) {
-          if ( std::regex_match(d, nodeRegex) ) {
+        for (auto& d : h5layout.datasets) {
+          if ( std::regex_match(d.name(), nodeRegex) ) {
             entryExists = true;
-            break;
+            d.wasFound() = true;
+            //break;
           }
         }
         break;
       case OdimEntry::Attribute :
-        for (const auto& a : h5layout.attributes) {
-          if ( std::regex_match(a, nodeRegex) ) {
+        for (auto& a : h5layout.attributes) {
+          if ( std::regex_match(a.name(), nodeRegex) ) {
             entryExists = true;
+            a.wasFound() = true;
             switch (entry.type) {
               case OdimEntry::string :
-                hasProperDatatype = h5layout.isStringAttribute(a);
+                hasProperDatatype = h5layout.isStringAttribute(a.name());
                 if ( !entry.possibleValues.empty() ) {
                   std::regex valueRegex{entry.possibleValues};
                   std::string value;
-                  h5layout.getAttributeValue(a, value);
+                  h5layout.getAttributeValue(a.name(), value);
                   hasProperValue = std::regex_match(value, valueRegex);
                   if ( !hasProperValue ) {
                     failedValueMessage = "with value \"" + value + "\" doesn`t match the " + 
@@ -139,15 +142,15 @@ bool checkCompliance(const myh5::H5Layout& h5layout, const OdimStandard& odimSta
                 if ( !hasProperDatatype || !hasProperValue ) goto end_attribute_loop;
                 break;
               case OdimEntry::real :
-                hasProperDatatype = h5layout.isReal64Attribute(a);
+                hasProperDatatype = h5layout.isReal64Attribute(a.name());
                 break;
               case OdimEntry::integer :
-                hasProperDatatype = h5layout.isInt64Attribute(a);
+                hasProperDatatype = h5layout.isInt64Attribute(a.name());
                 break;
               default :
                 break;
             }
-            break;
+            //break;
           }
         }
         end_attribute_loop:
@@ -216,45 +219,48 @@ bool checkExtraFeatures(const myh5::H5Layout& h5layout, const OdimStandard& odim
   bool extrasPresent{false};
   
   for (const auto& group : h5layout.groups) {
+    if ( group.wasFound() ) continue;
     bool isExtra{true};
     for (const auto& entry : odimStandard.entries) {
       if ( entry.category != OdimEntry::Group ) continue;
       std::regex nodeRegex{entry.node};
-      if ( std::regex_match(group, nodeRegex) ) isExtra = false;
+      if ( std::regex_match(group.name(), nodeRegex) ) isExtra = false;
     }
     if ( isExtra ) {
-      if ( printInfo) std::cout << "INFO - extra feature - entry \"" + group + "\" is not mentioned in the standard." << std::endl;
+      if ( printInfo) std::cout << "INFO - extra feature - entry \"" + group.name() + "\" is not mentioned in the standard." << std::endl;
       extrasPresent = true;
     }
   }
   
   for (const auto& dataset : h5layout.datasets) {
+    if ( dataset.wasFound() ) continue;
     bool isExtra{true};
     for (const auto& entry : odimStandard.entries) {
       if ( entry.category != OdimEntry::Dataset ) continue;
       std::regex nodeRegex{entry.node};
-      if ( std::regex_match(dataset, nodeRegex) ) isExtra = false;
+      if ( std::regex_match(dataset.name(), nodeRegex) ) isExtra = false;
     }
     if ( isExtra ) {
-      if ( printInfo) std::cout << "INFO - extra feature - entry \"" + dataset + "\" is not mentioned in the standard." << std::endl;
+      if ( printInfo) std::cout << "INFO - extra feature - entry \"" + dataset.name() + "\" is not mentioned in the standard." << std::endl;
       extrasPresent = true;
     }
   }
   
   for (const auto& attribute : h5layout.attributes) {
+    if ( attribute.wasFound() ) continue;
     bool isExtra{true};
     for (const auto& entry : odimStandard.entries) {
       if ( entry.category != OdimEntry::Attribute ) continue;
       std::regex nodeRegex{entry.node};
-      if ( std::regex_match(attribute, nodeRegex) ) isExtra = false;
+      if ( std::regex_match(attribute.name(), nodeRegex) ) isExtra = false;
     }
     if ( isExtra ) {
-      if ( printInfo) std::cout << "INFO - extra feature - entry \"" + attribute + "\" is not mentioned in the standard." << std::endl;
+      if ( printInfo) std::cout << "INFO - extra feature - entry \"" + attribute.name() + "\" is not mentioned in the standard." << std::endl;
       extrasPresent = true;
-      if ( !(h5layout.isInt64Attribute(attribute) || 
-             h5layout.isReal64Attribute(attribute) || 
-             h5layout.isStringAttribute(attribute)) ) {
-        if ( printInfo) std::cout << "INFO - extra feature - entry \"" + attribute + "\" has non-standard datatype." << std::endl;
+      if ( !(h5layout.isInt64Attribute(attribute.name()) || 
+             h5layout.isReal64Attribute(attribute.name()) || 
+             h5layout.isStringAttribute(attribute.name())) ) {
+        if ( printInfo) std::cout << "INFO - extra feature - entry \"" + attribute.name() + "\" has non-standard datatype." << std::endl;
       }
     }
   }

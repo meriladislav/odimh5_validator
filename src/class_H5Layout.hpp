@@ -8,14 +8,25 @@
 
 #include <vector>
 #include <string>
+#include <utility>
 
 namespace myh5 {
 
+struct h5Entry: public std::pair<std::string, bool>  {   // need to use to save wether it was checked or not, it speeds up the checking of extra features a lot
+  public:
+    h5Entry() = default;
+    h5Entry(const std::string& str, const bool b): std::pair<std::string, bool>(str,b) {};
+    std::string& name() {return first;};
+    std::string name() const {return first;};
+    bool& wasFound() {return second;};
+    bool wasFound() const {return second;};
+};
+
 class H5Layout {
   public:
-    std::vector<std::string> groups;
-    std::vector<std::string> datasets;
-    std::vector<std::string> attributes;
+    std::vector<h5Entry> groups;
+    std::vector<h5Entry> datasets;
+    std::vector<h5Entry> attributes;
     
     H5Layout() = default;
     H5Layout(const std::string& h5FilePath);

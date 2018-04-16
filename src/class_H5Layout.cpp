@@ -33,7 +33,8 @@ void H5Layout::explore(const std::string& h5FilePath) {
 }
 
 bool H5Layout::hasAttribute(const std::string& attrName) const {
-  return std::find(attributes.begin(), attributes.end(), attrName) != attributes.end();
+  return std::find(attributes.begin(), attributes.end(), h5Entry(attrName,false)) != attributes.end() ||
+         std::find(attributes.begin(), attributes.end(), h5Entry(attrName,true)) != attributes.end();
 }
 
 std::string H5Layout::filePath() const {
@@ -135,7 +136,8 @@ void H5Layout::findGroupsAndDatasets_() {
 void H5Layout::findAttributes_() {
   herr_t status;
   std::vector<std::string> attrNames;
-  for (auto group : groups) {
+  for (auto gr : groups) {
+    auto& group = gr.name();
     attrNames.clear();
     hid_t g = H5Gopen2(h5FileID_, group.c_str(), H5P_DEFAULT);
     if ( g < 0 ) throw std::runtime_error{"ERROR - group "+group+" not opened"};
@@ -144,10 +146,11 @@ void H5Layout::findAttributes_() {
     status = H5Gclose(g);
     if ( status < 0 ) throw std::runtime_error{"ERROR - error while closing group "+group};
     if ( group.back() != '/' ) group += "/";
-    for (const auto& attrName : attrNames ) attributes.push_back(group+attrName);
+    for (const auto& attrName : attrNames ) attributes.push_back(h5Entry(group+attrName, false));
   }
   
-  for (auto dataset : datasets) {
+  for (auto dset : datasets) {
+    auto& dataset = dset.name();
     attrNames.clear();
     hid_t d = H5Dopen2(h5FileID_, dataset.c_str(), H5P_DEFAULT);
     if ( d < 0 ) throw std::runtime_error{"ERROR - dataset "+dataset+" not opened"};
@@ -156,7 +159,7 @@ void H5Layout::findAttributes_() {
     status = H5Dclose(d);
     if ( status < 0 ) throw std::runtime_error{"ERROR - error while closing dataset "+dataset};
     if ( dataset.back() != '/' ) dataset += "/";
-    for (const auto& attrName : attrNames ) attributes.push_back(dataset+attrName);
+    for (const auto& attrName : attrNames ) attributes.push_back(h5Entry(dataset+attrName, false));
   }
 }
 
@@ -178,16 +181,16 @@ herr_t fillGroupsAndDatasets(hid_t loc_id, const char* name,
   H5Layout* h5lay = static_cast<H5Layout*>(ph5layout);
   std::string objName{"/"};
   if (name[0] == '.')  {       /* Root group */
-    h5lay->groups.push_back(objName);
+    h5lay->groups.push_back(h5Entry(objName, false));
   }
   else {
     objName += std::string{name};
     switch (info->type) {
       case H5O_TYPE_GROUP:
-        h5lay->groups.push_back(objName);
+        h5lay->groups.push_back(h5Entry(objName, false));
         break;
       case H5O_TYPE_DATASET:
-        h5lay->datasets.push_back(objName);
+        h5lay->datasets.push_back(h5Entry(objName, false));
         break;
       case H5O_TYPE_NAMED_DATATYPE:
         break;
