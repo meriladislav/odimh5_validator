@@ -15,6 +15,12 @@ The odimh5-validator is a command-line tool to check whether a given file is com
 - the basic hdf5 library installed (it`s enough to have just the C library installed), together with the h5cc tool
 
 #### Build ####
+After cloning this repository, just go to the odimh5_validator directory and buil with make:
+
+$cd odimh5_validator
+$make
+
+
 
 * Summary of set up
 * Configuration
