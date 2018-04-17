@@ -10,11 +10,11 @@ The odimh5-validator is a command-line tool to check whether a given file is com
 
 ### How do I get set up? ###
 
-<b>Dependencies</b>
+#### Dependencies ####
 - C++11 capable compiler (e.g. g++ (GCC) 4.9, or higher)
 - the basic hdf5 library installed (it`s enough to have just the C library installed), together with the h5cc tool
 
-<b>Build</b>
+#### Build ####
 
 * Summary of set up
 * Configuration
