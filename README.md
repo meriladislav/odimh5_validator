@@ -51,9 +51,12 @@ $odimh5-validate [OPTION...]
 ```
 
 You can set the desired ODIM-H5 standard definition csv file in three ways:
+
 - without any additional arguments the program is searching for the value of /Conventions and /what/object attributes in the input file 
 and creates the nem of the csv file as `ODIMH5_VALIDATOR_CSV_DIR/ODIM_H5_VX_Y_OBJ.csv`, where the X and Y is from the /Conventions attribute and the OBJ is from the /what/object attribute.
+
 - using the -c or --csv option, You can set any path to a file intended to use as the ODIM-H5 standard definition file
+
 - using the -v option, You can set the desired stdandard version number (e.g. 2.2), 
 and the program is creating the name of the csv file in the similar manner as in the first option, but it uses the supplied numbers for X and Y
 
