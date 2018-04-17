@@ -21,9 +21,12 @@ After cloning this repository, just go to the odimh5_validator directory and bui
     $make
 
 This will compile all the necessary sources and create the odimh5-validate binary in the odimh5_validator/bin subdirectory.
+
 The last step is to setup the `ODIMH5_VALIDATOR_CSV_DIR` environment variable, 
 which is the path to the directory with the csv tables describing the ODIM-H5 standard. 
-The default csv tables are in the odimh5_validator/data subdirectory, so You can set the `ODIMH5_VALIDATOR_CSV_DIR` variable as the full path to this directoty:
+The default csv tables are in the odimh5_validator/data subdirectory, 
+so You can set the `ODIMH5_VALIDATOR_CSV_DIR` variable as the full path to this directoty 
+(the best solution is to add this line to Your ~/.profile or ~/.bashrc file):
 
     $export ODIMH5_VALIDATOR_CSV_DIR=/your/path/there/odimh5_validator/data
 
