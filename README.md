@@ -14,26 +14,22 @@ The odimh5-validator is a command-line tool to check whether a given file is com
 - C++11 capable compiler (e.g. g++ (GCC) 4.9, or higher)
 - the basic hdf5 library installed (it`s enough to have just the C library installed), together with the h5cc tool
 
-#### Build ####
+#### Build & Setup ####
 After cloning this repository, just go to the odimh5_validator directory and buil with make:
 
     $cd odimh5_validator 
     $make
 
+This will compile all the necessary sources and create the odimh5-validate binary in the odimh5_validator/bin subdirectory.
+The last step is to setup the `ODIMH5_VALIDATOR_CSV_DIR` environment variable, 
+which is the path to the directory with the csv tables describing the ODIM-H5 standard. 
+The default csv tables are in the odimh5_validator/data subdirectory, so You can set the `ODIMH5_VALIDATOR_CSV_DIR` variable as the full path to this directoty:
+
+    $export ODIMH5_VALIDATOR_CSV_DIR=/your/path/there/odimh5_validator/data
+
+#### Usage ####
 
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
 
 ### Who do I talk to? ###
 
