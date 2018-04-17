@@ -17,8 +17,8 @@ The odimh5-validator is a command-line tool to check whether a given file is com
 #### Build ####
 After cloning this repository, just go to the odimh5_validator directory and buil with make:
 
-$cd odimh5_validator
-$make
+    $cd odimh5_validator 
+    $make
 
 
 
