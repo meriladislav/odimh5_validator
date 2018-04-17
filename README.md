@@ -64,9 +64,11 @@ The default behaviour is to check only the presence and layout of the mandatory 
 You can enable the controlling of the optional items wiht the `-checkOptional` option 
 and enable the chcecking of the presence of some extar items not mentioned in the standard with the `--checkExtras` option.
 
-To restrict the output only to WARNING messages You can use the `--noInfo` option.
+To restrict the output only to WARNING and ERROR messages You can use the `--noInfo` option.
 
-### Who do I talk to? ###
+#### Examples ####
+You can find some example ODIM-H5 volumes in the odimh5_validator/data/examples subdirectory.
 
-* Repo owner or admin.
-* Other community or team contact
+
+### Contact ###
+I case of any wiches, ideas, suggestions, bugs or contribution please contact me at ladislav.meri@shmu.sk.
