@@ -5,10 +5,11 @@
 ###############################################################################
 
 ##############################################################
-#please edit the HOME_DIR, CC and CXX variables according your system
+#please edit the HOME_DIR, CXX and H5CC variables according your system
 ##############################################################
 HOME_DIR = $(shell pwd)
 CXX = g++ 
+H5CC = h5cc
 
 ##############################################################
 #it is possible to edit the compiler flags but not recommended
@@ -28,13 +29,22 @@ INC_DIR = $(HOME_DIR)/include
 LIB_DIR = $(HOME_DIR)/lib
 BIN_DIR = $(HOME_DIR)/bin
 
-INC_FLAGS = -I$(INC_DIR) 
-LIB_FLAGS = -L$(LIB_DIR) \
+HDF_DIR = $(shell $(H5CC) -showconfig | \
+            grep "Installation point:" | \
+            awk -F': ' '{print $$2}' )
+INC_FLAGS = -I$(HDF_DIR)/include -I$(INC_DIR) 
+
+ifeq ($(HDF_DIR),'')
+  LIB_FLAGS = 
+else
+  LIB_FLAGS = -L$(HDF_DIR)/lib
+endif
+LIB_FLAGS += -L$(LIB_DIR) \
             -Wl,--start-group -lmyodimh5 \
             -lhdf5 -lpthread
-LIB_FLAGS += $(shell h5cc -showconfig | \
+LIB_FLAGS += $(shell $(H5CC) -showconfig | \
                      grep "Extra libraries:" | \
-                     awk -F':' '{print $$2}' ) 
+                     awk -F': ' '{print $$2}' ) 
 LIB_FLAGS += -Wl,--end-group
             
  
