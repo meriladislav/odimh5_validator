@@ -6,7 +6,6 @@
 #include "class_H5Layout.hpp"
 
 #include <stdexcept>
-#include <hdf5.h>
 #include <algorithm>
 
 namespace myh5 {

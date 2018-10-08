@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 #include <utility>
+#include <hdf5.h>
 
 namespace myh5 {
 
@@ -43,7 +44,7 @@ class H5Layout {
     
   private:
     std::string h5FilePath_{""};
-    int h5FileID_{-1};
+    hid_t h5FileID_{-1};
     void checkAndOpenFile_(const std::string& h5FilePath);
     void findGroupsAndDatasets_();
     void findAttributes_();
