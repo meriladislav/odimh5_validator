@@ -4,6 +4,8 @@
 .ptp-sync
 .settings
 */.ptp-sync-folder
+*/*/.ptp-sync-folder
+*/*/*/.ptp-sync-folder
 
 #ignore all binaries, but track directories
 obj/*
