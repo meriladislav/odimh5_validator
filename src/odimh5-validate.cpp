@@ -39,7 +39,7 @@ int main(int argc, const char* argv[]) {
   
   //load the hdf5 input file layout
   std::string h5File{cmdLineOptions["input"].as<std::string>()};
-  myh5::H5Layout h5layout(h5File);
+  myodim::H5Layout h5layout(h5File);
   
   std::string csvFile{""};
   if ( cmdLineOptions.count("csv") == 1 ) {

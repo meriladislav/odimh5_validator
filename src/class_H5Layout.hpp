@@ -1,17 +1,17 @@
-// class_H5Explorer.hpp
-// class to explore the hdf5 file content
+// class_H5Layout.hpp
+// class to map the hdf5 file content
 // Ladislav Meri, SHMU
-// v_0.0, 04.2018
 
-#ifndef CLASS_H5EXPLORER_HPP
-#define CLASS_H5EXPLORER_HPP
+#ifndef CLASS_H5LAYOUT_HPP
+#define CLASS_H5LAYOUT_HPP
 
 #include <vector>
 #include <string>
 #include <utility>
 #include <hdf5.h>
+#include <stdint.h>
 
-namespace myh5 {
+namespace myodim {
 
 struct h5Entry: public std::pair<std::string, bool>  {   // need to use to save wether it was checked or not, it speeds up the checking of extra features a lot
   public:
@@ -35,12 +35,17 @@ class H5Layout {
     
     void explore(const std::string& h5FilePath);
     bool hasAttribute(const std::string& attrName) const;
+    bool hasGroup(const std::string& groupName) const;
     std::string filePath() const;
+    std::vector<std::string> getAttributeNames(const std::string& objPath) const;
     void getAttributeValue(const std::string& attrName, std::string& value) const;
+    void getAttributeValue(const std::string& attrName, double& value) const;
+    void getAttributeValue(const std::string& attrName, int64_t& value) const;
     bool isStringAttribute(const std::string& attrName) const;
     bool isReal64Attribute(const std::string& attrName) const;
     bool isInt64Attribute(const std::string& attrName) const;
     bool isBooleanAttribute(const std::string& attrName) const;
+    bool isUcharDataset(const std::string& dsetName) const;
     
   private:
     std::string h5FilePath_{""};
@@ -54,4 +59,4 @@ class H5Layout {
 
 } // end namespace myh5
 
-#endif // CLASS_H5EXPLORER_HPP
+#endif // CLASS_H5LAYOUT_HPP

@@ -15,11 +15,13 @@ namespace myodim {
 bool printInfo{true};
 
 static const std::string csvDirPathEnv{"ODIMH5_VALIDATOR_CSV_DIR"};
-static bool checkCompliance(myh5::H5Layout& h5layout, const OdimStandard& odimStandard,
+static bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
                             const bool checkOptional);
-static bool checkExtraFeatures(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard);
+static bool checkExtraFeatures(const myodim::H5Layout& h5layout, const OdimStandard& odimStandard);
+static bool ucharDatasetHasImageAttributes(const H5Layout& h5layout,
+                                           const std::string dsetPath);
 
-std::string getCsvFileNameFrom(const myh5::H5Layout& h5layout) {
+std::string getCsvFileNameFrom(const myodim::H5Layout& h5layout) {
   std::string csvFileName;
   const char* csvDir = std::getenv(csvDirPathEnv.c_str());
   if ( csvDir ) {
@@ -51,7 +53,7 @@ std::string getCsvFileNameFrom(const myh5::H5Layout& h5layout) {
   return csvFileName;
 }
 
-std::string getCsvFileNameFrom(const myh5::H5Layout& h5layout, std::string version) { 
+std::string getCsvFileNameFrom(const myodim::H5Layout& h5layout, std::string version) { 
   std::string csvFileName;
   const char* csvDir = std::getenv(csvDirPathEnv.c_str());
   if ( csvDir ) {
@@ -77,7 +79,7 @@ std::string getCsvFileNameFrom(const myh5::H5Layout& h5layout, std::string versi
   return csvFileName;
 }
 
-bool compare(myh5::H5Layout& h5layout, const OdimStandard& odimStandard, 
+bool compare(myodim::H5Layout& h5layout, const OdimStandard& odimStandard, 
              const bool checkOptional, const bool checkExtras) {
   
   bool isCompliant = checkCompliance(h5layout, odimStandard, checkOptional);
@@ -87,7 +89,7 @@ bool compare(myh5::H5Layout& h5layout, const OdimStandard& odimStandard,
   return isCompliant;
 }
 
-bool checkCompliance(myh5::H5Layout& h5layout, const OdimStandard& odimStandard,
+bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
                      const bool checkOptional) {
   bool isCompliant{true};
   
@@ -98,6 +100,7 @@ bool checkCompliance(myh5::H5Layout& h5layout, const OdimStandard& odimStandard,
     bool entryExists{false};
     bool hasProperDatatype{true};
     bool hasProperValue{true};
+    bool ucharDatasetHasProperAttributes{true};
     
     std::regex nodeRegex{entry.node};
     std::string failedValueMessage;
@@ -108,7 +111,6 @@ bool checkCompliance(myh5::H5Layout& h5layout, const OdimStandard& odimStandard,
           if ( std::regex_match(g.name(), nodeRegex) ) {
             entryExists = true;
             g.wasFound() = true;
-            //break;
           }
         }
         break;
@@ -117,7 +119,9 @@ bool checkCompliance(myh5::H5Layout& h5layout, const OdimStandard& odimStandard,
           if ( std::regex_match(d.name(), nodeRegex) ) {
             entryExists = true;
             d.wasFound() = true;
-            //break;
+            if ( h5layout.isUcharDataset(d.name()) ) {
+              ucharDatasetHasProperAttributes = ucharDatasetHasImageAttributes(h5layout, d.name());
+            }
           }
         }
         break;
@@ -150,7 +154,6 @@ bool checkCompliance(myh5::H5Layout& h5layout, const OdimStandard& odimStandard,
               default :
                 break;
             }
-            //break;
           }
         }
         end_attribute_loop:
@@ -210,12 +213,19 @@ bool checkCompliance(myh5::H5Layout& h5layout, const OdimStandard& odimStandard,
       std::cout << message << std::endl;
     }
     
+    if ( !ucharDatasetHasProperAttributes ) {
+      isCompliant = false;
+      std::string message = "WARNING -  dataset \"" + entry.node + "\" " +
+    		                " is 8-bit unsigned int - it should have attributes CLASS=\"IMAGE\" and IMAGE_VERSION=\"1.2\"";
+      std::cout << message << std::endl;
+    }
+
   }
   
   return isCompliant;
 }
 
-bool checkExtraFeatures(const myh5::H5Layout& h5layout, const OdimStandard& odimStandard) {
+bool checkExtraFeatures(const myodim::H5Layout& h5layout, const OdimStandard& odimStandard) {
   bool extrasPresent{false};
   
   for (const auto& group : h5layout.groups) {
@@ -268,5 +278,16 @@ bool checkExtraFeatures(const myh5::H5Layout& h5layout, const OdimStandard& odim
   return extrasPresent;
 }
 
+bool ucharDatasetHasImageAttributes(const H5Layout& h5layout,
+		                            const std::string dsetPath) {
+  if ( !h5layout.hasAttribute(dsetPath+"/CLASS") ) return false;
+  if ( !h5layout.hasAttribute(dsetPath+"/IMAGE_VERSION") ) return false;
+  std::string attrValue;
+  h5layout.getAttributeValue(dsetPath+"/CLASS", attrValue);
+  if ( attrValue != "IMAGE" ) return false;
+  h5layout.getAttributeValue(dsetPath+"/IMAGE_VERSION", attrValue);
+  if ( attrValue != "1.2" ) return false;
+  return true;
+}
 
 }

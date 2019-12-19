@@ -1,14 +1,13 @@
-// class_H5Explorer.cpp
-// class to explore the hdf5 file content
+// class_H5Layout.cpp
+// class to map the hdf5 file content
 // Ladislav Meri, SHMU
-// v_0.0, 04.2018
 
 #include "class_H5Layout.hpp"
 
 #include <stdexcept>
 #include <algorithm>
 
-namespace myh5 {
+namespace myodim {
 
 static herr_t fillGroupsAndDatasets(hid_t loc_id, const char* name, 
                                     const H5O_info_t* info, void* ph5layout);
@@ -17,6 +16,7 @@ void splitAttributeToPathAndName(const std::string& attrName,
                                  std::string& path, std::string& name);
 
 H5Layout::H5Layout(const std::string& h5FilePath) {
+  H5Eset_auto( H5E_DEFAULT, NULL, NULL ); //Turn off error handling permanently 
   explore(h5FilePath);
 }
 
@@ -36,8 +36,32 @@ bool H5Layout::hasAttribute(const std::string& attrName) const {
          std::find(attributes.begin(), attributes.end(), h5Entry(attrName,true)) != attributes.end();
 }
 
+bool H5Layout::hasGroup(const std::string& groupName) const {
+  return std::find(groups.begin(), groups.end(), h5Entry(groupName,false)) != groups.end() ||
+         std::find(groups.begin(), groups.end(), h5Entry(groupName,true)) != groups.end();
+}
+
 std::string H5Layout::filePath() const {
   return h5FilePath_;
+}
+
+std::vector<std::string> H5Layout::getAttributeNames(const std::string& objPath) const {
+  bool isGroup = true;
+  hid_t object = H5Gopen2(h5FileID_, objPath.c_str(), H5P_DEFAULT);
+  if ( object < 0 ) {
+    object = H5Dopen2(h5FileID_, objPath.c_str(), H5P_DEFAULT);
+    if ( object < 0 ) {
+      throw std::runtime_error{"ERROR - object "+objPath+" not opened"};
+    }
+    isGroup = false;
+  }
+  std::vector<std::string> attrNames;
+  auto status = H5Aiterate2(object, H5_INDEX_NAME, H5_ITER_INC, NULL, getAttribueName, &attrNames);
+  if ( status < 0 ) throw std::runtime_error{"ERROR - error while iterating attributes in object "+objPath};
+  if ( isGroup ) status = H5Gclose(object);
+  else status = H5Dclose(object);
+  if ( status < 0 ) throw std::runtime_error{"ERROR - error while closing object "+objPath};
+  return attrNames;
 }
 
 void H5Layout::getAttributeValue(const std::string& attrName, std::string& value) const {
@@ -63,6 +87,51 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::string& value
     value = str;
     H5Oclose(parent);
   }
+  else {
+    throw std::runtime_error("ERROR - attribute "+attrName+" doesn`t exists");
+  }
+}
+
+void H5Layout::getAttributeValue(const std::string& attrName, double& value) const {
+  if ( hasAttribute(attrName) ) {
+    std::string path, name;
+    splitAttributeToPathAndName(attrName, path, name);
+    auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+    auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+    if ( attr < 0  ) {
+      throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
+    }
+    auto ret  = H5Aread(attr, H5T_NATIVE_DOUBLE, &value);
+    if ( ret < 0  ) {
+      throw std::runtime_error("ERROR - attribute "+attrName+" not read");
+    }
+    H5Aclose(attr);
+    H5Oclose(parent);
+  }
+  else {
+    throw std::runtime_error("ERROR - attribute "+attrName+" doesn`t exists");
+  }
+}
+
+void H5Layout::getAttributeValue(const std::string& attrName, int64_t& value) const {
+  if ( hasAttribute(attrName) ) {
+    std::string path, name;
+    splitAttributeToPathAndName(attrName, path, name);
+    auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+    auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+    if ( attr < 0  ) {
+      throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
+    }
+    auto ret  = H5Aread(attr, H5T_NATIVE_INT64, &value);
+    if ( ret < 0  ) {
+      throw std::runtime_error("ERROR - attribute "+attrName+" not read");
+    }
+    H5Aclose(attr);
+    H5Oclose(parent);
+  }
+  else {
+    throw std::runtime_error("ERROR - attribute "+attrName+" doesn`t exists");
+  }
 }
 
 bool H5Layout::isStringAttribute(const std::string& attrName) const {
@@ -72,6 +141,7 @@ bool H5Layout::isStringAttribute(const std::string& attrName) const {
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
   auto type = H5Aget_type(attr);
   bool isString{H5Tget_class(type) == H5T_STRING};
+  H5Tclose(type);
   H5Aclose(attr);
   H5Oclose(parent);
   return isString;
@@ -84,6 +154,7 @@ bool H5Layout::isReal64Attribute(const std::string& attrName) const {
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
   auto type = H5Aget_type(attr);
   bool isReal64{H5Tget_class(type) == H5T_FLOAT && H5Tget_precision(type) == 64};
+  H5Tclose(type);
   H5Aclose(attr);
   H5Oclose(parent);
   return isReal64;
@@ -96,6 +167,7 @@ bool H5Layout::isInt64Attribute(const std::string& attrName) const {
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
   auto type = H5Aget_type(attr);
   bool isInt64{H5Tget_class(type) == H5T_INTEGER && H5Tget_precision(type) == 64};
+  H5Tclose(type);
   H5Aclose(attr);
   H5Oclose(parent);
   return isInt64;
@@ -108,9 +180,22 @@ bool H5Layout::isBooleanAttribute(const std::string& attrName) const {
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
   auto type = H5Aget_type(attr);
   bool isBool{H5Tget_class(type) == H5T_NATIVE_HBOOL};
+  H5Tclose(type);
   H5Aclose(attr);
   H5Oclose(parent);
   return isBool;
+}
+
+bool H5Layout::isUcharDataset(const std::string& dsetName) const {
+  bool isUchar = false;
+  auto dset = H5Dopen(h5FileID_, dsetName.c_str(), H5P_DEFAULT);
+  auto type = H5Dget_type(dset);
+  isUchar = H5Tget_class(type) == H5T_INTEGER &&
+		    H5Tget_precision(type) == 8 &&
+			H5Tget_sign(type) == H5T_SGN_NONE;
+  H5Tclose(type);
+  H5Dclose(dset);
+  return isUchar;
 }
 
 void H5Layout::checkAndOpenFile_(const std::string& h5FilePath) {
@@ -133,17 +218,11 @@ void H5Layout::findGroupsAndDatasets_() {
 }
 
 void H5Layout::findAttributes_() {
-  herr_t status;
   std::vector<std::string> attrNames;
   for (auto gr : groups) {
     auto& group = gr.name();
     attrNames.clear();
-    hid_t g = H5Gopen2(h5FileID_, group.c_str(), H5P_DEFAULT);
-    if ( g < 0 ) throw std::runtime_error{"ERROR - group "+group+" not opened"};
-    status = H5Aiterate2(g, H5_INDEX_NAME, H5_ITER_INC, NULL, getAttribueName, &attrNames);
-    if ( status < 0 ) throw std::runtime_error{"ERROR - error while iterating attributes in group "+group};
-    status = H5Gclose(g);
-    if ( status < 0 ) throw std::runtime_error{"ERROR - error while closing group "+group};
+    attrNames = getAttributeNames(group);
     if ( group.back() != '/' ) group += "/";
     for (const auto& attrName : attrNames ) attributes.push_back(h5Entry(group+attrName, false));
   }
@@ -151,12 +230,7 @@ void H5Layout::findAttributes_() {
   for (auto dset : datasets) {
     auto& dataset = dset.name();
     attrNames.clear();
-    hid_t d = H5Dopen2(h5FileID_, dataset.c_str(), H5P_DEFAULT);
-    if ( d < 0 ) throw std::runtime_error{"ERROR - dataset "+dataset+" not opened"};
-    status = H5Aiterate2(d, H5_INDEX_NAME, H5_ITER_INC, NULL, getAttribueName, &attrNames);
-    if ( status < 0 ) throw std::runtime_error{"ERROR - error while iterating attributes in dataset "+dataset};
-    status = H5Dclose(d);
-    if ( status < 0 ) throw std::runtime_error{"ERROR - error while closing dataset "+dataset};
+    attrNames = getAttributeNames(dataset);
     if ( dataset.back() != '/' ) dataset += "/";
     for (const auto& attrName : attrNames ) attributes.push_back(h5Entry(dataset+attrName, false));
   }
