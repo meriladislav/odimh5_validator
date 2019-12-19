@@ -23,27 +23,21 @@ all : $(LIB_LIST) $(BIN_LIST)
 	@echo "###############################################################"
 	@echo ""
 	
-cleanall: 
+clean: 
 	rm -rf $(BIN_DIR)/* \
 	       $(LIB_DIR)/* \
 	       $(OBJ_DIR)/* 
 	       
-cleanmy:
-	rm -rf $(BIN_DIR)/odimh5-* \
-	       $(LIB_DIR)/libmy*.a \
-	       $(OBJ_DIR)/*
-	       
-	       
 $(LIB_DIR)/libmyodimh5.a: $(OBJ_LIST)
 	@echo ""
-	@echo "checking h5cc ..."
-	$(H5CC) -showconfig
-	@echo "h5cc OK"
-	@echo ""
+	@echo "Creating lib ..."
 	$(AR) $(ARFLAGS) $@ $(OBJ_LIST) 
+	@echo "Creating lib ... OK"
+	@echo ""
 
 
 $(BIN_DIR)/odimh5-validate: $(SRC_DIR)/odimh5-validate.cpp $(LIB_LIST)
+	@echo ""
 	@echo "Compiling binaries ..."
 	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -o $@ $(SRC_DIR)/odimh5-validate.cpp $(LIB_FLAGS) 
 	@echo "Compiling binaries ... OK"
