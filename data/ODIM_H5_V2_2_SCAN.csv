@@ -126,8 +126,6 @@ Node;Category;Type;IsMandatory;PossibleValues
 /dataset1/data[1-9][0-9]*/what/nodata;Attribute;real;TRUE;
 /dataset1/data[1-9][0-9]*/what/undetect;Attribute;real;TRUE;
 /dataset1/data[1-9][0-9]*/data;Dataset;;TRUE;
-/dataset1/data[1-9][0-9]*/data/CLASS;Attribute;string;TRUE;IMAGE
-/dataset1/data[1-9][0-9]*/data/IMAGE_VERSION;Attribute;string;TRUE;1.2
 .*/quality[1-9][0-9]*;Group;;FALSE;
 .*/quality[1-9][0-9]*/what;Group;;FALSE;
 .*/quality[1-9][0-9]*/what/quantity;Attribute;string;FALSE;
@@ -136,5 +134,3 @@ Node;Category;Type;IsMandatory;PossibleValues
 .*/quality[1-9][0-9]*/what/nodata;Attribute;real;FALSE;
 .*/quality[1-9][0-9]*/what/undetect;Attribute;real;FALSE;
 .*/quality[1-9][0-9]*/data;Dataset;;FALSE;
-.*/quality[1-9][0-9]*/data/CLASS;Attribute;string;FALSE;IMAGE
-.*/quality[1-9][0-9]*/data/IMAGE_VERSION;Attribute;string;FALSE;1.2
