@@ -14,6 +14,7 @@
 namespace myodim {
 
 bool printInfo{true};
+static const double MAX_DOUBLE_DIFF = 0.001;
 
 static const std::string csvDirPathEnv{"ODIMH5_VALIDATOR_CSV_DIR"};
 static bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
@@ -157,7 +158,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   double value=0.0;
                   h5layout.getAttributeValue(a.name(), value);
                   const double assumedValue = std::stod(entry.possibleValues);
-                  hasProperValue = std::fabs(value - assumedValue) < 0.001;
+                  hasProperValue = std::fabs(value - assumedValue) < MAX_DOUBLE_DIFF;
                   if ( !hasProperValue ) {
                     failedValueMessage = "with value \"" + std::to_string(value) +
                                          "\" doesn`t match the \"" +
