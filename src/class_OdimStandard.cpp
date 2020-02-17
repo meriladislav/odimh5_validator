@@ -30,4 +30,33 @@ void OdimStandard::readFromCsv(const std::string& csvFilePath) {
   }
 }
 
+void OdimStandard::updateWithCsv(const std::string& csvFilePath) {
+  io::CSVReader<CSV_COL_NUM, io::trim_chars<CSV_SEPARATOR>,
+                io::no_quote_escape<CSV_SEPARATOR>> csv(csvFilePath);
+
+  csv.read_header(io::ignore_no_column,
+                  "Node", "Category", "Type", "IsMandatory", "PossibleValues");
+
+  std::string node, category, type, isMandatory, possibleValues;
+  while(csv.read_row(node, category, type, isMandatory, possibleValues)){
+    const OdimEntry e(node, category, type, isMandatory, possibleValues);
+    OdimEntry* myEntry = entry(e);
+    if ( myEntry ) {
+      myEntry->possibleValues = e.possibleValues;
+    }
+    else {
+      entries.push_back(e);
+    }
+  }
+}
+
+OdimEntry* OdimStandard::entry(const OdimEntry& e) {
+  for (auto& en : entries) {
+    if ( en.category == e.category &&
+         en.type == e.type &&
+         en.node == e.node ) return &en;
+  }
+  return nullptr;
+}
+
 } // end namespace myodim

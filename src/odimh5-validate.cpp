@@ -22,6 +22,7 @@ int main(int argc, const char* argv[]) {
     ("h,help", "print this help message")
     ("c,csv", "standard-definition .csv table, e.g. your_path/your_table.csv", cxxopts::value<std::string>())
     ("v,version", "standard version to use, e.g. 2.1", cxxopts::value<std::string>())
+    ("t,valueTable", "optional .csv table with the assumed attribute values - the format is as in the standard-definition .csv table", cxxopts::value<std::string>())
     ("checkOptional", "check the presence of the optional ODIM entries, default is False",  
         cxxopts::value<bool>()->default_value("false"))
     ("checkExtras", "check the presence of extra entries, not mentioned in the standard, default is False",  
@@ -59,6 +60,17 @@ int main(int argc, const char* argv[]) {
   
   myodim::OdimStandard odimStandard(csvFile);
   
+  std::string valueFile{""};
+  if ( cmdLineOptions.count("valueTable") == 1 ) {
+    valueFile = cmdLineOptions["valueTable"].as<std::string>();
+    if ( myodim::printInfo ) {
+      std::cout << "INFO - using assumed values from  " << valueFile << " value definition table" << std::endl;
+    }
+    odimStandard.updateWithCsv(valueFile);
+  }
+
+
+
   const bool checkOptional{cmdLineOptions["checkOptional"].as<bool>()};
   const bool checkExtras{cmdLineOptions["checkExtras"].as<bool>()};
   

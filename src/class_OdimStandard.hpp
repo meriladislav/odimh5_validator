@@ -18,6 +18,8 @@ class OdimStandard {
     OdimStandard() = default;
     OdimStandard(const std::string& csvFilePath);
     void readFromCsv(const std::string& csvFilePath);
+    void updateWithCsv(const std::string& csvFilePath);
+    OdimEntry* entry(const OdimEntry& e);
     
   private:
     
