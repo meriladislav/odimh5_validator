@@ -15,11 +15,11 @@ class OdimEntry {
     enum Category { Group, Attribute, Dataset };
     enum Type { string, real, integer, boolean, undefined };
     
-    std::string node;
-    Category    category;
-    Type        type;
+    std::string node{""};
+    Category    category{Group};
+    Type        type{string};
     bool        isMandatory{false};
-    std::string possibleValues;
+    std::string possibleValues{""};
     
     OdimEntry() = default;
     OdimEntry(const std::string nodeStr, const std::string categoryStr, const std::string typeStr, 
