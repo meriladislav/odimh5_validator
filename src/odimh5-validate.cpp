@@ -78,7 +78,7 @@ int main(int argc, const char* argv[]) {
   bool isCompliant = myodim::compare(h5layout, odimStandard, checkOptional, checkExtras);
   if ( isCompliant ) {
     if ( myodim::printInfo ) {
-      std::string message = "INFO - file " + h5File + " is a standard-compliant ODIM-H5 file";
+      std::string message = "INFO - OK - the file " + h5File + " is a standard-compliant ODIM-H5 file";
       if ( !checkOptional ) {
         if ( !checkExtras ) {
           message += ", but the optional and extra entries were not checked.";

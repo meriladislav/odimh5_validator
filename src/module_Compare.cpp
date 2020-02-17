@@ -5,7 +5,7 @@
 
 #include <cstdlib>  // getenv
 #include <stdexcept>
-#include <algorithm> // replace
+#include <algorithm> // replace, count
 #include <regex>
 #include <iostream>
 #include <cmath> //fabs
@@ -21,6 +21,9 @@ static bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odim
 static bool checkExtraFeatures(const myodim::H5Layout& h5layout, const OdimStandard& odimStandard);
 static bool ucharDatasetHasImageAttributes(const H5Layout& h5layout,
                                            const std::string dsetPath);
+static bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard& odimStandard);
+static void splitNodePath(const std::string& node, std::string& parent, std::string& child);
+static void addIfUnique(std::vector<std::string>& list, const std::string& str);
 
 std::string getCsvFileNameFrom(const myodim::H5Layout& h5layout) {
   std::string csvFileName;
@@ -83,8 +86,10 @@ std::string getCsvFileNameFrom(const myodim::H5Layout& h5layout, std::string ver
 bool compare(myodim::H5Layout& h5layout, const OdimStandard& odimStandard, 
              const bool checkOptional, const bool checkExtras) {
   
-  bool isCompliant = checkCompliance(h5layout, odimStandard, checkOptional);
-  
+  bool isCompliant = checkCompliance(h5layout, odimStandard, checkOptional) ;
+  bool mandatoryExistsInAll = checkMandatoryExitenceInAll(h5layout, odimStandard);
+  isCompliant = isCompliant && mandatoryExistsInAll;
+
   if ( checkExtras ) checkExtraFeatures(h5layout, odimStandard);
   
   return isCompliant;
@@ -188,11 +193,13 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
     if ( !entryExists ) {
       if ( entry.isMandatory) {
         isCompliant = false;
-        std::cout << "WARNING - mandatory entry \"" << entry.node << "\" doesn`t exist in the file." << std::endl;
+        std::cout << "WARNING - MISSING ENTRY - mandatory entry \"" << entry.node <<
+                     "\" doesn`t exist in the file." << std::endl;
       }
       else {
         if ( printInfo ) 
-          std::cout << "INFO - optional entry \"" << entry.node << "\" doesn`t exist in the file." << std::endl;
+          std::cout << "INFO - optional entry \"" << entry.node <<
+                       "\" doesn`t exist in the file." << std::endl;
       }
     }
     
@@ -311,6 +318,114 @@ bool ucharDatasetHasImageAttributes(const H5Layout& h5layout,
   h5layout.getAttributeValue(dsetPath+"/IMAGE_VERSION", attrValue);
   if ( attrValue != "1.2" ) return false;
   return true;
+}
+
+bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard& odimStandard) {
+  bool isCompliant = true;
+
+  for (const auto& entry : odimStandard.entries) {
+    if ( !entry.isMandatory ) continue;
+
+    //if node contains some wildcard, check ALL h5layout elements which fulfill the given regex
+    if ( entry.node.find('*') != std::string::npos ||
+         entry.node.find('[') != std::string::npos ||
+         entry.node.find('?') != std::string::npos ) {
+
+      std::string parent{""}, child{""};
+      splitNodePath(entry.node, parent, child);
+      if ( parent.empty() ) continue;
+
+      std::regex nodeRegex{entry.node};
+      std::string parentEnxtended = parent + "/[0-z]*";
+      std::regex parentRegex{parentEnxtended};
+
+      std::vector<std::string> parents;
+      std::vector<std::string> entries;
+      switch (entry.category) {
+        case OdimEntry::Group :
+          for (auto& g : h5layout.groups) {
+            if ( std::regex_match(g.name(), parentRegex)  ) {
+              std::string p, c;
+              splitNodePath(g.name(), p, c);
+              addIfUnique(parents, p);
+            }
+            if ( std::regex_match(g.name(), nodeRegex)  ) {
+              std::string p, c;
+              splitNodePath(g.name(), p, c);
+              addIfUnique(entries, p);
+            }
+          }
+          break;
+        case OdimEntry::Dataset :
+          for (auto& d : h5layout.datasets) {
+            if ( std::regex_match(d.name(), parentRegex) ) {
+              std::string p, c;
+              splitNodePath(d.name(), p, c);
+              addIfUnique(parents, p);
+            }
+            if ( std::regex_match(d.name(), nodeRegex)  ) {
+              std::string p, c;
+              splitNodePath(d.name(), p, c);
+              addIfUnique(entries, p);
+            }
+          }
+          break;
+        case OdimEntry::Attribute :
+          for (auto& a : h5layout.attributes) {
+            if ( std::regex_match(a.name(), parentRegex) ) {
+              std::string p, c;
+              splitNodePath(a.name(), p, c);
+              addIfUnique(parents, p);
+            }
+            if ( std::regex_match(a.name(), nodeRegex)  ) {
+              std::string p, c;
+              splitNodePath(a.name(), p, c);
+              addIfUnique(entries, p);
+            }
+          }
+          break;
+        default:
+          break;
+      }
+
+      if ( parents.size() != entries.size() ) {
+        if ( entries.size() > 0 ) {
+          for (int i=0, j=0, n=parents.size(); i<n; ++i) {
+            if ( entries[j].find(parents[i]) != std::string::npos ) {
+              j++;
+              continue;
+            }
+            else {
+              std::cout << "WARNING - MISSING ENTRY - mandatory entry \"" <<
+                           entry.node << "\" not found in " << parents[i] << std::endl;
+            }
+          }
+        }
+        else {
+          std::cout << "WARNING - MISSING ENTRY - mandatory entry \"" <<
+                           entry.node << "\" not found in any its parents" << std::endl;
+        }
+        isCompliant = false;
+      }
+
+    }
+  }
+
+  return isCompliant;
+}
+
+void splitNodePath(const std::string& node, std::string& parent, std::string& child) {
+  const auto splitPosi = node.rfind('/');
+  if ( splitPosi == std::string::npos ) return;
+  parent = node.substr(0,splitPosi);
+  child = node.substr(splitPosi+1);
+}
+
+void addIfUnique(std::vector<std::string>& list, const std::string& str) {
+  for (const auto& element : list) {
+    if ( element == str ) return;
+  }
+  list.push_back(str);
 }
 
 }
