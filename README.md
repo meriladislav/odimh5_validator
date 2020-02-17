@@ -42,6 +42,9 @@ $odimh5-validate [OPTION...]
   -c, --csv arg        standard-definition .csv table, e.g.
                        your_path/your_table.csv
   -v, --version arg    standard version to use, e.g. 2.1
+  -t, --valueTable arg  optional .csv table with the assumed attribute values
+                        - the format is as in the standard-definition .csv
+                        table
       --checkOptional  check the presence of the optional ODIM entries,
                        default is False
       --checkExtras    check the presence of extra entries, not mentioned in
@@ -59,6 +62,8 @@ and creates the name of the csv file as `ODIMH5_VALIDATOR_CSV_DIR/ODIM_H5_VX_Y_O
 
 - using the `-v` or `--version` option, You can set the desired stdandard version number (e.g. 2.2), 
 and the program is creating the name of the csv file in the similar manner as in the first option, but it uses the supplied numbers for X and Y
+
+You can add an additional table with assumed attribute values for the given ODIM-H5 file by the `-t` or `--valueTable` option. The format of this table should be the same as of the standard definition csv file.
 
 The default behaviour is to check only the presence and layout of the mandatory items. 
 You can enable the controlling of the optional items wiht the `-checkOptional` option 
