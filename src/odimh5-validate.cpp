@@ -85,7 +85,8 @@ int main(int argc, const char* argv[]) {
     return 0;
   }
   else { 
-    std::cout << "WARNING - file " << h5File << " IS NOT a standard-compliant ODIM-H5 file - see the previous WARNING messages" << std::endl;
+    std::cout << "WARNING - NON-COMPLIANT FILE - file " << h5File <<
+                 " IS NOT a standard-compliant ODIM-H5 file - see the previous WARNING messages" << std::endl;
     return -1;
   }
 }
