@@ -23,7 +23,7 @@ Node;Category;Type;IsMandatory;PossibleValues
 .*how/kr_a;Attribute;real;FALSE;
 .*how/kr_b;Attribute;real;FALSE;
 .*how/beamwidth;Attribute;real;FALSE;
-.*how/wavelength;Attribute;real;FALSE;5.35
+.*how/wavelength;Attribute;real;FALSE;
 .*how/rpm;Attribute;real;FALSE;
 .*how/pulsewidth;Attribute;real;FALSE;
 .*how/RXbandwidth;Attribute;real;FALSE;
