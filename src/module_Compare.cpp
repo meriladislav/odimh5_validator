@@ -8,6 +8,7 @@
 #include <algorithm> // replace
 #include <regex>
 #include <iostream>
+#include <cmath> //fabs
 #include "module_Compare.hpp"
 
 namespace myodim {
@@ -134,22 +135,44 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
               case OdimEntry::string :
                 hasProperDatatype = h5layout.isStringAttribute(a.name());
                 if ( !entry.possibleValues.empty() ) {
-                  std::regex valueRegex{entry.possibleValues};
                   std::string value;
                   h5layout.getAttributeValue(a.name(), value);
+                  std::regex valueRegex{entry.possibleValues};
                   hasProperValue = std::regex_match(value, valueRegex);
                   if ( !hasProperValue ) {
-                    failedValueMessage = "with value \"" + value + "\" doesn`t match the " + 
-                                         entry.possibleValues + " assumed value";
+                    failedValueMessage = "with value \"" + value + "\" doesn`t match the \"" +
+                                         entry.possibleValues + "\" assumed value";
                   }
                 }
                 if ( !hasProperDatatype || !hasProperValue ) goto end_attribute_loop;
                 break;
               case OdimEntry::real :
                 hasProperDatatype = h5layout.isReal64Attribute(a.name());
+                if ( !entry.possibleValues.empty() ) {
+                  double value=0.0;
+                  h5layout.getAttributeValue(a.name(), value);
+                  const double assumedValue = std::stod(entry.possibleValues);
+                  hasProperValue = std::fabs(value - assumedValue) < 0.001;
+                  if ( !hasProperValue ) {
+                    failedValueMessage = "with value \"" + std::to_string(value) +
+                                         "\" doesn`t match the \"" +
+                                         entry.possibleValues + "\" assumed value";
+                  }
+                }
                 break;
               case OdimEntry::integer :
                 hasProperDatatype = h5layout.isInt64Attribute(a.name());
+                if ( !entry.possibleValues.empty() ) {
+                  int64_t value=0;
+                  h5layout.getAttributeValue(a.name(), value);
+                  const int64_t assumedValue = std::stoi(entry.possibleValues);
+                  hasProperValue = value == assumedValue;
+                  if ( !hasProperValue ) {
+                    failedValueMessage = "with value \"" + std::to_string(value) +
+                                         "\" doesn`t match the \"" +
+                                         entry.possibleValues + "\" assumed value";
+                  }
+                }
                 break;
               default :
                 break;
@@ -177,11 +200,11 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
       std::string message;
       if ( entry.isMandatory) {
         isCompliant = false;
-        message = "WARNING - mandatory ";
+        message = "WARNING - NON-STANDARD DATA TYPE - mandatory ";
       }
       else {
         isCompliant = false;
-        message = "WARNING - optional ";
+        message = "WARNING - NON-STANDARD DATA TYPE - optional ";
       }
       switch (entry.type) {
         case OdimEntry::string :
@@ -203,11 +226,11 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
       std::string message;
       if ( entry.isMandatory) {
         isCompliant = false;
-        message = "WARNING - mandatory ";
+        message = "WARNING - INCORRECT VALUE - mandatory ";
       }
       else {
         isCompliant = false;
-        message = "WARNING - optional ";
+        message = "WARNING - INCORRECT VALUE - optional ";
       }
       message += "entry \"" + entry.node + "\" " + failedValueMessage + ".";
       std::cout << message << std::endl;
