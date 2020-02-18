@@ -31,6 +31,7 @@ so You can set the `ODIMH5_VALIDATOR_CSV_DIR` variable as the full path to this 
     $export ODIMH5_VALIDATOR_CSV_DIR=/your/path/there/odimh5_validator/data
 
 #### Usage ####
+##### odimh5-validate #####
 ```
 $odimh5-validate [OPTION...]
 
@@ -55,6 +56,8 @@ $odimh5-validate [OPTION...]
                        default is False
 ```
 
+Program to analyse the ODIM-H5 standard-conformance.
+
 You can set the desired ODIM-H5 standard definition csv file in three ways:
 
 - without any additional arguments the program is searching for the value of /Conventions and /what/object attributes in the input file 
@@ -70,6 +73,29 @@ You can add an additional table with assumed attribute values for the given ODIM
 The default behaviour is to check only the presence and layout of the mandatory items. 
 You can enable the controlling of the optional items wiht the `-checkOptional` option 
 and enable the chcecking of the presence of some extar items not mentioned in the standard with the `--checkExtras` option.
+
+To restrict the output only to WARNING and ERROR messages You can use the `--noInfo` option.
+
+##### odimh5-check-value #####
+```
+$odimh5-check-value [OPTION...]
+
+  Mandatory options:
+  -i, --input arg      input ODIM-H5 file to analyse
+  -a, --attribute arg  the full path to the attribute to check
+  -v, --value arg      the assumed value of the attribute
+
+ Optional options:
+  -h, --help    print this help message
+      --noInfo  don`t print INFO messages, only WARNINGs and ERRORs, default
+                is False
+
+```
+
+Program to check the value of an attribute in a ODIM-H5 file.
+This program is used to simply check the value of a given attribute. It runs faster, because it doesn\`t need to load all the hdf5 file structure and the ODIM standard. 
+
+The type of the attribute is assumed according to its value - set by the `-v` or `--value` option. It is assumed to be a string if any aplhabetical letter appears in the value. It\`s assumed to be a 64-bit real if it isn\`t a string and has a decimal point. In any other cases the value is assumed to be a 64-bit integer.
 
 To restrict the output only to WARNING and ERROR messages You can use the `--noInfo` option.
 
