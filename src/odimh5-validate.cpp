@@ -1,4 +1,3 @@
-#include <cstdio> 
 #include <iostream>
 #include <string>
 #include "class_H5Layout.hpp"
@@ -7,7 +6,6 @@
 #include "cxxopts.hpp"
 
 int main(int argc, const char* argv[]) {
-  setbuf(stdout, NULL);
   
   //check and parse arguments
   cxxopts::Options options(argv[0], " Program to analyse the ODIM-H5 standard-conformance");
