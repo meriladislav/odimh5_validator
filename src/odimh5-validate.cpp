@@ -75,7 +75,13 @@ int main(int argc, const char* argv[]) {
   const bool checkExtras{cmdLineOptions["checkExtras"].as<bool>()};
   
   //compare the layout to the standard
-  bool isCompliant = myodim::compare(h5layout, odimStandard, checkOptional, checkExtras);
+  bool isCompliant = false;
+  try {
+    isCompliant = myodim::compare(h5layout, odimStandard, checkOptional, checkExtras);
+  }
+  catch (const std::exception& e) {
+    std::cout << e.what() << std::endl;
+  }
   if ( isCompliant ) {
     if ( myodim::printInfo ) {
       std::string message = "INFO - OK - the file " + h5File + " is a standard-compliant ODIM-H5 file";
