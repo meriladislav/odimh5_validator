@@ -6,10 +6,6 @@
 #include "module_Compare.hpp"
 #include "cxxopts.hpp"
 
-
-const std::string USAGE{"usage: odimh5-validate h5File [standardDefinition.csv]"};
-const int MIN_ARG_NUM{2};
-
 int main(int argc, const char* argv[]) {
   setbuf(stdout, NULL);
   
