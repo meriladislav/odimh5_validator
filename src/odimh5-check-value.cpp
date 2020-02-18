@@ -37,6 +37,7 @@ int main(int argc, const char* argv[]) {
   bool valueIsOK = false;
   std::string realValue = "";
 
+  try {
   if ( myodim::isStringValue(strAssumedValue) ) {
     std::string value;
     if ( h5layout.isStringAttribute(attrName) ) {
@@ -45,7 +46,7 @@ int main(int argc, const char* argv[]) {
       realValue = value;
     }
     else {
-      std::cout << "WARNING - the type of " << attrName << " is not string, " <<
+      std::cout << "WARNING - NON-STANDARD DATA TYPE - the type of " << attrName << " is not string, " <<
                    "as expected from the assumed value " << std::endl;
     }
   }
@@ -59,7 +60,7 @@ int main(int argc, const char* argv[]) {
          realValue = std::to_string(value);
       }
       else {
-        std::cout << "WARNING - the type of " << attrName << " is not 64-bit real, " <<
+        std::cout << "WARNING - NON-STANDARD DATA TYPE - the type of " << attrName << " is not 64-bit real, " <<
                      "as expected from the assumed value " << std::endl;
       }
     }
@@ -72,10 +73,14 @@ int main(int argc, const char* argv[]) {
          realValue = std::to_string(value);
       }
       else {
-        std::cout << "WARNING - the type of " << attrName << " is not 64-bit integer, " <<
+        std::cout << "WARNING - NON-STANDARD DATA TYPE - the type of " << attrName << " is not 64-bit integer, " <<
                      "as expected from the assumed value " << std::endl;
       }
     }
+  }
+  }
+  catch (const std::exception& e) {
+    std::cout << e.what() << std::endl;
   }
 
 
@@ -87,8 +92,8 @@ int main(int argc, const char* argv[]) {
   }
   else {
     if ( !realValue.empty() ) {
-      std::cout << "WARNING - the value of " << attrName << " is not " << strAssumedValue <<
-                   ", it is " << realValue << std::endl;
+      std::cout << "WARNING - INCORRECT VALUE - the value of " << attrName << " is not " <<
+                   strAssumedValue << ", it is " << realValue << std::endl;
     }
     return -1;
   }
