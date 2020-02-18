@@ -23,6 +23,8 @@ int main(int argc, const char* argv[]) {
     ("c,csv", "standard-definition .csv table, e.g. your_path/your_table.csv", cxxopts::value<std::string>())
     ("v,version", "standard version to use, e.g. 2.1", cxxopts::value<std::string>())
     ("t,valueTable", "optional .csv table with the assumed attribute values - the format is as in the standard-definition .csv table", cxxopts::value<std::string>())
+    ("onlyValueCheck", "check only the values defined by the -t or --valueTable option, default is False",
+        cxxopts::value<bool>()->default_value("false"))
     ("checkOptional", "check the presence of the optional ODIM entries, default is False",  
         cxxopts::value<bool>()->default_value("false"))
     ("checkExtras", "check the presence of extra entries, not mentioned in the standard, default is False",  
@@ -42,23 +44,27 @@ int main(int argc, const char* argv[]) {
   std::string h5File{cmdLineOptions["input"].as<std::string>()};
   myodim::H5Layout h5layout(h5File);
   
-  std::string csvFile{""};
-  if ( cmdLineOptions.count("csv") == 1 ) {
-    csvFile = cmdLineOptions["csv"].as<std::string>();
-  }
-  else {
-    if ( cmdLineOptions.count("version") == 1 ) {
-      csvFile = myodim::getCsvFileNameFrom(h5layout, cmdLineOptions["version"].as<std::string>());
+  myodim::OdimStandard odimStandard;
+
+  const bool onlyValueCheck{cmdLineOptions["onlyValueCheck"].as<bool>()};
+  if ( !onlyValueCheck ) {
+    std::string csvFile{""};
+    if ( cmdLineOptions.count("csv") == 1 ) {
+      csvFile = cmdLineOptions["csv"].as<std::string>();
     }
     else {
-      csvFile = myodim::getCsvFileNameFrom(h5layout);
+      if ( cmdLineOptions.count("version") == 1 ) {
+        csvFile = myodim::getCsvFileNameFrom(h5layout, cmdLineOptions["version"].as<std::string>());
+      }
+      else {
+        csvFile = myodim::getCsvFileNameFrom(h5layout);
+      }
     }
+    if ( myodim::printInfo ) {
+      std::cout << "INFO - using the " << csvFile << " standard definition table" << std::endl;
+    }
+    odimStandard.readFromCsv(csvFile);
   }
-  if ( myodim::printInfo ) {
-    std::cout << "INFO - using the " << csvFile << " standard definition table" << std::endl;
-  }
-  
-  myodim::OdimStandard odimStandard(csvFile);
   
   std::string valueFile{""};
   if ( cmdLineOptions.count("valueTable") == 1 ) {
