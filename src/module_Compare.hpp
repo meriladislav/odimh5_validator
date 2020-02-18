@@ -18,6 +18,8 @@ extern std::string getCsvFileNameFrom(const myodim::H5Layout& h5layout);
 extern std::string getCsvFileNameFrom(const myodim::H5Layout& h5layout, std::string version);
 extern bool compare(myodim::H5Layout& h5layout, const OdimStandard& odimStandard, 
                     const bool checkOptional=false, const bool checkExtras=false);
+extern bool isStringValue(const std::string& value);
+extern bool hasDoublePoint(const std::string& value);
 
 }
 

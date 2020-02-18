@@ -429,4 +429,12 @@ void addIfUnique(std::vector<std::string>& list, const std::string& str) {
   list.push_back(str);
 }
 
+bool isStringValue(const std::string& value) {
+  return std::find_if(value.begin(), value.end(), isalpha) != value.end();
+}
+
+bool hasDoublePoint(const std::string& value) {
+  return std::find(value.begin(), value.end(), '.') != value.end();
+}
+
 }

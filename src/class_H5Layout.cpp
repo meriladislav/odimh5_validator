@@ -26,7 +26,7 @@ H5Layout::~H5Layout() {
 
 void H5Layout::explore(const std::string& h5FilePath) {
   reset_();
-  checkAndOpenFile_(h5FilePath);
+  checkAndOpenFile(h5FilePath);
   findGroupsAndDatasets_();
   findAttributes_();
 }
@@ -66,79 +66,79 @@ std::vector<std::string> H5Layout::getAttributeNames(const std::string& objPath)
 
 void H5Layout::getAttributeValue(const std::string& attrName, std::string& value) const {
   value = "";
-  if ( hasAttribute(attrName) ) {
-    std::string path, name;
-    splitAttributeToPathAndName(attrName, path, name);
-    auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
-    auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
-    if ( attr < 0  ) {
-      throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
-    }
-    auto type = H5Aget_type(attr);
-    if ( H5Tget_class(type) != H5T_STRING ) {
-      throw std::runtime_error("ERROR - attribute "+attrName+" is not a STRING attribute");
-    }
-    char str[1024] = {'\0'};
-    auto ret  = H5Aread(attr, type, str);
-    if ( ret < 0  ) {
-      throw std::runtime_error("ERROR - attribute "+attrName+" not read");
-    }
-    H5Aclose(attr);
-    value = str;
-    H5Oclose(parent);
+  std::string path, name;
+  splitAttributeToPathAndName(attrName, path, name);
+  auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
   }
-  else {
-    throw std::runtime_error("ERROR - attribute "+attrName+" doesn`t exists");
+  auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+  if ( attr < 0  ) {
+    throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
   }
+  auto type = H5Aget_type(attr);
+  if ( H5Tget_class(type) != H5T_STRING ) {
+    throw std::runtime_error("ERROR - attribute "+attrName+" is not a STRING attribute");
+  }
+  char str[1024] = {'\0'};
+  auto ret  = H5Aread(attr, type, str);
+  if ( ret < 0  ) {
+    throw std::runtime_error("ERROR - attribute "+attrName+" not read");
+  }
+  H5Aclose(attr);
+  value = str;
+  H5Oclose(parent);
 }
 
 void H5Layout::getAttributeValue(const std::string& attrName, double& value) const {
-  if ( hasAttribute(attrName) ) {
-    std::string path, name;
-    splitAttributeToPathAndName(attrName, path, name);
-    auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
-    auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
-    if ( attr < 0  ) {
-      throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
-    }
-    auto ret  = H5Aread(attr, H5T_NATIVE_DOUBLE, &value);
-    if ( ret < 0  ) {
-      throw std::runtime_error("ERROR - attribute "+attrName+" not read");
-    }
-    H5Aclose(attr);
-    H5Oclose(parent);
+  std::string path, name;
+  splitAttributeToPathAndName(attrName, path, name);
+  auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
   }
-  else {
-    throw std::runtime_error("ERROR - attribute "+attrName+" doesn`t exists");
+  auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+  if ( attr < 0  ) {
+    throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
   }
+  auto ret  = H5Aread(attr, H5T_NATIVE_DOUBLE, &value);
+  if ( ret < 0  ) {
+    throw std::runtime_error("ERROR - attribute "+attrName+" not read");
+  }
+  H5Aclose(attr);
+  H5Oclose(parent);
 }
 
 void H5Layout::getAttributeValue(const std::string& attrName, int64_t& value) const {
-  if ( hasAttribute(attrName) ) {
-    std::string path, name;
-    splitAttributeToPathAndName(attrName, path, name);
-    auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
-    auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
-    if ( attr < 0  ) {
-      throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
-    }
-    auto ret  = H5Aread(attr, H5T_NATIVE_INT64, &value);
-    if ( ret < 0  ) {
-      throw std::runtime_error("ERROR - attribute "+attrName+" not read");
-    }
-    H5Aclose(attr);
-    H5Oclose(parent);
+  std::string path, name;
+  splitAttributeToPathAndName(attrName, path, name);
+  auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
   }
-  else {
-    throw std::runtime_error("ERROR - attribute "+attrName+" doesn`t exists");
+  auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+  if ( attr < 0  ) {
+    throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
   }
+  auto ret  = H5Aread(attr, H5T_NATIVE_INT64, &value);
+  if ( ret < 0  ) {
+    throw std::runtime_error("ERROR - attribute "+attrName+" not read");
+  }
+  H5Aclose(attr);
+  H5Oclose(parent);
 }
 
 bool H5Layout::isStringAttribute(const std::string& attrName) const {
   std::string path, name;
   splitAttributeToPathAndName(attrName, path, name);
   auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
+  }
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+  if ( attr < 0  ) {
+    throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
+  }
   auto type = H5Aget_type(attr);
   bool isString{H5Tget_class(type) == H5T_STRING};
   H5Tclose(type);
@@ -151,7 +151,13 @@ bool H5Layout::isReal64Attribute(const std::string& attrName) const {
   std::string path, name;
   splitAttributeToPathAndName(attrName, path, name);
   auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
+  }
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+  if ( attr < 0  ) {
+    throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
+  }
   auto type = H5Aget_type(attr);
   bool isReal64{H5Tget_class(type) == H5T_FLOAT && H5Tget_precision(type) == 64};
   H5Tclose(type);
@@ -164,7 +170,13 @@ bool H5Layout::isInt64Attribute(const std::string& attrName) const {
   std::string path, name;
   splitAttributeToPathAndName(attrName, path, name);
   auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
+  }
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+  if ( attr < 0  ) {
+    throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
+  }
   auto type = H5Aget_type(attr);
   bool isInt64{H5Tget_class(type) == H5T_INTEGER && H5Tget_precision(type) == 64};
   H5Tclose(type);
@@ -198,7 +210,7 @@ bool H5Layout::isUcharDataset(const std::string& dsetName) const {
   return isUchar;
 }
 
-void H5Layout::checkAndOpenFile_(const std::string& h5FilePath) {
+void H5Layout::checkAndOpenFile(const std::string& h5FilePath) {
   if ( H5Fis_hdf5(h5FilePath.c_str()) <= 0 ) {
     throw std::runtime_error{"ERROR - file "+h5FilePath+" is not a HDF5 file"};
   }
