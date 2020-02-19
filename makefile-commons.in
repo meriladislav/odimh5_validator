@@ -41,7 +41,7 @@ else
 endif
 LIB_FLAGS += -L$(LIB_DIR) \
             -Wl,--start-group -lmyodimh5 \
-            -lhdf5 -lpthread
+            -lhdf5 
 LIB_FLAGS += $(shell $(H5CC) -showconfig | \
                      grep "Extra libraries:" | \
                      awk -F': ' '{print $$2}' ) 
