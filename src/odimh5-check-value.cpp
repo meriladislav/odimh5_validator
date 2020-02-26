@@ -41,6 +41,13 @@ int main(int argc, const char* argv[]) {
   const std::string strAssumedType = cmdLineOptions.count("type") > 0 ?
                                      cmdLineOptions["type"].as<std::string>() :
                                      "";
+
+  if ( !strAssumedType.empty() &&
+       (strAssumedType != "string" && strAssumedType != "real" && strAssumedType != "int") ) {
+    std::cout << "ERROR - the value of the -t or --type option should be \"string\" \"real\" or \"int\" - see the usage" << std::endl;
+    return -1;
+  }
+
   bool valueIsOK = false;
   std::string realValue = "";
   try {
