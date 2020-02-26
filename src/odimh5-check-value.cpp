@@ -15,30 +15,36 @@ int main(int argc, const char* argv[]) {
     ("v,value", "the assumed value of the attribute", cxxopts::value<std::string>());
   options.add_options("Optional")
     ("h,help", "print this help message")
+    ("t,type", "specify the type of te attribute - possible values: string, int, real",
+     cxxopts::value<std::string>())
     ("noInfo", "don`t print INFO messages, only WARNINGs and ERRORs, default is False",
-        cxxopts::value<bool>()->default_value("false"));
+     cxxopts::value<bool>()->default_value("false"));
 
   auto cmdLineOptions = options.parse(argc, argv);
-  if ( cmdLineOptions.count("input") != 1 || cmdLineOptions.count("help") > 0 ) {
+  if ( cmdLineOptions.count("input") != 1 ||
+       cmdLineOptions.count("attribute") != 1 ||
+       cmdLineOptions.count("value") != 1 ||
+       cmdLineOptions.count("help") > 0 ) {
     std::cout << options.help({"Mandatory", "Optional"}) << std::endl;
     return -1;
   }
 
   myodim::printInfo = !(cmdLineOptions["noInfo"].as<bool>());
 
-  const std::string h5File{cmdLineOptions["input"].as<std::string>()};
+  const std::string h5File = cmdLineOptions["input"].as<std::string>();
 
   myodim::H5Layout h5layout;
   h5layout.checkAndOpenFile(h5File);
 
-  const std::string attrName{cmdLineOptions["attribute"].as<std::string>()};
-  const std::string strAssumedValue{cmdLineOptions["value"].as<std::string>()};
-
+  const std::string attrName = cmdLineOptions["attribute"].as<std::string>();
+  const std::string strAssumedValue = cmdLineOptions["value"].as<std::string>();
+  const std::string strAssumedType = cmdLineOptions.count("type") > 0 ?
+                                     cmdLineOptions["type"].as<std::string>() :
+                                     "";
   bool valueIsOK = false;
   std::string realValue = "";
-
   try {
-  if ( myodim::isStringValue(strAssumedValue) ) {
+  if ( myodim::isStringValue(strAssumedValue) || strAssumedType == "string" ) {
     std::string value;
     if ( h5layout.isStringAttribute(attrName) ) {
       h5layout.getAttributeValue(attrName, value);
@@ -47,11 +53,11 @@ int main(int argc, const char* argv[]) {
     }
     else {
       std::cout << "WARNING - NON-STANDARD DATA TYPE - the type of " << attrName << " is not string, " <<
-                   "as expected from the assumed value " << std::endl;
+                   "as expected from the assumed value - try to use the -t option to specify the type " << std::endl;
     }
   }
   else {
-    if ( myodim::hasDoublePoint(strAssumedValue) ) {
+    if ( myodim::hasDoublePoint(strAssumedValue) || strAssumedType == "real" ) {
       const double assumedValue = std::stod(strAssumedValue);
       double value;
       if ( h5layout.isReal64Attribute(attrName) ) {
@@ -61,7 +67,7 @@ int main(int argc, const char* argv[]) {
       }
       else {
         std::cout << "WARNING - NON-STANDARD DATA TYPE - the type of " << attrName << " is not 64-bit real, " <<
-                     "as expected from the assumed value " << std::endl;
+                     "as expected from the assumed value - try to use the -t option to specify the type " << std::endl;
       }
     }
     else {
@@ -74,7 +80,7 @@ int main(int argc, const char* argv[]) {
       }
       else {
         std::cout << "WARNING - NON-STANDARD DATA TYPE - the type of " << attrName << " is not 64-bit integer, " <<
-                     "as expected from the assumed value " << std::endl;
+                     "as expected from the assumed value - try to use the -t option to specify the type " << std::endl;
       }
     }
   }

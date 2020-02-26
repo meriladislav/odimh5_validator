@@ -87,6 +87,8 @@ $odimh5-check-value [OPTION...]
 
  Optional options:
   -h, --help    print this help message
+  -t, --type arg  specify the type of te attribute - possible values: string,
+                  int, real
       --noInfo  don`t print INFO messages, only WARNINGs and ERRORs, default
                 is False
 
@@ -96,7 +98,7 @@ Program to check the value of an attribute in a ODIM-H5 file.
 
 This program is used to simply check the value of a given attribute. It runs faster, because it doesn\`t need to load all the hdf5 file structure and the ODIM standard. 
 
-The type of the attribute is assumed according to its value - set by the `-v` or `--value` option. It is assumed to be a string if any alphabetical letter appears in the value. It\`s assumed to be a 64-bit real if it isn\`t a string and has a decimal point. In any other cases the value is assumed to be a 64-bit integer.
+The assumed type of the attribute can be set by the `-t` or `--type` option, or can be detected according to its value - set by the `-v` or `--value` option. It is assumed to be a string if any alphabetical letter appears in the value. It\`s assumed to be a 64-bit real if it isn\`t a string and has a decimal point. In any other cases the value is assumed to be a 64-bit integer.
 
 To restrict the output only to WARNING and ERROR messages You can use the `--noInfo` option.
 
