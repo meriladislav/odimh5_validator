@@ -25,6 +25,11 @@ static bool ucharDatasetHasImageAttributes(const H5Layout& h5layout,
 static bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard& odimStandard);
 static void splitNodePath(const std::string& node, std::string& parent, std::string& child);
 static void addIfUnique(std::vector<std::string>& list, const std::string& str);
+static bool checkValue(const std::string& attrValue, const std::string& assumedValueStr,
+                       std::string& errorMessage);
+static bool checkValue(const double attrValue, const std::string& assumedValueStr,
+                       std::string& errorMessage);
+
 
 std::string getCsvFileNameFrom(const myodim::H5Layout& h5layout) {
   std::string csvFileName;
@@ -144,11 +149,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   std::string value;
                   h5layout.getAttributeValue(a.name(), value);
                   std::regex valueRegex{entry.possibleValues};
-                  hasProperValue = std::regex_match(value, valueRegex);
-                  if ( !hasProperValue ) {
-                    failedValueMessage = "with value \"" + value + "\" doesn`t match the \"" +
-                                         entry.possibleValues + "\" assumed value";
-                  }
+                  hasProperValue = checkValue(value, entry.possibleValues, failedValueMessage);
                 }
                 if ( !hasProperDatatype || !hasProperValue ) goto end_attribute_loop;
                 break;
@@ -157,13 +158,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                 if ( !entry.possibleValues.empty() ) {
                   double value=0.0;
                   h5layout.getAttributeValue(a.name(), value);
-                  const double assumedValue = std::stod(entry.possibleValues);
-                  hasProperValue = std::fabs(value - assumedValue) < MAX_DOUBLE_DIFF;
-                  if ( !hasProperValue ) {
-                    failedValueMessage = "with value \"" + std::to_string(value) +
-                                         "\" doesn`t match the \"" +
-                                         entry.possibleValues + "\" assumed value";
-                  }
+                  hasProperValue = checkValue(value, entry.possibleValues, failedValueMessage);
                 }
                 break;
               case OdimEntry::integer :
@@ -171,13 +166,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                 if ( !entry.possibleValues.empty() ) {
                   int64_t value=0;
                   h5layout.getAttributeValue(a.name(), value);
-                  const int64_t assumedValue = std::stoi(entry.possibleValues);
-                  hasProperValue = value == assumedValue;
-                  if ( !hasProperValue ) {
-                    failedValueMessage = "with value \"" + std::to_string(value) +
-                                         "\" doesn`t match the \"" +
-                                         entry.possibleValues + "\" assumed value";
-                  }
+                  hasProperValue = checkValue(value, entry.possibleValues, failedValueMessage);
                 }
                 break;
               default :
@@ -435,6 +424,31 @@ bool isStringValue(const std::string& value) {
 
 bool hasDoublePoint(const std::string& value) {
   return std::find(value.begin(), value.end(), '.') != value.end();
+}
+
+bool checkValue(const std::string& attrValue, const std::string& assumedValueStr,
+                std::string& errorMessage) {
+  std::regex valueRegex{assumedValueStr};
+  bool hasProperValue = std::regex_match(attrValue, valueRegex);
+  if ( !hasProperValue ) {
+    errorMessage = "with value \"" + attrValue + "\" doesn`t match the \"" +
+                   assumedValueStr + "\" assumed value";
+  }
+  return hasProperValue;
+}
+
+bool checkValue(const double attrValue, const std::string& assumedValueStr,
+                std::string& errorMessage) {
+  const double assumedValue = std::stod(assumedValueStr);
+  bool hasProperValue = std::fabs(attrValue - assumedValue) < MAX_DOUBLE_DIFF;
+  if ( !hasProperValue ) {
+    const std::string attrValueStr = hasDoublePoint(assumedValueStr) ?
+                                     std::to_string(attrValue) :
+                                     std::to_string((int)attrValue);
+    errorMessage = "with value \"" + attrValueStr +
+                   "\" doesn`t match the \"" + assumedValueStr + "\" assumed value";
+  }
+  return hasProperValue;
 }
 
 }
