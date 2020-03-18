@@ -29,6 +29,9 @@ static bool checkValue(const std::string& attrValue, const std::string& assumedV
                        std::string& errorMessage);
 static bool checkValue(const double attrValue, const std::string& assumedValueStr,
                        std::string& errorMessage);
+static bool hasIntervalSigns(const std::string& assumedValueStr);
+static bool checkValueInterval(const double attrValue, const std::string& assumedValueStr,
+                               std::string& errorMessage);
 
 
 std::string getCsvFileNameFrom(const myodim::H5Layout& h5layout) {
@@ -439,16 +442,120 @@ bool checkValue(const std::string& attrValue, const std::string& assumedValueStr
 
 bool checkValue(const double attrValue, const std::string& assumedValueStr,
                 std::string& errorMessage) {
-  const double assumedValue = std::stod(assumedValueStr);
-  bool hasProperValue = std::fabs(attrValue - assumedValue) < MAX_DOUBLE_DIFF;
-  if ( !hasProperValue ) {
+  bool hasProperValue = true;
+  if ( hasIntervalSigns(assumedValueStr) ) {
+
+    hasProperValue = checkValueInterval(attrValue, assumedValueStr, errorMessage);
+
+  }
+  else {
+
+    const double assumedValue = std::stod(assumedValueStr);
+    hasProperValue = std::fabs(attrValue - assumedValue) < MAX_DOUBLE_DIFF;
+    if ( !hasProperValue ) {
+      const std::string attrValueStr = hasDoublePoint(assumedValueStr) ?
+                                       std::to_string(attrValue) :
+                                       std::to_string((int)attrValue);
+      errorMessage = "with value \"" + attrValueStr +
+                     "\" doesn`t match the \"" + assumedValueStr + "\" assumed value";
+    }
+
+  }
+  return hasProperValue;
+}
+
+bool hasIntervalSigns(const std::string& assumedValueStr) {
+  return assumedValueStr.find('=') != std::string::npos ||
+         assumedValueStr.find('<') != std::string::npos ||
+         assumedValueStr.find('>') != std::string::npos;
+}
+
+bool checkValueInterval(const double attrValue, const std::string& assumedValueStr,
+                        std::string& errorMessage) {
+  std::cout << "dbg - check interval ..." << std::endl;
+
+  //split interval description
+  const std::string delimiter = "&&";
+  const auto splitPosi = assumedValueStr.find(delimiter);
+  std::string first = assumedValueStr.substr(0,splitPosi);
+  std::string second = splitPosi!=std::string::npos ?
+                       assumedValueStr.substr(splitPosi+delimiter.length()) : "";
+  std::cout << "dbg - first = " << first << ", second = " << second << std::endl;
+
+  //get first sign and number
+  std::string firstSign, firstNumberStr;
+  for (int i=0; i<(int)first.length(); ++i) {
+    if ( (first[i] >= '0' && first[i] <= '9') || first[i] <= '.' ) {
+      firstNumberStr.append(1, first[i]);
+    }
+    else {
+      firstSign.append(1, first[i]);
+    }
+  }
+  const double firstNumber = firstNumberStr.empty() ? std::nan("") : std::stod(firstNumberStr);
+
+  //get second sign and number
+  std::string secondSign, secondNumberStr;
+  for (int i=0; i<(int)second.length(); ++i) {
+    if ( (second[i] >= '0' && second[i] <= '9') || second[i] <= '.' ) {
+      secondNumberStr.append(1, second[i]);
+    }
+    else {
+      secondSign.append(1, second[i]);
+    }
+  }
+  const double secondNumber = secondNumberStr.empty() ? std::nan("") : std::stod(secondNumberStr);
+  std::cout << "dbg - firstSign = " << firstSign << ", firstNumber = " << firstNumber <<
+               ", secondSign = " << secondSign << ", secondNumber = " << secondNumber << std::endl;
+
+  bool result = false;
+  if ( firstSign == "=" || firstSign == "==" ) {
+    result = std::fabs(attrValue - firstNumber) < MAX_DOUBLE_DIFF;
+  }
+  else if ( firstSign == "<=" ) {
+    result = attrValue <= firstNumber;
+  }
+  else if ( firstSign == "<" ) {
+    result = attrValue < firstNumber;
+  }
+  else if ( firstSign == ">=" ) {
+    result = attrValue >= firstNumber;
+  }
+  else if ( firstSign == ">" ) {
+    result = attrValue > firstNumber;
+  }
+
+  if ( !std::isnan(secondNumber) ) {
+    if ( secondSign == "=" || secondSign == "==" ) {
+      result = result && std::fabs(attrValue - secondNumber) < MAX_DOUBLE_DIFF;
+    }
+    else if ( secondSign == "<=" ) {
+      result = result && attrValue <= secondNumber;
+    }
+    else if ( secondSign == "<" ) {
+      result = result && attrValue < secondNumber;
+    }
+    else if ( secondSign == ">=" ) {
+      result = result && attrValue >= secondNumber;
+    }
+    else if ( secondSign == ">" ) {
+      result = result && attrValue > secondNumber;
+    }
+  }
+
+  std::cout << "dbg - result = " << result << std::endl;
+  if ( result ) {
+    errorMessage = "";
+  }
+  else {
     const std::string attrValueStr = hasDoublePoint(assumedValueStr) ?
                                      std::to_string(attrValue) :
                                      std::to_string((int)attrValue);
     errorMessage = "with value \"" + attrValueStr +
                    "\" doesn`t match the \"" + assumedValueStr + "\" assumed value";
   }
-  return hasProperValue;
+
+  return result;
 }
 
 }

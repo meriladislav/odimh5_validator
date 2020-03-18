@@ -1,5 +1,5 @@
 Node;Category;Type;IsMandatory;PossibleValues
-.*how/wavelength;Attribute;real;FALSE;5.352
+.*how/wavelength;Attribute;real;FALSE;<=5.35&&<=5.36
 /dataset[1-9][0-9]*/where/nrays;Attribute;integer;TRUE;360
 /dataset[1-7]/where/nbins;Attribute;integer;TRUE;960
 /dataset8/where/nbins;Attribute;integer;TRUE;833
