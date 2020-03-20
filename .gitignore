@@ -23,8 +23,4 @@ out/*
 tmp/*
 !tmp/.gitkeep
 
-#ignore makefile for development
-makefile-dev
 
-#ignore test files
-src/gtest*
