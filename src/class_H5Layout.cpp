@@ -15,6 +15,10 @@ static herr_t getAttribueName(hid_t loc_id, const char* name, const H5A_info_t* 
 void splitAttributeToPathAndName(const std::string& attrName, 
                                  std::string& path, std::string& name);
 
+H5Layout::H5Layout() {
+  H5Eset_auto( H5E_DEFAULT, NULL, NULL ); //Turn off error handling permanently
+}
+
 H5Layout::H5Layout(const std::string& h5FilePath) {
   H5Eset_auto( H5E_DEFAULT, NULL, NULL ); //Turn off error handling permanently 
   explore(h5FilePath);

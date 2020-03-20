@@ -29,7 +29,7 @@ class H5Layout {
     std::vector<h5Entry> datasets;
     std::vector<h5Entry> attributes;
     
-    H5Layout() = default;
+    H5Layout();
     H5Layout(const std::string& h5FilePath);
     ~H5Layout();
     
