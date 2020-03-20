@@ -33,7 +33,6 @@ class H5Layout {
     H5Layout(const std::string& h5FilePath);
     ~H5Layout();
     
-    void checkAndOpenFile(const std::string& h5FilePath);
     void explore(const std::string& h5FilePath);
     bool hasAttribute(const std::string& attrName) const;
     bool hasGroup(const std::string& groupName) const;
@@ -51,6 +50,7 @@ class H5Layout {
   private:
     std::string h5FilePath_{""};
     hid_t h5FileID_{-1};
+    void checkAndOpenFile_(const std::string& h5FilePath);
     void findGroupsAndDatasets_();
     void findAttributes_();
     void reset_();

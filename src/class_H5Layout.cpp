@@ -30,7 +30,7 @@ H5Layout::~H5Layout() {
 
 void H5Layout::explore(const std::string& h5FilePath) {
   reset_();
-  checkAndOpenFile(h5FilePath);
+  checkAndOpenFile_(h5FilePath);
   findGroupsAndDatasets_();
   findAttributes_();
 }
@@ -214,7 +214,7 @@ bool H5Layout::isUcharDataset(const std::string& dsetName) const {
   return isUchar;
 }
 
-void H5Layout::checkAndOpenFile(const std::string& h5FilePath) {
+void H5Layout::checkAndOpenFile_(const std::string& h5FilePath) {
   if ( H5Fis_hdf5(h5FilePath.c_str()) <= 0 ) {
     throw std::runtime_error{"ERROR - file "+h5FilePath+" is not a HDF5 file"};
   }

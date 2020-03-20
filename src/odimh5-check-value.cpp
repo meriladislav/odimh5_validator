@@ -33,8 +33,7 @@ int main(int argc, const char* argv[]) {
 
   const std::string h5File = cmdLineOptions["input"].as<std::string>();
 
-  myodim::H5Layout h5layout;
-  h5layout.checkAndOpenFile(h5File);
+  myodim::H5Layout h5layout(h5File);
 
   const std::string attrName = cmdLineOptions["attribute"].as<std::string>();
   const std::string strAssumedValue = cmdLineOptions["value"].as<std::string>();

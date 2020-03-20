@@ -8,6 +8,7 @@ using namespace testing;
 using namespace myodim;
 
 const std::string TEST_ODIM_FILE = "./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf";
+const std::string WRONG_ODIM_FILE = "./data/example/T_PAGZ41_C_LZIB_20180403000000.hdfx";
 
 TEST(testH5Layout, isEmptyWhenConstructed) {
   const H5Layout h5layout;
@@ -23,6 +24,10 @@ TEST(testH5Layout, isPopulatedWhenConstructedWithODIMH5FileName) {
   ASSERT_THAT( h5layout.groups.size(), Gt(0u) );
   ASSERT_THAT( h5layout.datasets.size(), Gt(0u) );
   ASSERT_THAT( h5layout.attributes.size(), Gt(0u) );
+}
+
+TEST(testH5Layout, throwsWhenConstructedWithWrongODIMH5FileName) {
+  ASSERT_ANY_THROW( const H5Layout h5layout(WRONG_ODIM_FILE) );
 }
 
 TEST(testH5Layout, canGetAttributeNamesFromGroupOrDataset) {
