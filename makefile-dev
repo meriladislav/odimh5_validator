@@ -60,8 +60,7 @@ $(BIN_DIR)/odimh5-check-value: $(SRC_DIR)/odimh5-check-value.cpp $(LIB_LIST)
 	@echo "Compiling odimh5-check-value ... OK"
 	@echo ""
 	
-$(BIN_DIR)/gtest_H5Layout: $(SRC_DIR)/gtest_H5Layout.cpp \
-                           $(OBJ_DIR)/class_H5Layout.o
+$(BIN_DIR)/gtest_H5Layout: $(SRC_DIR)/gtest_H5Layout.cpp $(LIB_LIST)
 	$(CXX) $(CXX_FLAGS) $(TEST_INC_FLAGS) -o $@ $(SRC_DIR)/gtest_H5Layout.cpp $(TEST_LIB_FLAGS) 
 	
 $(OBJ_DIR)/class_H5Layout.o: $(SRC_DIR)/class_H5Layout.cpp $(SRC_DIR)/class_H5Layout.hpp 
