@@ -23,5 +23,8 @@ out/*
 tmp/*
 !tmp/.gitkeep
 
-#ignore makefile-commons link
-src/makefile-commons.in
+#ignore makefile for development
+makefile-dev
+
+#ignore test files
+src/gtest*
