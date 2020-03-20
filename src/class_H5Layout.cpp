@@ -45,6 +45,11 @@ bool H5Layout::hasGroup(const std::string& groupName) const {
          std::find(groups.begin(), groups.end(), h5Entry(groupName,true)) != groups.end();
 }
 
+bool H5Layout::hasDataset(const std::string& dsetName) const {
+  return std::find(datasets.begin(), datasets.end(), h5Entry(dsetName,false)) != datasets.end() ||
+         std::find(datasets.begin(), datasets.end(), h5Entry(dsetName,true)) != datasets.end();
+}
+
 std::string H5Layout::filePath() const {
   return h5FilePath_;
 }
@@ -193,7 +198,13 @@ bool H5Layout::isBooleanAttribute(const std::string& attrName) const {
   std::string path, name;
   splitAttributeToPathAndName(attrName, path, name);
   auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
+  }
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+  if ( attr < 0  ) {
+    throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
+  }
   auto type = H5Aget_type(attr);
   bool isBool{H5Tget_class(type) == H5T_NATIVE_HBOOL};
   H5Tclose(type);
@@ -205,10 +216,13 @@ bool H5Layout::isBooleanAttribute(const std::string& attrName) const {
 bool H5Layout::isUcharDataset(const std::string& dsetName) const {
   bool isUchar = false;
   auto dset = H5Dopen(h5FileID_, dsetName.c_str(), H5P_DEFAULT);
+  if ( dset < 0  ) {
+    throw std::runtime_error("ERROR - node "+dsetName+" not opened");
+  }
   auto type = H5Dget_type(dset);
   isUchar = H5Tget_class(type) == H5T_INTEGER &&
-		    H5Tget_precision(type) == 8 &&
-			H5Tget_sign(type) == H5T_SGN_NONE;
+		        H5Tget_precision(type) == 8 &&
+			      H5Tget_sign(type) == H5T_SGN_NONE;
   H5Tclose(type);
   H5Dclose(dset);
   return isUchar;

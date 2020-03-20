@@ -48,6 +48,19 @@ TEST(testH5Layout, canGetAttributeNamesFromGroupOrDataset) {
   ASSERT_THAT( attrNames, Contains("IMAGE_VERSION") );
 }
 
+TEST(testH5Layout, canCheckEntryExistence) {
+  const H5Layout h5layout(TEST_ODIM_FILE);
+
+  ASSERT_TRUE( h5layout.hasAttribute("/where/lon") );
+  ASSERT_FALSE( h5layout.hasAttribute("/where/lonx") );
+
+  ASSERT_TRUE( h5layout.hasGroup("/dataset1/where") );
+  ASSERT_FALSE( h5layout.hasGroup("/dataset1/wherex") );
+
+  ASSERT_TRUE( h5layout.hasDataset("/dataset1/data1/data") );
+  ASSERT_FALSE( h5layout.hasDataset("/dataset1/data1x/data") );
+}
+
 TEST(testH5Layout, canGetAttributeValues) {
   const H5Layout h5layout(TEST_ODIM_FILE);
   std::string attrName = "/what/object";
@@ -67,9 +80,46 @@ TEST(testH5Layout, canGetAttributeValues) {
   ASSERT_THAT( intValue, Eq(960) );
 }
 
+TEST(testH5Layout, getAttributeValuesThrowsOnError) {
+  const H5Layout h5layout(TEST_ODIM_FILE);
+  std::string attrName = "/what/objectx";
+  std::string stringValue;
+
+  ASSERT_ANY_THROW( h5layout.getAttributeValue(attrName, stringValue) );
+
+  attrName = "/where/lonx";
+  double doubleValue;
+  ASSERT_ANY_THROW( h5layout.getAttributeValue(attrName, doubleValue) );
+
+  attrName = "/dataset1/where/nbinsx";
+  int64_t intValue;
+  ASSERT_ANY_THROW( h5layout.getAttributeValue(attrName, intValue) );
+}
+
+TEST(testH5Layout, canCheckAttributeTypes) {
+  const H5Layout h5layout(TEST_ODIM_FILE);
+
+  ASSERT_TRUE( h5layout.isStringAttribute("/what/object") );
+  ASSERT_TRUE( h5layout.isReal64Attribute("/where/lon") );
+  ASSERT_TRUE( h5layout.isInt64Attribute("/dataset1/where/nbins") );
+  ASSERT_FALSE( h5layout.isReal64Attribute("/how/startepochs") );
+}
+
+TEST(testH5Layout, isXXXAttributeThrowsOnError) {
+  const H5Layout h5layout(TEST_ODIM_FILE);
+
+  ASSERT_ANY_THROW( h5layout.isStringAttribute("/what/objectx") );
+  ASSERT_ANY_THROW( h5layout.isReal64Attribute("/where/lonx") );
+  ASSERT_ANY_THROW( h5layout.isInt64Attribute("/dataset1/where/nbinsx") );
+  ASSERT_ANY_THROW( h5layout.isReal64Attribute("/how/startepochsx") );
+}
+
 TEST(testH5Layout, canSayDatasetIsUchar) {
   const H5Layout h5layout(TEST_ODIM_FILE);
   const h5Entry dataset = h5layout.datasets[0];
 
   ASSERT_TRUE( h5layout.isUcharDataset(dataset.name()) );
+
+  //throws on error
+  ASSERT_ANY_THROW( h5layout.isUcharDataset(dataset.name()+"x") );
 }

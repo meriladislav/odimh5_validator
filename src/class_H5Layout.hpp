@@ -36,6 +36,7 @@ class H5Layout {
     void explore(const std::string& h5FilePath);
     bool hasAttribute(const std::string& attrName) const;
     bool hasGroup(const std::string& groupName) const;
+    bool hasDataset(const std::string& dsetName) const;
     std::string filePath() const;
     std::vector<std::string> getAttributeNames(const std::string& objPath) const;
     void getAttributeValue(const std::string& attrName, std::string& value) const;
