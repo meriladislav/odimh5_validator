@@ -14,7 +14,8 @@ LIB_LIST = $(LIB_DIR)/libmyodimh5.a
 BIN_LIST = $(BIN_DIR)/odimh5-validate \
            $(BIN_DIR)/odimh5-check-value
            
-TEST_LIST = $(BIN_DIR)/gtest_H5Layout 
+TEST_LIST = $(BIN_DIR)/gtest_H5Layout \
+            $(BIN_DIR)/gtest_OdimStandard
 
 OBJ_LIST = $(OBJ_DIR)/class_H5Layout.o \
            $(OBJ_DIR)/class_OdimEntry.o \
@@ -30,7 +31,8 @@ all : $(LIB_LIST) $(BIN_LIST) $(TEST_LIST)
 	@echo ""
 	
 test : $(TEST_LIST)
-	$(TEST_LIST)
+	$(BIN_DIR)/gtest_H5Layout
+	$(BIN_DIR)/gtest_OdimStandard
 
 	
 clean: 
@@ -62,6 +64,9 @@ $(BIN_DIR)/odimh5-check-value: $(SRC_DIR)/odimh5-check-value.cpp $(LIB_LIST)
 	
 $(BIN_DIR)/gtest_H5Layout: $(SRC_DIR)/gtest_H5Layout.cpp $(LIB_LIST)
 	$(CXX) $(CXX_FLAGS) $(TEST_INC_FLAGS) -o $@ $(SRC_DIR)/gtest_H5Layout.cpp $(TEST_LIB_FLAGS) 
+	
+$(BIN_DIR)/gtest_OdimStandard: $(SRC_DIR)/gtest_OdimStandard.cpp $(LIB_LIST)
+	$(CXX) $(CXX_FLAGS) $(TEST_INC_FLAGS) -o $@ $(SRC_DIR)/gtest_OdimStandard.cpp $(TEST_LIB_FLAGS) 
 	
 $(OBJ_DIR)/class_H5Layout.o: $(SRC_DIR)/class_H5Layout.cpp $(SRC_DIR)/class_H5Layout.hpp 
 	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -c -o $@ $(SRC_DIR)/class_H5Layout.cpp
