@@ -32,9 +32,9 @@ all : $(LIB_LIST) $(BIN_LIST) $(TEST_LIST)
 	@echo ""
 	
 test : $(TEST_LIST)
-	$(BIN_DIR)/gtest_H5Layout
-	$(BIN_DIR)/gtest_OdimStandard
-	$(BIN_DIR)/gtest_Compare
+	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_H5Layout
+	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_OdimStandard
+	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_Compare
 
 	
 clean: 
