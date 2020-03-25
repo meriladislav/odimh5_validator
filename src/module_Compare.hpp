@@ -20,6 +20,11 @@ extern bool compare(myodim::H5Layout& h5layout, const OdimStandard& odimStandard
                     const bool checkOptional=false, const bool checkExtras=false);
 extern bool isStringValue(const std::string& value);
 extern bool hasDoublePoint(const std::string& value);
+extern bool checkValue(const std::string& attrValue, const std::string& assumedValueStr,
+                       std::string& errorMessage);
+extern bool checkValue(const double attrValue, const std::string& assumedValueStr,
+                       std::string& errorMessage);
+
 
 }
 

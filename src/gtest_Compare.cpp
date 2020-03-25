@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <cstdlib>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "module_Compare.hpp"
@@ -48,4 +49,165 @@ TEST(testCompare, isStringWhenAtLeastOneAlphabetcalCharacterPresent) {
 TEST(testCompare, hasDoublePointWorks) {
   ASSERT_FALSE( hasDoublePoint("123") );
   ASSERT_TRUE(hasDoublePoint("1.2") );
+}
+
+TEST(testCompare, checkValueForStringsWorksForConcreteAssumedValue) {
+  std::string myStr = "abc";
+  std::string assumedStr = "abc";
+  std::string errorMessage = "";
+  ASSERT_TRUE( checkValue(myStr, assumedStr, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myStr = "abc";
+  assumedStr = "abcd";
+  errorMessage = "";
+  ASSERT_FALSE( checkValue(myStr, assumedStr, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+}
+
+TEST(testCompare, checkValueForStringsWorksForRegexAssumedValue) {
+  std::string myStr = "NOD:skjav,WMO:11812";
+  std::string assumedStr = ".*(WMO:[0-9]{5}([0-9]{2})?)?.*(RAD:.*)?.*(PLC:.*)?.*(NOD:.*)?.*(ORG:.*)?.*(CTY:.*)?.*(CMT:.*)?.*";
+  std::string errorMessage = "";
+  ASSERT_TRUE( checkValue(myStr, assumedStr, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  /* BUG - needs to resolve
+  myStr = "1";
+  ASSERT_FALSE( checkValue(myStr, assumedStr, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+  */
+}
+
+TEST(testCompare, checkValueForNumbersWorksForConcreteAssumedValue) {
+  double myNum = 1.256;
+  std::string assumedNum = "1.256";
+  std::string errorMessage = "";
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNum = 1.255;
+  ASSERT_FALSE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+}
+
+TEST(testCompare, checkValueForNumbersWorksWithEqualSign) {
+  double myNum = 1.256;
+  std::string assumedNum = "=1.256";
+  std::string errorMessage = "";
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNum = 1.255;
+  ASSERT_FALSE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+
+  myNum = 1.256;
+  assumedNum = "==1.256";
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNum = 1.255;
+  ASSERT_FALSE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+}
+
+TEST(testCompare, checkValueForNumbersWorksWithGtSign) {
+  double myNum = 1.257;
+  std::string assumedNum = ">1.256";
+  std::string errorMessage = "";
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNum = 1.256;
+  ASSERT_FALSE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+
+  myNum = 1.257;
+  assumedNum = ">=1.256";
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNum = 1.256;
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNum = 1.255;
+  ASSERT_FALSE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+}
+
+TEST(testCompare, checkValueForNumbersWorksWithLtSign) {
+  double myNum = 1.255;
+  std::string assumedNum = "<1.256";
+  std::string errorMessage = "";
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNum = 1.256;
+  ASSERT_FALSE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+
+  myNum = 1.255;
+  assumedNum = "<=1.256";
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNum = 1.256;
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNum = 1.257;
+  ASSERT_FALSE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+}
+
+TEST(testCompare, checkValueForNumbersWorksInsideInterval) {
+  double myNum = 1.255;
+  std::string assumedNum = ">1.254&&<1.256";
+  std::string errorMessage = "";
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNum = 1.256;
+  ASSERT_FALSE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+
+  myNum = 1.255;
+  assumedNum = ">=1.254&&<=1.256";
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNum = 1.256;
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNum = 1.257;
+  ASSERT_FALSE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+}
+
+TEST(testCompare, checkValueForNumbersWorksOutsideInterval) {
+  double myNum = 1.253;
+  std::string assumedNum = "<1.254||>1.256";
+  std::string errorMessage = "";
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNum = 1.255;
+  ASSERT_FALSE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+
+  myNum = 1.254;
+  assumedNum = "<=1.254||>=1.256";
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNum = 1.256;
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNum = 1.255;
+  ASSERT_FALSE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
 }

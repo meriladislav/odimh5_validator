@@ -25,10 +25,6 @@ static bool ucharDatasetHasImageAttributes(const H5Layout& h5layout,
 static bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard& odimStandard);
 static void splitNodePath(const std::string& node, std::string& parent, std::string& child);
 static void addIfUnique(std::vector<std::string>& list, const std::string& str);
-static bool checkValue(const std::string& attrValue, const std::string& assumedValueStr,
-                       std::string& errorMessage);
-static bool checkValue(const double attrValue, const std::string& assumedValueStr,
-                       std::string& errorMessage);
 static bool hasIntervalSigns(const std::string& assumedValueStr);
 static bool checkValueInterval(const double attrValue, const std::string& assumedValueStr,
                                std::string& errorMessage);
@@ -472,15 +468,23 @@ bool hasIntervalSigns(const std::string& assumedValueStr) {
 
 bool checkValueInterval(const double attrValue, const std::string& assumedValueStr,
                         std::string& errorMessage) {
-  std::cout << "dbg - check interval ..." << std::endl;
-
   //split interval description
-  const std::string delimiter = "&&";
-  const auto splitPosi = assumedValueStr.find(delimiter);
+  const std::string andDelimiter = "&&";
+  bool isAnd = false;
+  const std::string orDelimiter = "||";
+  bool isOr = false;
+  auto splitPosi = assumedValueStr.find(andDelimiter);
+  if ( splitPosi==std::string::npos ) {
+    splitPosi = assumedValueStr.find(orDelimiter);
+    isOr = splitPosi!=std::string::npos;
+  }
+  else {
+    isAnd = true;
+  }
   std::string first = assumedValueStr.substr(0,splitPosi);
   std::string second = splitPosi!=std::string::npos ?
-                       assumedValueStr.substr(splitPosi+delimiter.length()) : "";
-  std::cout << "dbg - first = " << first << ", second = " << second << std::endl;
+                       assumedValueStr.substr(splitPosi+andDelimiter.length()) : "";
+  //std::cout << "dbg - first = " << first << ", second = " << second << std::endl;
 
   //get first sign and number
   std::string firstSign, firstNumberStr;
@@ -505,8 +509,8 @@ bool checkValueInterval(const double attrValue, const std::string& assumedValueS
     }
   }
   const double secondNumber = secondNumberStr.empty() ? std::nan("") : std::stod(secondNumberStr);
-  std::cout << "dbg - firstSign = " << firstSign << ", firstNumber = " << firstNumber <<
-               ", secondSign = " << secondSign << ", secondNumber = " << secondNumber << std::endl;
+  //std::cout << "dbg - firstSign = " << firstSign << ", firstNumber = " << firstNumber <<
+  //             ", secondSign = " << secondSign << ", secondNumber = " << secondNumber << std::endl;
 
   bool result = false;
   if ( firstSign == "=" || firstSign == "==" ) {
@@ -526,24 +530,47 @@ bool checkValueInterval(const double attrValue, const std::string& assumedValueS
   }
 
   if ( !std::isnan(secondNumber) ) {
-    if ( secondSign == "=" || secondSign == "==" ) {
-      result = result && std::fabs(attrValue - secondNumber) < MAX_DOUBLE_DIFF;
+    if ( isAnd ) {
+      if ( secondSign == "=" || secondSign == "==" ) {
+        result = result && std::fabs(attrValue - secondNumber) < MAX_DOUBLE_DIFF;
+      }
+      else if ( secondSign == "<=" ) {
+        result = result && attrValue <= secondNumber;
+      }
+      else if ( secondSign == "<" ) {
+        result = result && attrValue < secondNumber;
+      }
+      else if ( secondSign == ">=" ) {
+        result = result && attrValue >= secondNumber;
+      }
+      else if ( secondSign == ">" ) {
+        result = result && attrValue > secondNumber;
+      }
     }
-    else if ( secondSign == "<=" ) {
-      result = result && attrValue <= secondNumber;
+    else if ( isOr ) {
+      if ( secondSign == "=" || secondSign == "==" ) {
+        result = result || std::fabs(attrValue - secondNumber) < MAX_DOUBLE_DIFF;
+      }
+      else if ( secondSign == "<=" ) {
+        result = result || attrValue <= secondNumber;
+      }
+      else if ( secondSign == "<" ) {
+        result = result || attrValue < secondNumber;
+      }
+      else if ( secondSign == ">=" ) {
+        result = result || attrValue >= secondNumber;
+      }
+      else if ( secondSign == ">" ) {
+        result = result || attrValue > secondNumber;
+      }
     }
-    else if ( secondSign == "<" ) {
-      result = result && attrValue < secondNumber;
-    }
-    else if ( secondSign == ">=" ) {
-      result = result && attrValue >= secondNumber;
-    }
-    else if ( secondSign == ">" ) {
-      result = result && attrValue > secondNumber;
+    else {
+      throw std::runtime_error("ERROR - unknown sign in the "+
+                               assumedValueStr+" PossibleValues string");
     }
   }
 
-  std::cout << "dbg - result = " << result << std::endl;
+  //std::cout << "dbg - result = " << result << std::endl;
   if ( result ) {
     errorMessage = "";
   }
