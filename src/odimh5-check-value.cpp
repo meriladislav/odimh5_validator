@@ -48,14 +48,15 @@ int main(int argc, const char* argv[]) {
   }
 
   bool valueIsOK = false;
-  std::string realValue = "";
+  std::string actualValueStr = "";
+  std::string errorMessage="";
   try {
   if ( myodim::isStringValue(strAssumedValue) || strAssumedType == "string" ) {
-    std::string value;
     if ( h5layout.isStringAttribute(attrName) ) {
-      h5layout.getAttributeValue(attrName, value);
-      valueIsOK =  value == strAssumedValue;
-      realValue = value;
+      std::string attrValue = "";
+      h5layout.getAttributeValue(attrName, attrValue);
+      valueIsOK = myodim::checkValue(attrValue, strAssumedValue, errorMessage);
+      actualValueStr = attrValue;
     }
     else {
       std::cout << "WARNING - NON-STANDARD DATA TYPE - the type of " << attrName << " is not string, " <<
@@ -64,12 +65,12 @@ int main(int argc, const char* argv[]) {
   }
   else {
     if ( myodim::hasDoublePoint(strAssumedValue) || strAssumedType == "real" ) {
-      const double assumedValue = std::stod(strAssumedValue);
       double value;
       if ( h5layout.isReal64Attribute(attrName) ) {
          h5layout.getAttributeValue(attrName, value);
-         valueIsOK =  std::fabs(value - assumedValue) < 0.001;
-         realValue = std::to_string(value);
+         const bool isReal = true;
+         valueIsOK =  myodim::checkValue(value, strAssumedValue, errorMessage, isReal);
+         actualValueStr = std::to_string(value);
       }
       else {
         std::cout << "WARNING - NON-STANDARD DATA TYPE - the type of " << attrName << " is not 64-bit real, " <<
@@ -77,12 +78,12 @@ int main(int argc, const char* argv[]) {
       }
     }
     else {
-      const int64_t assumedValue = std::stoi(strAssumedValue);
       int64_t value;
       if ( h5layout.isInt64Attribute(attrName) ) {
          h5layout.getAttributeValue(attrName, value);
-         valueIsOK =  value == assumedValue;
-         realValue = std::to_string(value);
+         const bool isNoReal = false;
+         valueIsOK =  myodim::checkValue(value, strAssumedValue, errorMessage, isNoReal);
+         actualValueStr = std::to_string(value);
       }
       else {
         std::cout << "WARNING - NON-STANDARD DATA TYPE - the type of " << attrName << " is not 64-bit integer, " <<
@@ -98,15 +99,13 @@ int main(int argc, const char* argv[]) {
 
   if ( valueIsOK ) {
     if ( myodim::printInfo ) {
-      std::cout << "INFO - OK - the value of " << attrName << " is " << strAssumedValue << std::endl;
+      std::cout << "INFO - OK - the value of " << attrName << " is " << actualValueStr <<
+                   ", which matches the " << strAssumedValue << " assumed value" << std::endl;
     }
     return 0;
   }
   else {
-    if ( !realValue.empty() ) {
-      std::cout << "WARNING - INCORRECT VALUE - the value of " << attrName << " is not " <<
-                   strAssumedValue << ", it is " << realValue << std::endl;
-    }
+    std::cout << "WARNING - INCORRECT VALUE - the value of " << attrName << " " << errorMessage;
     return -1;
   }
 }
