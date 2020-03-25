@@ -121,7 +121,7 @@ Examples:
 - to check whether the exact value of the "/how/wavelength" real attribute is **equal to** 5.352 use the exact value or the "=" or "==" logical operators:  
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "5.352" -t real`    
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "=5.352" -t real`  
-`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "==5.352" -t real`
+`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "==5.352" -t real`  
 - to check whether the value of the "/how/wavelength" real attribute is **less than or greater than some value** use the "<, ">", "<=" and ">=" logical operators. WARNING - You should use the quotation marks to not parse the "<" and ">" signs by the shell as redirections :  
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">5.0" -t real`  
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">=5" -t real`  
