@@ -25,7 +25,7 @@ This will compile all the necessary sources and create the odimh5-validate binar
 The last step is to setup the `ODIMH5_VALIDATOR_CSV_DIR` environment variable, 
 which is the path to the directory with the csv tables describing the ODIM-H5 standard. 
 The default csv tables are in the odimh5_validator/data subdirectory, 
-so You can set the `ODIMH5_VALIDATOR_CSV_DIR` variable as the full path to this directoty 
+so You can set the `ODIMH5_VALIDATOR_CSV_DIR` variable as the full path to this directory 
 (the best solution is to add this line to Your ~/.profile or ~/.bashrc file):
 
     $export ODIMH5_VALIDATOR_CSV_DIR=/your/path/there/odimh5_validator/data
@@ -36,7 +36,7 @@ so You can set the `ODIMH5_VALIDATOR_CSV_DIR` variable as the full path to this 
 $odimh5-validate [OPTION...]
 
  Mandatory options:
-  -i, --input arg  input ODIM-H5 file to analyse
+  -i, --input arg  input ODIM-H5 file to analyze
 
  Optional options:
   -h, --help           print this help message
@@ -56,7 +56,7 @@ $odimh5-validate [OPTION...]
                        default is False
 ```
 
-Program to analyse the ODIM-H5 standard-conformance.
+Program to analyze the ODIM-H5 standard-conformance.
 
 You can set the desired ODIM-H5 standard definition csv file in three ways:
 
@@ -65,14 +65,14 @@ and creates the name of the csv file as `ODIMH5_VALIDATOR_CSV_DIR/ODIM_H5_VX_Y_O
 
 - using the `-c` or `--csv` option, You can set any path to a file intended to use as the ODIM-H5 standard definition file
 
-- using the `-v` or `--version` option, You can set the desired stdandard version number (e.g. 2.2), 
+- using the `-v` or `--version` option, You can set the desired standard version number (e.g. 2.2), 
 and the program is creating the name of the csv file in the similar manner as in the first option, but it uses the supplied numbers for X and Y
 
-You can add an additional table with assumed attribute values for the given ODIM-H5 file by the `-t` or `--valueTable` option. The format of this table should be the same as of the standard definition csv file. To check only the values defined by this table (without checking the whole ODIM compliance) use the `--onlyValueCheck` option.
+You can add an additional table with assumed attribute values for the given ODIM-H5 file by the `-t` or `--valueTable` option. The format of this table should be the same as of the standard definition csv file. To check only the values defined by this table (without checking the whole ODIM compliance) use the `--onlyValueCheck` option. For further info please see the [Assumed Value Definition Format](#AVDF) paragraph.
 
-The default behaviour is to check only the presence and layout of the mandatory items. 
-You can enable the controlling of the optional items wiht the `-checkOptional` option 
-and enable the chcecking of the presence of some extar items not mentioned in the standard with the `--checkExtras` option.
+The default behavior is to check only the presence and layout of the mandatory items. 
+You can enable the controlling of the optional items with the `-checkOptional` option 
+and enable the checking of the presence of some extra items not mentioned in the standard with the `--checkExtras` option.
 
 To restrict the output only to WARNING and ERROR messages You can use the `--noInfo` option.
 
@@ -81,7 +81,7 @@ To restrict the output only to WARNING and ERROR messages You can use the `--noI
 $odimh5-check-value [OPTION...]
 
   Mandatory options:
-  -i, --input arg      input ODIM-H5 file to analyse
+  -i, --input arg      input ODIM-H5 file to analyze
   -a, --attribute arg  the full path to the attribute to check
   -v, --value arg      the assumed value of the attribute
 
@@ -98,12 +98,48 @@ Program to check the value of an attribute in a ODIM-H5 file.
 
 This program is used to simply check the value of a given attribute. It runs faster, because it doesn\`t need to load all the hdf5 file structure and the ODIM standard. 
 
-The assumed type of the attribute can be set by the `-t` or `--type` option, or can be detected according to its value - set by the `-v` or `--value` option. It is assumed to be a string if any alphabetical letter appears in the value. It\`s assumed to be a 64-bit real if it isn\`t a string and has a decimal point. In any other cases the value is assumed to be a 64-bit integer.
+The assumed type of the attribute can be set by the `-t` or `--type` option, or can be detected according to its value - set by the `-v` or `--value` option. It is assumed to be a string if any alphabetical letter appears in the value. It\`s assumed to be a 64-bit real if it isn\`t a string and has a decimal point. In any other cases the value is assumed to be a 64-bit integer. For further info please see the [Assumed Value Definition Format](#AVDF) paragraph.
 
 To restrict the output only to WARNING and ERROR messages You can use the `--noInfo` option.
 
-#### Examples ####
+
+##### <a name="AVDF"></a>Assumed Value Definition Format #####
+This paragraph describes the format to define the assumed value of the attributes used in the PossibleValues column of the standard-definition csv tables and by the `-v` or `--value` option of the `odimh5-check-value` program.
+
+To check the value of **string attributes** use the exact assumed value or an [ECMAScript regular expression](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions) (regex) - some example regular expressions are in the standard-definition csv tables.  
+
+Examples:  
+- to check whether the exact value of the "/how/system" string attribute is "SKJAV" use the exact value :  
+`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/system -v "SKJAV" -t string`
+- to check whether the value of the "/how/system" string attribute starts with the "SK" substring use regex :  
+`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/system -v "SK.*" -t string`
+
+
+To check the value of **real and int attributes** use the exact assumed value or a logical expression according to the examples below.  
+
+Examples:  
+- to check whether the exact value of the "/how/wavelength" real attribute is **equal to** 5.352 use the exact value or the "=" or "==" logical operators:  
+`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "5.352" -t real`  
+`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "=5.352" -t real`  
+`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "==5.352" -t real`
+- to check whether the value of the "/how/wavelength" real attribute is **less than or greater than some value** use the "<, ">", "<=" and ">=" logical operators. WARNING - You should use the quotation marks to not parse the "<" and ">" signs by the shell as redirections :  
+`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">5.0" -t real`  
+`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">=5" -t real`  
+`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<6" -t real`
+`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<=6.0" -t real`
+- to check whether the value of the "/how/wavelength" real attribute **lies inside some interval** use the "&&" (and) logical operator. WARNING - You should use the quotation marks to not parse the "<" and ">" signs by the shell as redirections :  
+`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">5.0&&<6.0" -t real` 
+`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">=5.0&&<=6.0" -t real` 
+- to check whether the value of the "/how/wavelength" real attribute **lies outside some interval** use the "||" (or) logical operator. WARNING - You should use the quotation marks to not parse the "<" and ">" signs by the shell as redirections : 
+`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<6.0||>7.0" -t real` 
+`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<=5.352||>=6.0" -t real` 
+
+The same type of logical expressions should be used also in the column "PossibleValues" in the csv tables used by the `odimh5-validate` program - see exmple in the `data/example/T_PAGZ41_C_LZIB.values.interval.csv` table.
+
+
+#### Example Files ####
 You can find some example ODIM-H5 volumes in the odimh5_validator/data/examples subdirectory.
+
 
 
 ### Contact ###
