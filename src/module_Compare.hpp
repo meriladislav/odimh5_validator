@@ -23,7 +23,7 @@ extern bool hasDoublePoint(const std::string& value);
 extern bool checkValue(const std::string& attrValue, const std::string& assumedValueStr,
                        std::string& errorMessage);
 extern bool checkValue(const double attrValue, const std::string& assumedValueStr,
-                       std::string& errorMessage);
+                       std::string& errorMessage, const bool isReal=false);
 
 
 }

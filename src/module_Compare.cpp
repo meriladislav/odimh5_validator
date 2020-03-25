@@ -437,7 +437,7 @@ bool checkValue(const std::string& attrValue, const std::string& assumedValueStr
 }
 
 bool checkValue(const double attrValue, const std::string& assumedValueStr,
-                std::string& errorMessage) {
+                std::string& errorMessage, const bool isReal) {
   bool hasProperValue = true;
   if ( hasIntervalSigns(assumedValueStr) ) {
 
@@ -449,7 +449,7 @@ bool checkValue(const double attrValue, const std::string& assumedValueStr,
     const double assumedValue = std::stod(assumedValueStr);
     hasProperValue = std::fabs(attrValue - assumedValue) < MAX_DOUBLE_DIFF;
     if ( !hasProperValue ) {
-      const std::string attrValueStr = hasDoublePoint(assumedValueStr) ?
+      const std::string attrValueStr = hasDoublePoint(assumedValueStr) || isReal ?
                                        std::to_string(attrValue) :
                                        std::to_string((int)attrValue);
       errorMessage = "with value \"" + attrValueStr +
