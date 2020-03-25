@@ -46,6 +46,6 @@ LIB_FLAGS += -L$(LIB_DIR) \
 LIB_FLAGS += $(shell $(H5CC) -showconfig | \
                      grep "Extra libraries:" | \
                      awk -F': ' '{print $$2}' ) 
-LIB_FLAGS += -Wl,--end-group
+LIB_FLAGS += -lpthread -Wl,--end-group
             
  
