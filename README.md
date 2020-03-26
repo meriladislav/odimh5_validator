@@ -98,40 +98,59 @@ Program to check the value of an attribute in a ODIM-H5 file.
 
 This program is used to simply check the value of a given attribute. It runs faster, because it doesn\`t need to load all the hdf5 file structure and the ODIM standard. 
 
-The assumed type of the attribute can be set by the `-t` or `--type` option, or can be detected according to its value - set by the `-v` or `--value` option. It is assumed to be a string if any alphabetical letter appears in the value. It\`s assumed to be a 64-bit real if it isn\`t a string and has a decimal point. In any other cases the value is assumed to be a 64-bit integer. For further info please see the [Assumed Value Definition Format](#AVDF) paragraph.
+The assumed type of the attribute can be set by the `-t` or `--type` option, or can be detected according to its value - set by the `-v` or `--value` option. It is assumed to be a string if any alphabetical letter appears in the value. It\`s assumed to be a 64-bit real if it isn\`t a string and has a decimal point. In any other cases the value is assumed to be a 64-bit integer. For further info please see the [Assumed Value Definition Format](#avdf) paragraph.
 
 To restrict the output only to WARNING and ERROR messages You can use the `--noInfo` option.
 
 
-##### <a name="AVDF"></a>Assumed Value Definition Format #####
+##### Assumed Value Definition Format #####
 This paragraph describes the format to define the assumed value of the attributes used in the PossibleValues column of the standard-definition csv tables and by the `-v` or `--value` option of the `odimh5-check-value` program.
 
 To check the value of **string attributes** use the exact assumed value or an [ECMAScript regular expression](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions) (regex) - some example regular expressions are in the standard-definition csv tables.  
 
 Examples:  
+
 - to check whether the exact value of the "/how/system" string attribute is "SKJAV" use the exact value :  
+
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/system -v "SKJAV" -t string`  
+
 - to check whether the value of the "/how/system" string attribute starts with the "SK" substring use regex :  
+
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/system -v "SK.*" -t string`  
-
-
+  
+  
 To check the value of **real and int attributes** use the exact assumed value or a logical expression according to the examples below.  
 
 Examples:  
+
 - to check whether the exact value of the "/how/wavelength" real attribute is **equal to** 5.352 use the exact value or the "=" or "==" logical operators:  
+
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "5.352" -t real`    
+
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "=5.352" -t real`  
+
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "==5.352" -t real`  
+
 - to check whether the value of the "/how/wavelength" real attribute is **less than or greater than some value** use the "<, ">", "<=" and ">=" logical operators. WARNING - You should use the quotation marks to not parse the "<" and ">" signs by the shell as redirections :  
+
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">5.0" -t real`  
+
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">=5" -t real`  
+
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<6" -t real`
+
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<=6.0" -t real`  
+
 - to check whether the value of the "/how/wavelength" real attribute **lies inside some interval** use the "&&" (and) logical operator. WARNING - You should use the quotation marks to not parse the "<" and ">" signs by the shell as redirections :  
+
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">5.0&&<6.0" -t real` 
+
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">=5.0&&<=6.0" -t real`   
+
 - to check whether the value of the "/how/wavelength" real attribute **lies outside some interval** use the "||" (or) logical operator. WARNING - You should use the quotation marks to not parse the "<" and ">" signs by the shell as redirections :  
+
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<6.0||>7.0" -t real`  
+
 `$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<=5.352||>=6.0" -t real`   
 
 The same type of logical expressions should be used also in the column "PossibleValues" in the csv tables used by the `odimh5-validate` program - see exmple in the `data/example/T_PAGZ41_C_LZIB.values.interval.csv` table.
