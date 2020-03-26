@@ -68,7 +68,7 @@ and creates the name of the csv file as `ODIMH5_VALIDATOR_CSV_DIR/ODIM_H5_VX_Y_O
 - using the `-v` or `--version` option, You can set the desired standard version number (e.g. 2.2), 
 and the program is creating the name of the csv file in the similar manner as in the first option, but it uses the supplied numbers for X and Y
 
-You can add an additional table with assumed attribute values for the given ODIM-H5 file by the `-t` or `--valueTable` option. The format of this table should be the same as of the standard definition csv file. To check only the values defined by this table (without checking the whole ODIM compliance) use the `--onlyValueCheck` option. For further info please see the [Assumed Value Definition Format](#AVDF) paragraph.
+You can add an additional table with assumed attribute values for the given ODIM-H5 file by the `-t` or `--valueTable` option. The format of this table should be the same as of the standard definition csv file. To check only the values defined by this table (without checking the whole ODIM compliance) use the `--onlyValueCheck` option. For further info please see the [Assumed Value Definition Format](#markdown-header-assumed-value-definition-format) paragraph.
 
 The default behavior is to check only the presence and layout of the mandatory items. 
 You can enable the controlling of the optional items with the `-checkOptional` option 
@@ -98,7 +98,7 @@ Program to check the value of an attribute in a ODIM-H5 file.
 
 This program is used to simply check the value of a given attribute. It runs faster, because it doesn\`t need to load all the hdf5 file structure and the ODIM standard. 
 
-The assumed type of the attribute can be set by the `-t` or `--type` option, or can be detected according to its value - set by the `-v` or `--value` option. It is assumed to be a string if any alphabetical letter appears in the value. It\`s assumed to be a 64-bit real if it isn\`t a string and has a decimal point. In any other cases the value is assumed to be a 64-bit integer. For further info please see the [Assumed Value Definition Format](#avdf) paragraph.
+The assumed type of the attribute can be set by the `-t` or `--type` option, or can be detected according to its value - set by the `-v` or `--value` option. It is assumed to be a string if any alphabetical letter appears in the value. It\`s assumed to be a 64-bit real if it isn\`t a string and has a decimal point. In any other cases the value is assumed to be a 64-bit integer. For further info please see the [Assumed Value Definition Format](#markdown-header-assumed-value-definition-format) paragraph.
 
 To restrict the output only to WARNING and ERROR messages You can use the `--noInfo` option.
 
