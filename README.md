@@ -106,7 +106,7 @@ To restrict the output only to WARNING and ERROR messages You can use the `--noI
 ##### Assumed Value Definition Format #####
 This paragraph describes the format to define the assumed value of the attributes used in the PossibleValues column of the standard-definition csv tables and by the `-v` or `--value` option of the `odimh5-check-value` program.
 
-To check the value of **string attributes** use the exact assumed value or an [ECMAScript regular expression](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions) (regex) - some example regular expressions are in the standard-definition csv tables.  
+To check the value of **string attributes** use the exact assumed value or an [ECMAScript regular expression](http://www.cplusplus.com/reference/regex/ECMAScript/) (regex) - some example regular expressions are in the standard-definition csv tables.  
 
 Examples:  
 

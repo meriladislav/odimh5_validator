@@ -24,6 +24,8 @@ extern bool checkValue(const std::string& attrValue, const std::string& assumedV
                        std::string& errorMessage);
 extern bool checkValue(const double attrValue, const std::string& assumedValueStr,
                        std::string& errorMessage, const bool isReal=false);
+extern bool checkWhatSource(const std::string& whatSource, const std::string& basicRegex,
+                            std::string& errorMessage);
 
 
 }

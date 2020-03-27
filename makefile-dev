@@ -36,6 +36,10 @@ test : $(TEST_LIST)
 	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_OdimStandard
 	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_Compare
 
+bug : $(TEST_LIST)
+	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_H5Layout --gtest_filter=*BUG*
+	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_OdimStandard --gtest_filter=*BUG*
+	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_Compare --gtest_filter=*BUG*
 	
 clean: 
 	rm -rf $(BIN_DIR)/* \

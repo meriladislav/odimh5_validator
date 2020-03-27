@@ -15,6 +15,15 @@ namespace myodim {
 
 bool printInfo{true};
 static const double MAX_DOUBLE_DIFF = 0.001;
+static const std::string WMO_REGEX = "(WMO:[0-9]{5})|(WMO:[0-9]{7})";
+static const std::string NOD_REGEX = "NOD:[\\x00-\\x7F]*";  //only ASCII
+static const std::string RAD_REGEX = "RAD:.*";
+static const std::string PLC_REGEX = "PLC:.*";
+static const std::string ORG_REGEX = "ORG:.[0-9]*";
+static const std::string CTY_REGEX = "CTY:.[0-9]*";
+static const std::string CMT_REGEX = "CMT:.*";
+static const std::string WIGOS_REGEX = "WIGOS:[0-9]*-[0-9]*-[0-9]*-[\\x00-\\x7F]*";
+
 
 static const std::string csvDirPathEnv{"ODIMH5_VALIDATOR_CSV_DIR"};
 static bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
@@ -28,6 +37,8 @@ static void addIfUnique(std::vector<std::string>& list, const std::string& str);
 static bool hasIntervalSigns(const std::string& assumedValueStr);
 static bool checkValueInterval(const double attrValue, const std::string& assumedValueStr,
                                std::string& errorMessage);
+static bool checkWhatSourceParts(const std::string& whatSource, std::string& errorMessage);
+static std::vector<std::string> splitString(std::string str, const std::string& delimiter);
 
 
 std::string getCsvFileNameFrom(const myodim::H5Layout& h5layout) {
@@ -149,6 +160,9 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   h5layout.getAttributeValue(a.name(), value);
                   std::regex valueRegex{entry.possibleValues};
                   hasProperValue = checkValue(value, entry.possibleValues, failedValueMessage);
+                  if ( a.name() == "/what/source" && hasProperValue ) {
+                    hasProperValue = checkWhatSource(value, entry.possibleValues, failedValueMessage);
+                  }
                 }
                 if ( !hasProperDatatype || !hasProperValue ) goto end_attribute_loop;
                 break;
@@ -582,6 +596,72 @@ bool checkValueInterval(const double attrValue, const std::string& assumedValueS
                    "\" doesn`t match the \"" + assumedValueStr + "\" assumed value";
   }
 
+  return result;
+}
+
+bool checkWhatSource(const std::string& whatSource, const std::string& basicRegex,
+                     std::string& errorMessage) {
+  bool result = checkValue(whatSource, basicRegex, errorMessage);
+  result = result && checkWhatSourceParts(whatSource, errorMessage);
+  return result;
+}
+
+bool checkWhatSourceParts(const std::string& whatSource, std::string& errorMessage) {
+  bool result = false;
+
+  std::vector<std::string> whatSourceParts = splitString(whatSource, ",");
+  result = !whatSourceParts.empty();
+  for (const auto& id : whatSourceParts) {
+    std::string idErrorMessage = "";
+    if ( id.find("WMO") != std::string::npos ) {
+      result = result && checkValue(id, WMO_REGEX, idErrorMessage);
+    }
+    else if ( id.find("NOD") != std::string::npos ) {
+      result = result && checkValue(id, NOD_REGEX, idErrorMessage);
+    }
+    else if ( id.find("RAD") != std::string::npos ) {
+      result = result && checkValue(id, RAD_REGEX, idErrorMessage);
+    }
+    else if ( id.find("PLC") != std::string::npos ) {
+      result = result && checkValue(id, PLC_REGEX, idErrorMessage);
+    }
+    else if ( id.find("ORG") != std::string::npos ) {
+      result = result && checkValue(id, ORG_REGEX, idErrorMessage);
+    }
+    else if ( id.find("CTY") != std::string::npos ) {
+      result = result && checkValue(id, CTY_REGEX, idErrorMessage);
+    }
+    else if ( id.find("CMT") != std::string::npos ) {
+      result = result && checkValue(id, CMT_REGEX, idErrorMessage);
+    }
+    else if ( id.find("WIGOS") != std::string::npos ) {
+      result = result && checkValue(id, WIGOS_REGEX, idErrorMessage);
+    }
+    else {
+      idErrorMessage = "source type in /what/source - " + id + " - not defined by the ODIM standard";
+      result = result && false;
+    }
+
+    if ( !idErrorMessage.empty() ) errorMessage += idErrorMessage;
+  }
+  return result;
+}
+
+std::vector<std::string> splitString(std::string str, const std::string& delimiter) {
+  std::vector<std::string> result;
+  if ( str.find(delimiter) == std::string::npos ) {
+    result.push_back(str);
+  }
+  else {
+    size_t pos = 0;
+    std::string token;
+    while ((pos = str.find(delimiter)) != std::string::npos) {
+      token = str.substr(0, pos);
+      result.push_back(token);
+      str.erase(0, pos + delimiter.length());
+    }
+    result.push_back(str);
+  }
   return result;
 }
 

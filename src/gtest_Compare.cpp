@@ -211,3 +211,85 @@ TEST(testCompare, checkValueForNumbersWorksOutsideInterval) {
   ASSERT_FALSE( checkValue(myNum, assumedNum, errorMessage) );
   ASSERT_FALSE( errorMessage.empty() );
 }
+
+
+
+TEST(testCompare, canCheckWhatSource) {
+  std::string whatSource = "WMO:11812,NOD:skjav";
+  std::string basicRegex = "(WIGOS:.*)|"  //WIGOS format
+                           "(WMO:.*)|"  //WMO format
+                           "(RAD:.*)|"
+                           "(PLC:.*)|"
+                           "(NOD:.*)|"      //NOD - should be ASCII only
+                           "(ORG:.*)|"
+                           "(CTY:.*)|"
+                           "(CMT:.*)";
+  std::string errorMessage = "";
+  ASSERT_TRUE( checkValue(whatSource, basicRegex, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  whatSource = "WIGOS:0-380-1-1";
+  errorMessage = "";
+  ASSERT_TRUE( checkWhatSource(whatSource, basicRegex, errorMessage) );
+  ASSERT_TRUE( errorMessage.empty() );
+
+  whatSource = "WMO:11812";
+  errorMessage = "";
+  ASSERT_TRUE( checkWhatSource(whatSource, basicRegex, errorMessage) );
+  ASSERT_TRUE( errorMessage.empty() );
+
+  whatSource = "WMO:0011812";
+  errorMessage = "";
+  ASSERT_TRUE( checkWhatSource(whatSource, basicRegex, errorMessage) );
+  ASSERT_TRUE( errorMessage.empty() );
+
+  whatSource = "WMO:foobar";
+  errorMessage = "";
+  ASSERT_FALSE( checkWhatSource(whatSource, basicRegex, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+
+  whatSource = "NOD:skjav";
+  errorMessage = "";
+  ASSERT_TRUE( checkWhatSource(whatSource, basicRegex, errorMessage) );
+  ASSERT_TRUE( errorMessage.empty() );
+
+  whatSource = "RAD:FI44";
+  errorMessage = "";
+  ASSERT_TRUE( checkWhatSource(whatSource, basicRegex, errorMessage) );
+  ASSERT_TRUE( errorMessage.empty() );
+
+  whatSource = "PLC:Anjalankoski";
+  errorMessage = "";
+  ASSERT_TRUE( checkWhatSource(whatSource, basicRegex, errorMessage) );
+  ASSERT_TRUE( errorMessage.empty() );
+
+  whatSource = "ORG:86";
+  errorMessage = "";
+  ASSERT_TRUE( checkWhatSource(whatSource, basicRegex, errorMessage) );
+  ASSERT_TRUE( errorMessage.empty() );
+
+  whatSource = "CTY:613";
+  errorMessage = "";
+  ASSERT_TRUE( checkWhatSource(whatSource, basicRegex, errorMessage) );
+  ASSERT_TRUE( errorMessage.empty() );
+
+  whatSource = "CMT:Suomi tutka";
+  errorMessage = "";
+  ASSERT_TRUE( checkWhatSource(whatSource, basicRegex, errorMessage) );
+  ASSERT_TRUE( errorMessage.empty() );
+
+  whatSource = "NOD:skjav,WMO:0011812";
+  errorMessage = "";
+  ASSERT_TRUE( checkWhatSource(whatSource, basicRegex, errorMessage) );
+  ASSERT_TRUE( errorMessage.empty() );
+
+  whatSource = "WMO:0011812,NOD:skjav";
+  errorMessage = "";
+  ASSERT_TRUE( checkWhatSource(whatSource, basicRegex, errorMessage) );
+  ASSERT_TRUE( errorMessage.empty() );
+
+  whatSource = "WMO:foobar,NOD:skjav";
+  errorMessage = "";
+  ASSERT_FALSE( checkWhatSource(whatSource, basicRegex, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+}
