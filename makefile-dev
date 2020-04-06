@@ -7,7 +7,7 @@
 include makefile-commons.in
 
 TEST_INC_FLAGS = $(INC_FLAGS) -I ~/wrk/inc
-TEST_LIB_FLAGS = $(LIB_FLAGS) -L ~/wrk/lib -lmygmock
+TEST_LIB_FLAGS = $(LIB_FLAGS) ~/wrk/lib/libmygmock.a
 
 LIB_LIST = $(LIB_DIR)/libmyodimh5.a 
            
