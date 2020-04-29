@@ -1,12 +1,12 @@
 Node;Category;Type;IsMandatory;PossibleValues
 /;Group;;TRUE;
-/Conventions;Attribute;string;TRUE;ODIM_H5/V2_1
+/Conventions;Attribute;string;TRUE;ODIM_H5/V2_0
 /what;Group;;TRUE;
 /what/object;Attribute;string;TRUE;PVOL
-/what/version;Attribute;string;TRUE;H5rad 2.1
+/what/version;Attribute;string;TRUE;H5rad 2.0
 /what/date;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9]
 /what/time;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9]
-/what/source;Attribute;string;TRUE;(WMO:.*)|(RAD:.*)|(PLC:.*)|(NOD:.*)|(ORG:.*)|(CTY:.*)|(CMT:.*)
+/what/source;Attribute;string;TRUE;(WMO:.*)|(RAD:.*)|(PLC:.*)|(ORG:.*)|(CTY:.*)|(CMT:.*)
 /where;Group;;TRUE;
 /where/lon;Attribute;real;TRUE;
 /where/lat;Attribute;real;TRUE;
@@ -21,6 +21,7 @@ Node;Category;Type;IsMandatory;PossibleValues
 .*how/zr_a;Attribute;real;FALSE;
 .*how/zr_b;Attribute;real;FALSE;
 .*how/kr_a;Attribute;real;FALSE;
+.*how/kr_b;Attribute;real;FALSE;
 .*how/kr_b;Attribute;real;FALSE;
 .*how/simulated;Attribute;string;FALSE;(True)?(False)?
 .*how/beamwidth;Attribute;real;FALSE;
