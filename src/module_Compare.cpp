@@ -157,11 +157,25 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                 hasProperDatatype = h5layout.isStringAttribute(a.name());
                 if ( !entry.possibleValues.empty() ) {
                   std::string value;
-                  h5layout.getAttributeValue(a.name(), value);
-                  std::regex valueRegex{entry.possibleValues};
-                  hasProperValue = checkValue(value, entry.possibleValues, failedValueMessage);
-                  if ( a.name() == "/what/source" && hasProperValue ) {
-                    hasProperValue = checkWhatSource(value, entry.possibleValues, failedValueMessage);
+                  try {
+                    h5layout.getAttributeValue(a.name(), value);
+                  }
+                  catch (const std::exception& e) {
+                	hasProperDatatype = false;
+                	const std::string message(e.what());
+                	if ( message.find("WARNING") != std::string::npos ) {
+                	  std::cout << message << std::endl;
+                	}
+                	else {
+                      throw(e);
+                	}
+                  }
+                  if ( hasProperDatatype ) {
+                    std::regex valueRegex{entry.possibleValues};
+                    hasProperValue = checkValue(value, entry.possibleValues, failedValueMessage);
+                    if ( a.name() == "/what/source" && hasProperValue ) {
+                      hasProperValue = checkWhatSource(value, entry.possibleValues, failedValueMessage);
+                    }
                   }
                 }
                 if ( !hasProperDatatype || !hasProperValue ) goto end_attribute_loop;
@@ -218,7 +232,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
       }
       switch (entry.type) {
         case OdimEntry::string :
-          message += "entry \"" + entry.node + "\" has non-standard datatype - it`s supposed to be a string, but isn`t.";
+          message += "entry \"" + entry.node + "\" has non-standard datatype - it`s supposed to be a fixed-length string, but isn`t.";
           break;
         case OdimEntry::real :
           message += "entry \"" + entry.node + "\" has non-standard datatype - it`s supposed to be a 64-bit real, but isn`t.";

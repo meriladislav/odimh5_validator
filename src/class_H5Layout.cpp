@@ -4,6 +4,7 @@
 
 #include "class_H5Layout.hpp"
 
+#include <iostream>
 #include <stdexcept>
 #include <algorithm>
 
@@ -89,13 +90,21 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::string& value
   if ( H5Tget_class(type) != H5T_STRING ) {
     throw std::runtime_error("ERROR - attribute "+attrName+" is not a STRING attribute");
   }
+  if ( H5Tis_variable_str(type) ) {
+	  throw std::runtime_error("WARNING - NON-STANDARD DATA TYPE - attribute "+
+			                   attrName+" is a variable-length string attribute,"+
+			                   " which is not supported by the ODIM standard.");
+  }
+
   char str[1024] = {'\0'};
   auto ret  = H5Aread(attr, type, str);
   if ( ret < 0  ) {
     throw std::runtime_error("ERROR - attribute "+attrName+" not read");
   }
-  H5Aclose(attr);
   value = str;
+
+  H5Tclose(type);
+  H5Aclose(attr);
   H5Oclose(parent);
 }
 
@@ -287,7 +296,7 @@ herr_t fillGroupsAndDatasets(hid_t loc_id, const char* name,
     h5lay->groups.push_back(h5Entry(objName, false));
   }
   else {
-    objName += std::string{name};
+    objName += std::string(name);
     switch (info->type) {
       case H5O_TYPE_GROUP:
         h5lay->groups.push_back(h5Entry(objName, false));
@@ -307,7 +316,7 @@ herr_t fillGroupsAndDatasets(hid_t loc_id, const char* name,
 herr_t getAttribueName(hid_t loc_id, const char* name, const H5A_info_t* ainfo, void* pNames) {
   if ( loc_id < 0 || ainfo->data_size <= 0 ) return -1;
   std::vector<std::string>* names = static_cast<std::vector<std::string>*>(pNames);
-  names->emplace_back(std::string{name});
+  names->emplace_back(std::string(name));
   return 0;
 }
 

@@ -105,7 +105,7 @@ int main(int argc, const char* argv[]) {
     return 0;
   }
   else {
-    std::cout << "WARNING - INCORRECT VALUE - the value of " << attrName << " " << errorMessage;
+    std::cout << "WARNING - INCORRECT VALUE - the value of " << attrName << " " << errorMessage << std::endl;
     return -1;
   }
 }
