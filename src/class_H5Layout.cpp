@@ -250,7 +250,7 @@ void H5Layout::checkAndOpenFile_(const std::string& h5FilePath) {
 }
 
 void H5Layout::findGroupsAndDatasets_() {
-  herr_t status = H5Ovisit(h5FileID_, H5_INDEX_NAME, H5_ITER_NATIVE, fillGroupsAndDatasets, this);
+  herr_t status = H5Ovisit(h5FileID_, H5_INDEX_NAME, H5_ITER_NATIVE, fillGroupsAndDatasets, this); //doesn`t work with hdf5 v1.12, but works with -DH5_USE_18_API
   if ( status < 0 ) {
     throw std::runtime_error{"ERROR - error while iterating objects in h5FileID_ "+h5FilePath_};
   }
