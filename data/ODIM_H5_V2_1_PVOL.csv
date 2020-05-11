@@ -71,7 +71,7 @@ Node;Category;Type;IsMandatory;PossibleValues
 .*how/azmethod;Attribute;string;FALSE;
 .*how/binmethod;Attribute;string;FALSE;
 .*how/elangles;Attribute;real;FALSE;
-.*how/startazA;Attribute;real;FALSE;
+.*how/startazA;Attribute;real array;FALSE;
 .*how/stopazA;Attribute;real;FALSE;
 .*how/startazT;Attribute;real;FALSE;
 .*how/stopazT;Attribute;real;FALSE;
