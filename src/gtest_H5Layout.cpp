@@ -123,3 +123,46 @@ TEST(testH5Layout, canSayDatasetIsUchar) {
   //throws on error
   ASSERT_ANY_THROW( h5layout.isUcharDataset(dataset.name()+"x") );
 }
+
+TEST(testH5Layout, canSayIsArrayAttribute) {
+  const H5Layout h5layout(TEST_ODIM_FILE);
+
+  ASSERT_TRUE( h5layout.is1DArrayAttribute("/dataset1/how/startazA") );
+  ASSERT_FALSE( h5layout.is1DArrayAttribute("/where/lon") );
+}
+
+TEST(testH5Layout, canGetValuesOfArrayAttribute) {
+  const H5Layout h5layout(TEST_ODIM_FILE);
+  std::vector<double> values;
+
+  ASSERT_NO_THROW( h5layout.getAttributeValue("/dataset1/how/startazA", values) );
+  int n = values.size();
+  ASSERT_THAT( n, Eq(360) );
+  ASSERT_THAT( values[0], Gt(0.0) );
+  ASSERT_THAT( values[0], Lt(1.0) );
+  ASSERT_THAT( values[n-1], Gt(359.0) );
+  ASSERT_THAT( values[n-1], Lt(360.0) );
+
+  ASSERT_NO_THROW( h5layout.getAttributeValue("/where/lon", values) );
+  ASSERT_THAT(  (int)values.size(), Eq(1) );
+  ASSERT_THAT( values[0], DoubleEq(17.1531) );
+}
+
+TEST(testH5Layout, canReturnMinMaxMeanOfAttribute) {
+  const H5Layout h5layout(TEST_ODIM_FILE);
+  double min=-1.0, max=-1.0, mean=-1.0;
+
+  ASSERT_NO_THROW( h5layout.attributeStatistics("/where/lon", min, max, mean) );
+  ASSERT_THAT( min, DoubleEq(17.1531) );
+  ASSERT_THAT( max, DoubleEq(17.1531) );
+  ASSERT_THAT( mean, DoubleEq(17.1531) );
+
+  min=-1.0, max=-1.0, mean=-1.0;
+  ASSERT_NO_THROW( h5layout.attributeStatistics("/dataset1/how/startazA", min, max, mean) );
+  ASSERT_THAT( min, Gt(0.0) );
+  ASSERT_THAT( min, Lt(1.0) );
+  ASSERT_THAT( max, Gt(359.0) );
+  ASSERT_THAT( max, Lt(360.0) );
+  ASSERT_THAT( mean, Gt(175.0) );
+  ASSERT_THAT( mean, Lt(185.0) );
+}

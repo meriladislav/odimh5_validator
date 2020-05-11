@@ -7,6 +7,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <algorithm>
+#include <limits>
 
 namespace myodim {
 
@@ -146,6 +147,37 @@ void H5Layout::getAttributeValue(const std::string& attrName, int64_t& value) co
   H5Oclose(parent);
 }
 
+
+void H5Layout::getAttributeValue(const std::string& attrName, std::vector<double>& values) const {
+  if ( is1DArrayAttribute(attrName) ) {
+    std::string path, name;
+    splitAttributeToPathAndName(attrName, path, name);
+    auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+    if ( parent < 0  ) {
+      throw std::runtime_error("ERROR - node "+path+" not opened");
+    }
+    auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+    if ( attr < 0  ) {
+      throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
+    }
+    auto space = H5Aget_space(attr);
+    hsize_t size=0;
+    H5Sget_simple_extent_dims(space, &size, NULL);
+    values.resize(size, 0.0);
+    auto ret = H5Aread(attr, H5T_NATIVE_DOUBLE, values.data());
+    if ( ret < 0  ) {
+      throw std::runtime_error("ERROR - attribute "+attrName+" not read");
+    }
+    H5Sclose(space);
+    H5Aclose(attr);
+    H5Oclose(parent);
+  }
+  else {
+    values.resize(1);
+    getAttributeValue(attrName, values[0]);
+  }
+}
+
 bool H5Layout::isStringAttribute(const std::string& attrName) const {
   std::string path, name;
   splitAttributeToPathAndName(attrName, path, name);
@@ -235,6 +267,47 @@ bool H5Layout::isUcharDataset(const std::string& dsetName) const {
   H5Tclose(type);
   H5Dclose(dset);
   return isUchar;
+}
+
+bool H5Layout::is1DArrayAttribute(const std::string& attrName) const {
+  std::string path, name;
+  splitAttributeToPathAndName(attrName, path, name);
+  auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
+  }
+  auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+  if ( attr < 0  ) {
+    throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
+  }
+  auto space = H5Aget_space(attr);
+  auto rank = H5Sget_simple_extent_ndims(space);
+  bool isArray = rank == 1;
+  H5Sclose(space);
+  H5Aclose(attr);
+  H5Oclose(parent);
+  return isArray;
+}
+
+void H5Layout::attributeStatistics(const std::string& attrName,
+                                   double& min, double& max, double& mean) const {
+  if ( is1DArrayAttribute(attrName) ) {
+    std::vector<double> values;
+    getAttributeValue(attrName, values);
+    min = std::numeric_limits<double>::max();
+    max = std::numeric_limits<double>::lowest();
+    mean = 0.0;
+    for (const double v : values) {
+      if ( v < min ) min = v;
+      if ( v > max ) max = v;
+      mean += v;
+    }
+    mean /= values.size();
+  }
+  else {
+    getAttributeValue(attrName, min);
+    max = min; mean = min;
+  }
 }
 
 void H5Layout::checkAndOpenFile_(const std::string& h5FilePath) {
