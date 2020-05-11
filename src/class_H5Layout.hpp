@@ -43,6 +43,7 @@ class H5Layout {
     void getAttributeValue(const std::string& attrName, double& value) const;
     void getAttributeValue(const std::string& attrName, int64_t& value) const;
     void getAttributeValue(const std::string& attrName, std::vector<double>& values) const;
+    void getAttributeValue(const std::string& attrName, std::vector<int64_t>& values) const;
     bool isStringAttribute(const std::string& attrName) const;
     bool isReal64Attribute(const std::string& attrName) const;
     bool isInt64Attribute(const std::string& attrName) const;
@@ -51,6 +52,8 @@ class H5Layout {
     bool is1DArrayAttribute(const std::string& attrName) const;
     void attributeStatistics(const std::string& attrName,
                              double& min, double& max, double& mean) const;
+    void attributeStatistics(const std::string& attrName,
+                             int64_t& min, int64_t& max, int64_t& mean) const;
     
   private:
     std::string h5FilePath_{""};
