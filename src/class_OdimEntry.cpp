@@ -39,18 +39,18 @@ void OdimEntry::parseCategory_(const std::string categoryStr) {
     
 void OdimEntry::parseType_(const std::string typeStr) {
   if ( isGroup() || isDataset() ) {
-    type = undefined;
+    type = Undefined;
     return;
   }
   const std::string lowerTypeStr = toLower(typeStr);
   if ( containsSubString(lowerTypeStr, "string") )
-    type = containsSubString(lowerTypeStr, "array") ? Type::stringArray : Type::string;
+    type = containsSubString(lowerTypeStr, "array") ? Type::StringArray : Type::String;
   else if ( containsSubString(lowerTypeStr, "real") )
-    type = containsSubString(lowerTypeStr, "array") ? Type::realArray : Type::real;
+    type = containsSubString(lowerTypeStr, "array") ? Type::RealArray : Type::Real;
   else if ( containsSubString(lowerTypeStr, "integer") )
-    type = containsSubString(lowerTypeStr, "array") ? Type::integerArray : Type::integer;
+    type = containsSubString(lowerTypeStr, "array") ? Type::IntegerArray : Type::Integer;
   else if ( containsSubString(lowerTypeStr, "boolean") )
-    type = containsSubString(lowerTypeStr, "array") ? Type::booleanArray : Type::boolean;
+    type = containsSubString(lowerTypeStr, "array") ? Type::BooleanArray : Type::Boolean;
   else throw std::invalid_argument{"Unknown type - "+typeStr};
 }
     

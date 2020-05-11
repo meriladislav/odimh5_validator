@@ -13,13 +13,13 @@ namespace myodim {
 class OdimEntry {
   public:
     enum Category { Group, Attribute, Dataset };
-    enum Type { string, real, integer, boolean,
-                stringArray, realArray, integerArray, booleanArray,
-                undefined };
+    enum Type { String, Real, Integer, Boolean,
+                StringArray, RealArray, IntegerArray, BooleanArray,
+                Undefined };
     
     std::string node{""};
     Category    category{Group};
-    Type        type{string};
+    Type        type{String};
     bool        isMandatory{false};
     std::string possibleValues{""};
     
