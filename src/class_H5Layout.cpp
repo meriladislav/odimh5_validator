@@ -319,11 +319,13 @@ bool H5Layout::is1DArrayAttribute(const std::string& attrName) const {
   return isArray;
 }
 
-void H5Layout::attributeStatistics(const std::string& attrName,
+void H5Layout::attributeStatistics(const std::string& attrName, double& first, double& last,
                                    double& min, double& max, double& mean) const {
   if ( is1DArrayAttribute(attrName) ) {
     std::vector<double> values;
     getAttributeValue(attrName, values);
+    first = values.front();
+    last = values.back();
     min = std::numeric_limits<double>::max();
     max = std::numeric_limits<double>::lowest();
     mean = 0.0;
@@ -335,16 +337,18 @@ void H5Layout::attributeStatistics(const std::string& attrName,
     mean /= values.size();
   }
   else {
-    getAttributeValue(attrName, min);
-    max = min; mean = min;
+    getAttributeValue(attrName, first);
+    last = first; min = first; max = first; mean = first;
   }
 }
 
-void H5Layout::attributeStatistics(const std::string& attrName,
+void H5Layout::attributeStatistics(const std::string& attrName, int64_t& first, int64_t& last,
                                    int64_t& min, int64_t& max, int64_t& mean) const {
   if ( is1DArrayAttribute(attrName) ) {
     std::vector<int64_t> values;
     getAttributeValue(attrName, values);
+    first = values.front();
+    last = values.back();
     min = std::numeric_limits<int64_t>::max();
     max = std::numeric_limits<int64_t>::lowest();
     mean = 0.0;
@@ -356,8 +360,8 @@ void H5Layout::attributeStatistics(const std::string& attrName,
     mean /= values.size();
   }
   else {
-    getAttributeValue(attrName, min);
-    max = min; mean = min;
+    getAttributeValue(attrName, first);
+    last = first; min = first; max = first; mean = first;
   }
 }
 

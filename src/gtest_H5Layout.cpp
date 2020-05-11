@@ -150,15 +150,21 @@ TEST(testH5Layout, canGetValuesOfArrayAttribute) {
 
 TEST(testH5Layout, canReturnMinMaxMeanOfAttribute) {
   const H5Layout h5layout(TEST_ODIM_FILE);
-  double min=-1.0, max=-1.0, mean=-1.0;
+  double first=-1.0, last=-1.0, min=-1.0, max=-1.0, mean=-1.0;
 
-  ASSERT_NO_THROW( h5layout.attributeStatistics("/where/lon", min, max, mean) );
+  ASSERT_NO_THROW( h5layout.attributeStatistics("/where/lon", first, last, min, max, mean) );
+  ASSERT_THAT( first, DoubleEq(17.1531) );
+  ASSERT_THAT( last, DoubleEq(17.1531) );
   ASSERT_THAT( min, DoubleEq(17.1531) );
   ASSERT_THAT( max, DoubleEq(17.1531) );
   ASSERT_THAT( mean, DoubleEq(17.1531) );
 
-  min=-1.0, max=-1.0, mean=-1.0;
-  ASSERT_NO_THROW( h5layout.attributeStatistics("/dataset1/how/startazA", min, max, mean) );
+  first=-1.0, last=-1.0, min=-1.0, max=-1.0, mean=-1.0;
+  ASSERT_NO_THROW( h5layout.attributeStatistics("/dataset1/how/startazA", first, last, min, max, mean) );
+  ASSERT_THAT( first, Gt(0.0) );
+  ASSERT_THAT( first, Lt(1.0) );
+  ASSERT_THAT( last, Gt(359.0) );
+  ASSERT_THAT( last, Lt(360.0) );
   ASSERT_THAT( min, Gt(0.0) );
   ASSERT_THAT( min, Lt(1.0) );
   ASSERT_THAT( max, Gt(359.0) );
