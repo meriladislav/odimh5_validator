@@ -29,8 +29,6 @@ static const std::string csvDirPathEnv{"ODIMH5_VALIDATOR_CSV_DIR"};
 static bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
                             const bool checkOptional);
 static bool checkExtraFeatures(const myodim::H5Layout& h5layout, const OdimStandard& odimStandard);
-static bool ucharDatasetHasImageAttributes(const H5Layout& h5layout,
-                                           const std::string dsetPath);
 static bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard& odimStandard);
 static void splitNodePath(const std::string& node, std::string& parent, std::string& child);
 static void addIfUnique(std::vector<std::string>& list, const std::string& str);
@@ -39,6 +37,10 @@ static bool checkValueInterval(const double attrValue, const std::string& assume
                                std::string& errorMessage);
 static bool checkWhatSourceParts(const std::string& whatSource, std::string& errorMessage);
 static std::vector<std::string> splitString(std::string str, const std::string& delimiter);
+static void printWrongTypeMessage(const OdimEntry& entry, const h5Entry& attr);
+static void printIncorrectValueMessage(const OdimEntry& entry, const h5Entry& attr,
+                                       const std::string& failedValueMessage);
+static void printWrongImageAttributes(const OdimEntry& entry);
 
 
 std::string getCsvFileNameFrom(const myodim::H5Layout& h5layout) {
@@ -120,9 +122,6 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
     if ( !checkOptional && !entry.isMandatory ) continue;
     
     bool entryExists{false};
-    bool hasProperDatatype{true};
-    bool hasProperValue{true};
-    bool ucharDatasetHasProperAttributes{true};
     
     std::regex nodeRegex{entry.node};
     std::string failedValueMessage;
@@ -142,7 +141,10 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
             entryExists = true;
             d.wasFound() = true;
             if ( h5layout.isUcharDataset(d.name()) ) {
-              ucharDatasetHasProperAttributes = ucharDatasetHasImageAttributes(h5layout, d.name());
+              if ( !h5layout.ucharDatasetHasImageAttributes(d.name()) ) {
+                isCompliant = false;
+                printWrongImageAttributes(entry);
+              }
             }
           }
         }
@@ -150,6 +152,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
       case OdimEntry::Attribute :
         for (auto& a : h5layout.attributes) {
           if ( std::regex_match(a.name(), nodeRegex) ) {
+            bool hasProperDatatype, hasProperValue;
             entryExists = true;
             a.wasFound() = true;
             switch (entry.type) {
@@ -161,39 +164,62 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                     h5layout.getAttributeValue(a.name(), value);
                   }
                   catch (const std::exception& e) {
-                	hasProperDatatype = false;
-                	const std::string message(e.what());
-                	if ( message.find("WARNING") != std::string::npos ) {
-                	  std::cout << message << std::endl;
-                	}
-                	else {
+                	  hasProperDatatype = false;
+                	  const std::string message(e.what());
+                	  if ( message.find("WARNING") != std::string::npos ) {
+                	    std::cout << message << std::endl;
+                  	}
+                   	else {
                       throw(e);
-                	}
+                	  }
                   }
                   if ( hasProperDatatype ) {
                     std::regex valueRegex{entry.possibleValues};
                     hasProperValue = checkValue(value, entry.possibleValues, failedValueMessage);
                     if ( a.name() == "/what/source" && hasProperValue ) {
                       hasProperValue = checkWhatSource(value, entry.possibleValues, failedValueMessage);
+                      if ( !hasProperValue ) {
+                        isCompliant = false;
+                        printIncorrectValueMessage(entry, a, failedValueMessage);
+                      }
                     }
                   }
+                  else {
+                    isCompliant = false;
+                    printWrongTypeMessage(entry, a);
+                  }
                 }
-                if ( !hasProperDatatype || !hasProperValue ) goto end_attribute_loop;
                 break;
               case OdimEntry::Real :
                 hasProperDatatype = h5layout.isReal64Attribute(a.name());
+                if ( !hasProperDatatype ) {
+                  isCompliant = false;
+                  printWrongTypeMessage(entry, a);
+                }
                 if ( !entry.possibleValues.empty() ) {
                   double value=0.0;
                   h5layout.getAttributeValue(a.name(), value);
                   hasProperValue = checkValue(value, entry.possibleValues, failedValueMessage);
+                  if ( !hasProperValue ) {
+                    isCompliant = false;
+                    printIncorrectValueMessage(entry, a, failedValueMessage);
+                  }
                 }
                 break;
               case OdimEntry::Integer :
                 hasProperDatatype = h5layout.isInt64Attribute(a.name());
+                if ( !hasProperDatatype ) {
+                  isCompliant = false;
+                  printWrongTypeMessage(entry, a);
+                }
                 if ( !entry.possibleValues.empty() ) {
                   int64_t value=0;
                   h5layout.getAttributeValue(a.name(), value);
                   hasProperValue = checkValue(value, entry.possibleValues, failedValueMessage);
+                  if ( !hasProperValue ) {
+                    isCompliant = false;
+                    printIncorrectValueMessage(entry, a, failedValueMessage);
+                  }
                 }
                 break;
               default :
@@ -201,7 +227,6 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
             }
           }
         }
-        end_attribute_loop:
         break;
       default :
         break;
@@ -220,53 +245,6 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
       }
     }
     
-    if ( !hasProperDatatype ) {
-      std::string message;
-      if ( entry.isMandatory) {
-        isCompliant = false;
-        message = "WARNING - NON-STANDARD DATA TYPE - mandatory ";
-      }
-      else {
-        isCompliant = false;
-        message = "WARNING - NON-STANDARD DATA TYPE - optional ";
-      }
-      switch (entry.type) {
-        case OdimEntry::String :
-          message += "entry \"" + entry.node + "\" has non-standard datatype - it`s supposed to be a fixed-length string, but isn`t.";
-          break;
-        case OdimEntry::Real :
-          message += "entry \"" + entry.node + "\" has non-standard datatype - it`s supposed to be a 64-bit real, but isn`t.";
-          break;
-        case OdimEntry::Integer :
-          message += "entry \"" + entry.node + "\" has non-standard datatype - it`s supposed to be a 64-bit integer, but isn`t.";
-          break;
-        default :
-          break;
-      }
-      std::cout << message << std::endl;
-    }
-    
-    if ( !hasProperValue ) {
-      std::string message;
-      if ( entry.isMandatory) {
-        isCompliant = false;
-        message = "WARNING - INCORRECT VALUE - mandatory ";
-      }
-      else {
-        isCompliant = false;
-        message = "WARNING - INCORRECT VALUE - optional ";
-      }
-      message += "entry \"" + entry.node + "\" " + failedValueMessage + ".";
-      std::cout << message << std::endl;
-    }
-    
-    if ( !ucharDatasetHasProperAttributes ) {
-      isCompliant = false;
-      std::string message = "WARNING -  dataset \"" + entry.node + "\" " +
-    		                " is 8-bit unsigned int - it should have attributes CLASS=\"IMAGE\" and IMAGE_VERSION=\"1.2\"";
-      std::cout << message << std::endl;
-    }
-
   }
   
   return isCompliant;
@@ -323,18 +301,6 @@ bool checkExtraFeatures(const myodim::H5Layout& h5layout, const OdimStandard& od
   }
   
   return extrasPresent;
-}
-
-bool ucharDatasetHasImageAttributes(const H5Layout& h5layout,
-		                            const std::string dsetPath) {
-  if ( !h5layout.hasAttribute(dsetPath+"/CLASS") ) return false;
-  if ( !h5layout.hasAttribute(dsetPath+"/IMAGE_VERSION") ) return false;
-  std::string attrValue;
-  h5layout.getAttributeValue(dsetPath+"/CLASS", attrValue);
-  if ( attrValue != "IMAGE" ) return false;
-  h5layout.getAttributeValue(dsetPath+"/IMAGE_VERSION", attrValue);
-  if ( attrValue != "1.2" ) return false;
-  return true;
 }
 
 bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard& odimStandard) {
@@ -677,6 +643,42 @@ std::vector<std::string> splitString(std::string str, const std::string& delimit
     result.push_back(str);
   }
   return result;
+}
+
+void printWrongTypeMessage(const OdimEntry& entry, const h5Entry& attr) {
+  std::string message = "WARNING - NON-STANDARD DATA TYPE - ";
+  message += entry.isMandatory ? "mandatory" : "optional";
+  switch (entry.type) {
+    case OdimEntry::String :
+      message += " entry \"" + attr.name() + "\" has non-standard datatype - " +
+                 "it`s supposed to be a fixed-length string, but isn`t.";
+      break;
+    case OdimEntry::Real :
+      message += " entry \"" + attr.name() + "\" has non-standard datatype - " +
+                 "it`s supposed to be a 64-bit real, but isn`t.";
+      break;
+    case OdimEntry::Integer :
+      message += " entry \"" + attr.name() + "\" has non-standard datatype - " +
+                 "it`s supposed to be a 64-bit integer, but isn`t.";
+      break;
+    default :
+      break;
+  }
+  std::cout << message << std::endl;
+}
+
+void printIncorrectValueMessage(const OdimEntry& entry, const h5Entry& attr,
+                                const std::string& failedValueMessage) {
+  std::string message = "WARNING - INCORRECT VALUE - ";
+  message += entry.isMandatory ? "mandatory" : "optional";
+  message += " entry \"" + attr.name() + "\" " + failedValueMessage + ".";
+  std::cout << message << std::endl;
+}
+
+void printWrongImageAttributes(const OdimEntry& entry) {
+  std::string message = "WARNING -  dataset \"" + entry.node + "\"  is 8-bit unsigned int - " +
+                        "it should have attributes CLASS=\"IMAGE\" and IMAGE_VERSION=\"1.2\"";
+  std::cout << message << std::endl;
 }
 
 }

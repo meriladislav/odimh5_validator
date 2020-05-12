@@ -365,6 +365,18 @@ void H5Layout::attributeStatistics(const std::string& attrName, int64_t& first, 
   }
 }
 
+bool H5Layout::ucharDatasetHasImageAttributes(const std::string& dsetPath) const {
+  if ( !hasAttribute(dsetPath+"/CLASS") ) return false;
+  if ( !hasAttribute(dsetPath+"/IMAGE_VERSION") ) return false;
+  std::string attrValue;
+  getAttributeValue(dsetPath+"/CLASS", attrValue);
+  if ( attrValue != "IMAGE" ) return false;
+  getAttributeValue(dsetPath+"/IMAGE_VERSION", attrValue);
+  if ( attrValue != "1.2" ) return false;
+  return true;
+}
+
+
 void H5Layout::checkAndOpenFile_(const std::string& h5FilePath) {
   if ( H5Fis_hdf5(h5FilePath.c_str()) <= 0 ) {
     throw std::runtime_error{"ERROR - file "+h5FilePath+" is not a HDF5 file"};

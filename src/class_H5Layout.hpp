@@ -54,6 +54,7 @@ class H5Layout {
                              double& min, double& max, double& mean) const;
     void attributeStatistics(const std::string& attrName, int64_t& first, int64_t& last,
                              int64_t& min, int64_t& max, int64_t& mean) const;
+    bool ucharDatasetHasImageAttributes(const std::string& dsetPath) const;
     
   private:
     std::string h5FilePath_{""};
