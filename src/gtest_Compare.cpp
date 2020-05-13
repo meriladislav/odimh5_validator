@@ -206,7 +206,63 @@ TEST(testCompare, checkValueForNumbersWorksOutsideInterval) {
   ASSERT_FALSE( errorMessage.empty() );
 }
 
+TEST(testCompare, checkValueForNumbersWorksForChainedAssumedValues) {
+  double myNum = 1.253;
+  std::string assumedNum = "==1.254||==1.256||==1.253";
+  std::string errorMessage = "";
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+}
 
+TEST(testCompare, checkValueThrowsOnWrongAssumedValueString) {
+  double myNum = 1.253;
+  std::string assumedNum = "==1.254||==1.256|||==1.253";
+  std::string errorMessage = "";
+  ASSERT_ANY_THROW( checkValue(myNum, assumedNum, errorMessage) );
+
+  assumedNum = "==1.254||==1.256||=x1.253";
+  ASSERT_ANY_THROW( checkValue(myNum, assumedNum, errorMessage) );
+}
+
+TEST(testCompare, checkValueForArraysThrowsWhenNoIntervalSignFound) {
+  std::vector<double> myNums = {1.256, 2.256, 3.567};
+  std::string assumedValueStr = "1.256";
+  std::string errorMessage = "";
+  ASSERT_ANY_THROW( checkValue(myNums, assumedValueStr, errorMessage) );
+}
+
+TEST(testCompare, checkValueForArraysWorks) {
+  std::vector<double> myNums = {1.256, 2.256, 3.567};
+  std::string assumedValueStr = "min=1.256";
+  std::string errorMessage = "";
+  ASSERT_TRUE( checkValue(myNums, assumedValueStr, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  myNums[0] = 1.255;
+  ASSERT_FALSE( checkValue(myNums, assumedValueStr, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+
+  assumedValueStr = "max==3.567";
+  ASSERT_TRUE( checkValue(myNums, assumedValueStr, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  assumedValueStr = "min==1.255&&max==3.567";
+  ASSERT_TRUE( checkValue(myNums, assumedValueStr, errorMessage) );
+  ASSERT_TRUE( errorMessage.empty() );
+
+  double mean = (myNums[0] + myNums[1] + myNums[2]) / 3.0;
+  assumedValueStr = "min==1.255&&max==3.567&&mean=="+std::to_string(mean);
+  ASSERT_TRUE( checkValue(myNums, assumedValueStr, errorMessage) );
+  ASSERT_TRUE( errorMessage.empty() );
+
+  assumedValueStr = "first<1.0&&last>3.0";
+  ASSERT_FALSE( checkValue(myNums, assumedValueStr, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+
+  assumedValueStr = "first<1.0||last>3.0";
+  ASSERT_TRUE( checkValue(myNums, assumedValueStr, errorMessage) );
+  ASSERT_TRUE( errorMessage.empty() );
+}
 
 TEST(testCompare, canCheckWhatSource) {
   std::string whatSource = "WMO:11812,NOD:skjav";

@@ -33,15 +33,20 @@ static bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimSt
 static void splitNodePath(const std::string& node, std::string& parent, std::string& child);
 static void addIfUnique(std::vector<std::string>& list, const std::string& str);
 static bool hasIntervalSigns(const std::string& assumedValueStr);
-static bool checkValueInterval(const double attrValue, const std::string& assumedValueStr,
-                               std::string& errorMessage);
+static bool checkValueInterval(const double attrValue, const std::string& assumedValueStr);
 static bool checkWhatSourceParts(const std::string& whatSource, std::string& errorMessage);
 static std::vector<std::string> splitString(std::string str, const std::string& delimiter);
 static void printWrongTypeMessage(const OdimEntry& entry, const h5Entry& attr);
 static void printIncorrectValueMessage(const OdimEntry& entry, const h5Entry& attr,
                                        const std::string& failedValueMessage);
 static void printWrongImageAttributes(const OdimEntry& entry);
-
+static void parseAssumedValueStr(const std::string& assumedValueStr,
+                                 std::vector<std::string>& comparisons,
+                                 std::vector<std::string>& operators);
+static void getArrayStatistics(const std::vector<double>& values, double& first, double& last,
+                               double& min, double& max, double& mean);
+static double valueFromStatistics(std::string& comparison,
+                                  double first, double last, double min, double max, double mean);
 
 std::string getCsvFileNameFrom(const myodim::H5Layout& h5layout) {
   std::string csvFileName;
@@ -432,25 +437,84 @@ bool checkValue(const std::string& attrValue, const std::string& assumedValueStr
 
 bool checkValue(const double attrValue, const std::string& assumedValueStr,
                 std::string& errorMessage, const bool isReal) {
-  bool hasProperValue = true;
+  errorMessage.clear();
+  bool hasProperValue;
   if ( hasIntervalSigns(assumedValueStr) ) {
 
-    hasProperValue = checkValueInterval(attrValue, assumedValueStr, errorMessage);
+    std::vector<std::string> comparisons;
+    std::vector<std::string> operators;
+    parseAssumedValueStr(assumedValueStr, comparisons, operators);
+
+    hasProperValue = checkValueInterval(attrValue, comparisons[0]);
+    for (int i=0, n=operators.size(); i<n; ++i) {
+      bool nextHasProperValue = checkValueInterval(attrValue, comparisons[i+1]);
+      if ( operators[i] == "&&" ) {
+        hasProperValue = hasProperValue && nextHasProperValue;
+      }
+      else {
+        hasProperValue = hasProperValue || nextHasProperValue;
+      }
+    }
 
   }
   else {
 
     const double assumedValue = std::stod(assumedValueStr);
     hasProperValue = std::fabs(attrValue - assumedValue) < MAX_DOUBLE_DIFF;
-    if ( !hasProperValue ) {
-      const std::string attrValueStr = hasDoublePoint(assumedValueStr) || isReal ?
-                                       std::to_string(attrValue) :
-                                       std::to_string((int)attrValue);
-      errorMessage = "with value \"" + attrValueStr +
-                     "\" doesn`t match the \"" + assumedValueStr + "\" assumed value";
+
+  }
+
+  if ( !hasProperValue ) {
+    const std::string attrValueStr = hasDoublePoint(assumedValueStr) || isReal ?
+                                     std::to_string(attrValue) :
+                                     std::to_string((int)attrValue);
+    errorMessage = "with value \"" + attrValueStr +
+                   "\" doesn`t match the \"" + assumedValueStr + "\" assumed value";
+  }
+
+  return hasProperValue;
+}
+
+bool checkValue(const std::vector<double>& attrValues, const std::string& assumedValueStr,
+                std::string& errorMessage) {
+  errorMessage.clear();
+  bool hasProperValue = false;
+
+  if ( hasIntervalSigns(assumedValueStr) ) {
+
+    double first, last, min, max, mean;
+    getArrayStatistics(attrValues, first, last, min ,max, mean);
+
+    std::vector<std::string> comparisons;
+    std::vector<std::string> operators;
+    parseAssumedValueStr(assumedValueStr, comparisons, operators);
+
+    double value = valueFromStatistics(comparisons[0], first, last, min ,max, mean);
+    hasProperValue = checkValueInterval(value, comparisons[0]);
+    for (int i=0, n=operators.size(); i<n; ++i) {
+      value = valueFromStatistics(comparisons[i+1], first, last, min ,max, mean);
+      bool nextHasProperValue = checkValueInterval(value, comparisons[i+1]);
+      if ( operators[i] == "&&" ) {
+        hasProperValue = hasProperValue && nextHasProperValue;
+      }
+      else {
+        hasProperValue = hasProperValue || nextHasProperValue;
+      }
     }
 
   }
+  else {
+    throw std::runtime_error("ERROR - wrong assumed value string \"" + assumedValueStr + "\" - " +
+                             "assumed value string for array attributes should use "+
+                             "logical operators and statistics (e.g. min<=1.000 or mean==5.0 or first>1.0&&last<10.0 ...)");
+  }
+
+  if ( !hasProperValue ) {
+    errorMessage = "with array value \"[" + std::to_string(attrValues.front()) + ",..." +
+                   std::to_string(attrValues.back()) + "]\" doesn`t match the \"" +
+                   assumedValueStr + "\" assumed value";
+  }
+
   return hasProperValue;
 }
 
@@ -460,120 +524,38 @@ bool hasIntervalSigns(const std::string& assumedValueStr) {
          assumedValueStr.find('>') != std::string::npos;
 }
 
-bool checkValueInterval(const double attrValue, const std::string& assumedValueStr,
-                        std::string& errorMessage) {
-  //split interval description
-  const std::string andDelimiter = "&&";
-  bool isAnd = false;
-  const std::string orDelimiter = "||";
-  bool isOr = false;
-  auto splitPosi = assumedValueStr.find(andDelimiter);
-  if ( splitPosi==std::string::npos ) {
-    splitPosi = assumedValueStr.find(orDelimiter);
-    isOr = splitPosi!=std::string::npos;
-  }
-  else {
-    isAnd = true;
-  }
-  std::string first = assumedValueStr.substr(0,splitPosi);
-  std::string second = splitPosi!=std::string::npos ?
-                       assumedValueStr.substr(splitPosi+andDelimiter.length()) : "";
-  //std::cout << "dbg - first = " << first << ", second = " << second << std::endl;
-
+bool checkValueInterval(const double attrValue, const std::string& assumedValueStr) {
   //get first sign and number
-  std::string firstSign, firstNumberStr;
-  for (int i=0; i<(int)first.length(); ++i) {
-    if ( (first[i] >= '0' && first[i] <= '9') || first[i] <= '.' ) {
-      firstNumberStr.append(1, first[i]);
+  std::string signStr, numberStr;
+  for (int i=0; i<(int)assumedValueStr.length(); ++i) {
+    if ( (assumedValueStr[i] >= '0' && assumedValueStr[i] <= '9') || assumedValueStr[i] <= '.' ) {
+      numberStr.append(1, assumedValueStr[i]);
     }
     else {
-      firstSign.append(1, first[i]);
+      signStr.append(1, assumedValueStr[i]);
     }
   }
-  const double firstNumber = firstNumberStr.empty() ? std::nan("") : std::stod(firstNumberStr);
-
-  //get second sign and number
-  std::string secondSign, secondNumberStr;
-  for (int i=0; i<(int)second.length(); ++i) {
-    if ( (second[i] >= '0' && second[i] <= '9') || second[i] <= '.' ) {
-      secondNumberStr.append(1, second[i]);
-    }
-    else {
-      secondSign.append(1, second[i]);
-    }
-  }
-  const double secondNumber = secondNumberStr.empty() ? std::nan("") : std::stod(secondNumberStr);
-  //std::cout << "dbg - firstSign = " << firstSign << ", firstNumber = " << firstNumber <<
-  //             ", secondSign = " << secondSign << ", secondNumber = " << secondNumber << std::endl;
+  const double theNumber = numberStr.empty() ? std::nan("") : std::stod(numberStr);
 
   bool result = false;
-  if ( firstSign == "=" || firstSign == "==" ) {
-    result = std::fabs(attrValue - firstNumber) < MAX_DOUBLE_DIFF;
+  if ( signStr == "=" || signStr == "==" ) {
+    result = std::fabs(attrValue - theNumber) < MAX_DOUBLE_DIFF;
   }
-  else if ( firstSign == "<=" ) {
-    result = attrValue <= firstNumber;
+  else if ( signStr == "<=" ) {
+    result = attrValue <= theNumber;
   }
-  else if ( firstSign == "<" ) {
-    result = attrValue < firstNumber;
+  else if ( signStr == "<" ) {
+    result = attrValue < theNumber;
   }
-  else if ( firstSign == ">=" ) {
-    result = attrValue >= firstNumber;
+  else if ( signStr == ">=" ) {
+    result = attrValue >= theNumber;
   }
-  else if ( firstSign == ">" ) {
-    result = attrValue > firstNumber;
-  }
-
-  if ( !std::isnan(secondNumber) ) {
-    if ( isAnd ) {
-      if ( secondSign == "=" || secondSign == "==" ) {
-        result = result && std::fabs(attrValue - secondNumber) < MAX_DOUBLE_DIFF;
-      }
-      else if ( secondSign == "<=" ) {
-        result = result && attrValue <= secondNumber;
-      }
-      else if ( secondSign == "<" ) {
-        result = result && attrValue < secondNumber;
-      }
-      else if ( secondSign == ">=" ) {
-        result = result && attrValue >= secondNumber;
-      }
-      else if ( secondSign == ">" ) {
-        result = result && attrValue > secondNumber;
-      }
-    }
-    else if ( isOr ) {
-      if ( secondSign == "=" || secondSign == "==" ) {
-        result = result || std::fabs(attrValue - secondNumber) < MAX_DOUBLE_DIFF;
-      }
-      else if ( secondSign == "<=" ) {
-        result = result || attrValue <= secondNumber;
-      }
-      else if ( secondSign == "<" ) {
-        result = result || attrValue < secondNumber;
-      }
-      else if ( secondSign == ">=" ) {
-        result = result || attrValue >= secondNumber;
-      }
-      else if ( secondSign == ">" ) {
-        result = result || attrValue > secondNumber;
-      }
-    }
-    else {
-      throw std::runtime_error("ERROR - unknown sign in the "+
-                               assumedValueStr+" PossibleValues string");
-    }
-  }
-
-  //std::cout << "dbg - result = " << result << std::endl;
-  if ( result ) {
-    errorMessage = "";
+  else if ( signStr == ">" ) {
+    result = attrValue > theNumber;
   }
   else {
-    const std::string attrValueStr = hasDoublePoint(assumedValueStr) ?
-                                     std::to_string(attrValue) :
-                                     std::to_string((int)attrValue);
-    errorMessage = "with value \"" + attrValueStr +
-                   "\" doesn`t match the \"" + assumedValueStr + "\" assumed value";
+    throw std::runtime_error("ERROR - unknown sign in the "+
+                             assumedValueStr+" PossibleValues string");
   }
 
   return result;
@@ -679,6 +661,72 @@ void printWrongImageAttributes(const OdimEntry& entry) {
   std::string message = "WARNING -  dataset \"" + entry.node + "\"  is 8-bit unsigned int - " +
                         "it should have attributes CLASS=\"IMAGE\" and IMAGE_VERSION=\"1.2\"";
   std::cout << message << std::endl;
+}
+
+void parseAssumedValueStr(const std::string& assumedValueStr,
+                          std::vector<std::string>& comparisons,
+                          std::vector<std::string>& operators) {
+  std::string avs = assumedValueStr;
+  size_t pos;
+  while ((pos = std::min(avs.find("&&"), avs.find("||"))) != std::string::npos) {
+    const std::string comparison = avs.substr(0, pos);
+    if ( hasIntervalSigns(comparison) ) {
+      comparisons.push_back(comparison);
+    }
+    operators.push_back(avs.substr(pos,2));
+    avs.erase(0, pos + 2);
+  }
+  if ( hasIntervalSigns(avs) ) {
+    comparisons.push_back(avs);
+  }
+  if ( comparisons.size() != operators.size()+1 ) {
+    throw std::runtime_error("ERROR - assumed value string \"" + assumedValueStr +
+                             "\" not parsed correctly.");
+  }
+}
+
+void getArrayStatistics(const std::vector<double>& values, double& first, double& last,
+                        double& min, double& max, double& mean) {
+  first = values.front();
+  last = values.back();
+  min = std::numeric_limits<double>::max();
+  max = std::numeric_limits<double>::lowest();
+  mean = 0.0;
+  for (const double v : values) {
+    if ( v < min ) min = v;
+    if ( v > max ) max = v;
+    mean += v;
+  }
+  mean /= values.size();
+}
+
+double valueFromStatistics(std::string& comparison,
+                           double first, double last, double min, double max, double mean) {
+  size_t pos;
+  if ( (pos = comparison.find("first")) != std::string::npos ) {
+    comparison.erase(pos, 5);
+    return first;
+  }
+  else if ( (pos = comparison.find("last")) != std::string::npos ) {
+    comparison.erase(pos, 4);
+    return last;
+  }
+  else if ( (pos = comparison.find("min")) != std::string::npos ) {
+    comparison.erase(pos, 3);
+    return min;
+  }
+  else if ( (pos = comparison.find("max")) != std::string::npos ) {
+    comparison.erase(pos, 3);
+    return max;
+  }
+  else if ( (pos = comparison.find("mean")) != std::string::npos ) {
+    comparison.erase(pos, 4);
+    return mean;
+  }
+  else {
+    throw std::runtime_error("ERROR - proper statistics not found in the \"" +
+                             comparison + "\" comparison");
+  }
 }
 
 }
