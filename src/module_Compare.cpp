@@ -211,6 +211,22 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   }
                 }
                 break;
+              case OdimEntry::RealArray :
+                hasProperDatatype = h5layout.isReal64Attribute(a.name());
+                if ( !hasProperDatatype ) {
+                  isCompliant = false;
+                  printWrongTypeMessage(entry, a);
+                }
+                if ( !entry.possibleValues.empty() ) {
+                  std::vector<double> values;
+                  h5layout.getAttributeValue(a.name(), values);
+                  hasProperValue = checkValue(values, entry.possibleValues, failedValueMessage);
+                  if ( !hasProperValue ) {
+                    isCompliant = false;
+                    printIncorrectValueMessage(entry, a, failedValueMessage);
+                  }
+                }
+                break;
               case OdimEntry::Integer :
                 hasProperDatatype = h5layout.isInt64Attribute(a.name());
                 if ( !hasProperDatatype ) {
@@ -221,6 +237,24 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   int64_t value=0;
                   h5layout.getAttributeValue(a.name(), value);
                   hasProperValue = checkValue(value, entry.possibleValues, failedValueMessage);
+                  if ( !hasProperValue ) {
+                    isCompliant = false;
+                    printIncorrectValueMessage(entry, a, failedValueMessage);
+                  }
+                }
+                break;
+              case OdimEntry::IntegerArray :
+                hasProperDatatype = h5layout.isInt64Attribute(a.name());
+                if ( !hasProperDatatype ) {
+                  isCompliant = false;
+                  printWrongTypeMessage(entry, a);
+                }
+                if ( !entry.possibleValues.empty() ) {
+                  std::vector<int64_t> values;
+                  h5layout.getAttributeValue(a.name(), values);
+                  std::vector<double> dValues(values.size());
+                  for (int i=0, n=dValues.size(); i<n; ++i) dValues[i] = values[i];
+                  hasProperValue = checkValue(dValues, entry.possibleValues, failedValueMessage);
                   if ( !hasProperValue ) {
                     isCompliant = false;
                     printIncorrectValueMessage(entry, a, failedValueMessage);
@@ -510,7 +544,7 @@ bool checkValue(const std::vector<double>& attrValues, const std::string& assume
   }
 
   if ( !hasProperValue ) {
-    errorMessage = "with array value \"[" + std::to_string(attrValues.front()) + ",..." +
+    errorMessage = "with array value \"[" + std::to_string(attrValues.front()) + ",...," +
                    std::to_string(attrValues.back()) + "]\" doesn`t match the \"" +
                    assumedValueStr + "\" assumed value";
   }
