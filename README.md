@@ -155,11 +155,17 @@ Examples:
   
   
 To check the value of **real and int ARRAY attributes** use the available statistics and logical expressions according to the examples below. When checking array attributes, You need to use also the `-t` or `--type` command line parameter to parse the logical expression correctly. The available statistics are:
+
 - first - the first value in the array
+
 - last - the last value in the array
+
 - min - the minimum of the values in the array
+
 - max - tha maximum of the values in the array
+
 - mean - the avarge of the values in the array
+
 
 Examples:  
 
