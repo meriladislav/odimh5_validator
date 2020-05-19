@@ -108,52 +108,76 @@ This paragraph describes the format to define the assumed value of the attribute
 
 To check the value of **string attributes** use the exact assumed value or an [ECMAScript regular expression](http://www.cplusplus.com/reference/regex/ECMAScript/) (regex) - some example regular expressions are in the standard-definition csv tables.  
 
-Examples:  
+Examples (assuming, You are in the odimh5_validator root directory):  
 
 - to check whether the exact value of the "/how/system" string attribute is "SKJAV" use the exact value :  
 
-`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/system -v "SKJAV" -t string`  
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/system -v "SKJAV" -t string`  
 
 - to check whether the value of the "/how/system" string attribute starts with the "SK" substring use regex :  
 
-`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/system -v "SK.*" -t string`  
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/system -v "SK.*" -t string`  
   
   
-To check the value of **real and int attributes** use the exact assumed value or a logical expression according to the examples below.  
+To check the value of **real and int SCALAR attributes** use the exact assumed value or a logical expression according to the examples below.  
 
 Examples:  
 
 - to check whether the exact value of the "/how/wavelength" real attribute is **equal to** 5.352 use the exact value or the "=" or "==" logical operators:  
 
-`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "5.352" -t real`    
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "5.352" -t real`    
 
-`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "=5.352" -t real`  
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "=5.352" -t real`  
 
-`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "==5.352" -t real`  
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "==5.352" -t real`  
 
 - to check whether the value of the "/how/wavelength" real attribute is **less than or greater than some value** use the "<, ">", "<=" and ">=" logical operators. WARNING - You should use the quotation marks to not parse the "<" and ">" signs by the shell as redirections :  
 
-`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">5.0" -t real`  
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">5.0" -t real`  
 
-`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">=5" -t real`  
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">=5" -t real`  
 
-`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<6" -t real`
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<6" -t real`
 
-`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<=6.0" -t real`  
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<=6.0" -t real`  
 
 - to check whether the value of the "/how/wavelength" real attribute **lies inside some interval** use the "&&" (and) logical operator. WARNING - You should use the quotation marks to not parse the "<" and ">" signs by the shell as redirections :  
 
-`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">5.0&&<6.0" -t real` 
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">5.0&&<6.0" -t real` 
 
-`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">=5.0&&<=6.0" -t real`   
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">=5.0&&<=6.0" -t real`   
 
 - to check whether the value of the "/how/wavelength" real attribute **lies outside some interval** use the "||" (or) logical operator. WARNING - You should use the quotation marks to not parse the "<" and ">" signs by the shell as redirections :  
 
-`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<6.0||>7.0" -t real`  
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<6.0||>7.0" -t real`  
 
-`$odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<=5.352||>=6.0" -t real`   
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<=5.352||>=6.0" -t real`    
+  
+  
+To check the value of **real and int ARRAY attributes** use the available statistics and logical expressions according to the examples below. When checking array attributes, You need to use also the `-t` or `--type` command line parameter to parse the logical expression correctly. The available statistics are:
+- first - the first value in the array
+- last - the last value in the array
+- min - the minimum of the values in the array
+- max - tha maximum of the values in the array
+- mean - the avarge of the values in the array
 
-The same type of logical expressions should be used also in the column "PossibleValues" in the csv tables used by the `odimh5-validate` program - see exmple in the `data/example/T_PAGZ41_C_LZIB.values.interval.csv` table.
+Examples:  
+
+- to check whether the first value of "/dataset1/how/startazA" real array attribute is **lower than** 1.0 degrees:  
+
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /dataset1/how/startazA -t real -v "first<1.0"`   
+
+- to check whether the first value of "/dataset1/how/startazA" real array attribute is **lower than** 1.0 degrees and the last value is **greater than** 359.0 degrees:  
+
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /dataset1/how/startazA -t real -v "first<1.0&&last>359.0"`
+
+- to check several statistics, You can chain the comparisons:  
+
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /dataset1/how/startazA -t real -v "first<1.0&&last>359.0&&min>0.0&&max<360.0"`    
+
+
+
+The same type of logical expressions should be used also in the column "PossibleValues" in the csv tables used by the `odimh5-validate` program. The "Type" column for array attributes should have "real array" or "integer array" value. See examples in the `data/example/T_PAGZ41_C_LZIB.values.interval.csv` table.
 
 
 #### Example Files ####
