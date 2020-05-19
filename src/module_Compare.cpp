@@ -196,7 +196,8 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                 }
                 break;
               case OdimEntry::Real :
-                hasProperDatatype = h5layout.isReal64Attribute(a.name());
+                hasProperDatatype = h5layout.isReal64Attribute(a.name()) &&
+                                   !h5layout.is1DArrayAttribute(a.name());
                 if ( !hasProperDatatype ) {
                   isCompliant = false;
                   printWrongTypeMessage(entry, a);
@@ -212,7 +213,8 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                 }
                 break;
               case OdimEntry::RealArray :
-                hasProperDatatype = h5layout.isReal64Attribute(a.name());
+                hasProperDatatype = h5layout.isReal64Attribute(a.name()) &&
+                                    h5layout.is1DArrayAttribute(a.name());
                 if ( !hasProperDatatype ) {
                   isCompliant = false;
                   printWrongTypeMessage(entry, a);
@@ -228,7 +230,8 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                 }
                 break;
               case OdimEntry::Integer :
-                hasProperDatatype = h5layout.isInt64Attribute(a.name());
+                hasProperDatatype = h5layout.isInt64Attribute(a.name()) &&
+                                   !h5layout.is1DArrayAttribute(a.name());
                 if ( !hasProperDatatype ) {
                   isCompliant = false;
                   printWrongTypeMessage(entry, a);
@@ -244,7 +247,8 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                 }
                 break;
               case OdimEntry::IntegerArray :
-                hasProperDatatype = h5layout.isInt64Attribute(a.name());
+                hasProperDatatype = h5layout.isInt64Attribute(a.name()) &&
+                                    h5layout.is1DArrayAttribute(a.name());
                 if ( !hasProperDatatype ) {
                   isCompliant = false;
                   printWrongTypeMessage(entry, a);
@@ -671,11 +675,19 @@ void printWrongTypeMessage(const OdimEntry& entry, const h5Entry& attr) {
       break;
     case OdimEntry::Real :
       message += " entry \"" + attr.name() + "\" has non-standard datatype - " +
-                 "it`s supposed to be a 64-bit real, but isn`t.";
+                 "it`s supposed to be a 64-bit real scalar, but isn`t.";
+      break;
+    case OdimEntry::RealArray :
+      message += " entry \"" + attr.name() + "\" has non-standard datatype - " +
+                 "it`s supposed to be a 64-bit real array, but isn`t.";
       break;
     case OdimEntry::Integer :
       message += " entry \"" + attr.name() + "\" has non-standard datatype - " +
-                 "it`s supposed to be a 64-bit integer, but isn`t.";
+                 "it`s supposed to be a 64-bit integer scalar, but isn`t.";
+      break;
+    case OdimEntry::IntegerArray :
+      message += " entry \"" + attr.name() + "\" has non-standard datatype - " +
+                 "it`s supposed to be a 64-bit integer array, but isn`t.";
       break;
     default :
       break;
