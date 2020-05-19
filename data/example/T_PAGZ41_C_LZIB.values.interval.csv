@@ -7,3 +7,4 @@ Node;Category;Type;IsMandatory;PossibleValues
 /dataset10/where/nbins;Attribute;integer;TRUE;400
 /dataset11/where/nbins;Attribute;integer;TRUE;300
 /dataset12/where/nbins;Attribute;integer;TRUE;160
+/dataset[1-9][0-9]*/how/startazA;Attribute;real array;FALSE;min<1.0&&max>359.0&&first<1.0
