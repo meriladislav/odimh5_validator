@@ -40,7 +40,7 @@ Node;Category;Type;IsMandatory;PossibleValues
 .*how/radconstH;Attribute;real;FALSE;
 .*how/radconstV;Attribute;real;FALSE;
 .*how/nomTXpower;Attribute;real;FALSE;
-.*how/TXpower;Attribute;real;FALSE;
+.*how/TXpower;Attribute;real array;FALSE;
 .*how/NI;Attribute;real;FALSE;
 .*how/Vsamples;Attribute;integer;FALSE;
 .*how/pointaccEL;Attribute;real;FALSE;
@@ -51,6 +51,7 @@ Node;Category;Type;IsMandatory;PossibleValues
 .*how/NEZ;Attribute;real;FALSE;
 .*how/OUR;Attribute;real;FALSE;
 .*how/comment;Attribute;string;FALSE;
+.*how/Dclutter;Attribute;string;FALSE;
 .*how/SQI;Attribute;real;FALSE;
 .*how/CSR;Attribute;real;FALSE;
 .*how/LOG;Attribute;real;FALSE;
@@ -70,11 +71,11 @@ Node;Category;Type;IsMandatory;PossibleValues
 .*how/polarization;Attribute;string;FALSE;
 .*how/azmethod;Attribute;string;FALSE;
 .*how/binmethod;Attribute;string;FALSE;
-.*how/elangles;Attribute;real;FALSE;
-.*how/startazA;Attribute;real;FALSE;
-.*how/stopazA;Attribute;real;FALSE;
-.*how/startazT;Attribute;real;FALSE;
-.*how/stopazT;Attribute;real;FALSE;
+.*how/elangles;Attribute;real array;FALSE;
+.*how/startazA;Attribute;real array;FALSE;
+.*how/stopazA;Attribute;real array;FALSE;
+.*how/startazT;Attribute;real array;FALSE;
+.*how/stopazT;Attribute;real array;FALSE;
 /dataset1;Group;;TRUE;
 /dataset1/what;Group;;TRUE;
 /dataset1/what/product;Attribute;string;TRUE;SCAN
