@@ -22,12 +22,13 @@ class OdimEntry {
     Type        type{String};
     bool        isMandatory{false};
     std::string possibleValues{""};
+    std::string reference{""};
     
     OdimEntry() = default;
     OdimEntry(const std::string nodeStr, const std::string categoryStr, const std::string typeStr, 
-              const std::string isMandatoryStr, const std::string possibleValuesStr);
+              const std::string isMandatoryStr, const std::string possibleValuesStr, const std::string reference);
     void set(const std::string nodeStr, const std::string categoryStr, const std::string typeStr, 
-             const std::string isMandatoryStr, const std::string possibleValuesStr);
+             const std::string isMandatoryStr, const std::string possibleValuesStr, const std::string reference);
     bool isGroup() const {return category == Group;}
     bool isAttribute() const {return category == Attribute;}
     bool isDataset() const {return category == Dataset;}

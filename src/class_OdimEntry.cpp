@@ -15,18 +15,19 @@ static bool containsSubString(const std::string& theString, const std::string& s
 
 OdimEntry::OdimEntry(const std::string nodeStr, const std::string categoryStr, 
                      const std::string typeStr, const std::string isMandatoryStr, 
-                     const std::string possibleValuesStr){ 
-  set(nodeStr, categoryStr, typeStr, isMandatoryStr, possibleValuesStr);
+                     const std::string possibleValuesStr, const std::string referenceStr){
+  set(nodeStr, categoryStr, typeStr, isMandatoryStr, possibleValuesStr, referenceStr);
 }
     
 void OdimEntry::set(const std::string nodeStr, const std::string categoryStr, 
                     const std::string typeStr, const std::string isMandatoryStr, 
-                    const std::string possibleValuesStr) {
+                    const std::string possibleValuesStr, const std::string referenceStr) {
   node = nodeStr;
   parseCategory_(categoryStr);
   parseType_(typeStr);
   parseIsMandatory_(isMandatoryStr);
   possibleValues = possibleValuesStr;
+  reference = referenceStr;
 }
 
 void OdimEntry::parseCategory_(const std::string categoryStr) {

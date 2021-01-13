@@ -27,7 +27,7 @@ void OdimStandard::readFromCsv(const std::string& csvFilePath) {
   
   std::string node, category, type, isMandatory, possibleValues, reference;
   while(csv.read_row(node, category, type, isMandatory, possibleValues, reference)){
-    entries.emplace_back(OdimEntry{node, category, type, isMandatory, possibleValues});
+    entries.emplace_back(OdimEntry{node, category, type, isMandatory, possibleValues, reference});
   }
 }
 
@@ -40,7 +40,7 @@ void OdimStandard::updateWithCsv(const std::string& csvFilePath) {
 
   std::string node, category, type, isMandatory, possibleValues, reference;
   while(csv.read_row(node, category, type, isMandatory, possibleValues, reference)){
-    const OdimEntry e(node, category, type, isMandatory, possibleValues);
+    const OdimEntry e(node, category, type, isMandatory, possibleValues, reference);
     OdimEntry* myEntry = entry_(e);
     if ( myEntry ) {
       myEntry->possibleValues = e.possibleValues;
