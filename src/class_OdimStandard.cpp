@@ -3,12 +3,13 @@
 // Ladislav Meri, SHMU
 // v_0.0, 04.2018
 
+#include <iostream>
 #include "csv.h"
 #include "class_OdimStandard.hpp"
 
 namespace myodim {
 
-static const int CSV_COL_NUM{5};
+static const int CSV_COL_NUM{6};
 static const char CSV_SEPARATOR{';'};
 
 OdimStandard::OdimStandard(const std::string& csvFilePath) {
@@ -22,10 +23,10 @@ void OdimStandard::readFromCsv(const std::string& csvFilePath) {
                 io::no_quote_escape<CSV_SEPARATOR>> csv(csvFilePath);
   
   csv.read_header(io::ignore_no_column, 
-                  "Node", "Category", "Type", "IsMandatory", "PossibleValues");
+                  "Node", "Category", "Type", "IsMandatory", "PossibleValues", "Reference");
   
-  std::string node, category, type, isMandatory, possibleValues;
-  while(csv.read_row(node, category, type, isMandatory, possibleValues)){
+  std::string node, category, type, isMandatory, possibleValues, reference;
+  while(csv.read_row(node, category, type, isMandatory, possibleValues, reference)){
     entries.emplace_back(OdimEntry{node, category, type, isMandatory, possibleValues});
   }
 }
@@ -35,10 +36,10 @@ void OdimStandard::updateWithCsv(const std::string& csvFilePath) {
                 io::no_quote_escape<CSV_SEPARATOR>> csv(csvFilePath);
 
   csv.read_header(io::ignore_no_column,
-                  "Node", "Category", "Type", "IsMandatory", "PossibleValues");
+                  "Node", "Category", "Type", "IsMandatory", "PossibleValues", "Reference");
 
-  std::string node, category, type, isMandatory, possibleValues;
-  while(csv.read_row(node, category, type, isMandatory, possibleValues)){
+  std::string node, category, type, isMandatory, possibleValues, reference;
+  while(csv.read_row(node, category, type, isMandatory, possibleValues, reference)){
     const OdimEntry e(node, category, type, isMandatory, possibleValues);
     OdimEntry* myEntry = entry_(e);
     if ( myEntry ) {

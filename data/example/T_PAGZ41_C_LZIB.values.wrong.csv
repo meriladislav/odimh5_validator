@@ -1,5 +1,5 @@
-Node;Category;Type;IsMandatory;PossibleValues
-.*how/wavelength;Attribute;real;FALSE;5.35
-/dataset[1-9][0-9]*/where/nrays;Attribute;integer;TRUE;360
-/dataset[1-9][0-9]*/where/nbins;Attribute;integer;TRUE;960
-/dataset[1-9][0-9]*/how/startazA;Attribute;real array;FALSE;min>1.0&&first<1.0
+Node;Category;Type;IsMandatory;PossibleValues;Reference
+.*how/wavelength;Attribute;real;FALSE;5.35;
+/dataset[1-9][0-9]*/where/nrays;Attribute;integer;TRUE;360;
+/dataset[1-9][0-9]*/where/nbins;Attribute;integer;TRUE;960;
+/dataset[1-9][0-9]*/how/startazA;Attribute;real array;FALSE;min>1.0&&first<1.0;

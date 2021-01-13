@@ -1,10 +1,10 @@
-Node;Category;Type;IsMandatory;PossibleValues
-.*how/wavelength;Attribute;real;FALSE;5.352
-/dataset[1-9][0-9]*/where/nrays;Attribute;integer;TRUE;360
-/dataset[1-7]/where/nbins;Attribute;integer;TRUE;960
-/dataset8/where/nbins;Attribute;integer;TRUE;833
-/dataset9/where/nbins;Attribute;integer;TRUE;600
-/dataset10/where/nbins;Attribute;integer;TRUE;400
-/dataset11/where/nbins;Attribute;integer;TRUE;300
-/dataset12/where/nbins;Attribute;integer;TRUE;160
-/dataset[1-9][0-9]*/how/startazA;Attribute;real array;FALSE;min<1.0&&max>359.0&&first<1.0
+Node;Category;Type;IsMandatory;PossibleValues;Reference
+.*how/wavelength;Attribute;real;FALSE;5.352;
+/dataset[1-9][0-9]*/where/nrays;Attribute;integer;TRUE;360;
+/dataset[1-7]/where/nbins;Attribute;integer;TRUE;960;
+/dataset8/where/nbins;Attribute;integer;TRUE;833;
+/dataset9/where/nbins;Attribute;integer;TRUE;600;
+/dataset10/where/nbins;Attribute;integer;TRUE;400;
+/dataset11/where/nbins;Attribute;integer;TRUE;300;
+/dataset12/where/nbins;Attribute;integer;TRUE;160;
+/dataset[1-9][0-9]*/how/startazA;Attribute;real array;FALSE;min<1.0&&max>359.0&&first<1.0;
