@@ -35,7 +35,7 @@ int main(int argc, const char* argv[]) {
   myodim::printInfo = !(cmdLineOptions["noInfo"].as<bool>());
   
   //load the hdf5 input file layout
-  std::string h5File{cmdLineOptions["input"].as<std::string>()};
+  std::string h5File(cmdLineOptions["input"].as<std::string>());
   myodim::H5Layout h5layout(h5File);
   
   myodim::OdimStandard odimStandard;
