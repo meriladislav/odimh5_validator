@@ -170,8 +170,9 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   }
                   catch (const std::exception& e) {
                 	  hasProperDatatype = false;
-                	  const std::string message(e.what());
+                	  std::string message(e.what());
                 	  if ( message.find("WARNING") != std::string::npos ) {
+                	    if ( !entry.reference.empty() ) message += "see "+entry.reference;
                 	    std::cout << message << std::endl;
                   	}
                    	else {
@@ -279,12 +280,17 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
       if ( entry.isMandatory) {
         isCompliant = false;
         std::cout << "WARNING - MISSING ENTRY - mandatory entry \"" << entry.node <<
-                     "\" doesn`t exist in the file." << std::endl;
+                     "\" doesn`t exist in the file.";
+        if ( !entry.reference.empty() ) std::cout << " See " << entry.reference;
+        std::cout << std::endl;
       }
       else {
-        if ( printInfo ) 
+        if ( printInfo ) {
           std::cout << "INFO - optional entry \"" << entry.node <<
-                       "\" doesn`t exist in the file." << std::endl;
+                       "\" doesn`t exist in the file.";
+          if ( !entry.reference.empty() ) std::cout << " See " << entry.reference;
+          std::cout << std::endl;
+        }
       }
     }
     
@@ -423,13 +429,17 @@ bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard&
             }
             else {
               std::cout << "WARNING - MISSING ENTRY - mandatory entry \"" <<
-                           entry.node << "\" not found in " << parents[i] << std::endl;
+                           entry.node << "\" not found in " << parents[i] << ".";
+              if ( !entry.reference.empty() ) std::cout << " See " << entry.reference;
+              std::cout << std::endl;
             }
           }
         }
         else {
           std::cout << "WARNING - MISSING ENTRY - mandatory entry \"" <<
-                           entry.node << "\" not found in any its parents" << std::endl;
+                           entry.node << "\" not found in any its parents" << ".";
+              if ( !entry.reference.empty() ) std::cout << " See " << entry.reference;
+              std::cout << std::endl;
         }
         isCompliant = false;
       }
@@ -671,23 +681,23 @@ void printWrongTypeMessage(const OdimEntry& entry, const h5Entry& attr) {
   switch (entry.type) {
     case OdimEntry::String :
       message += " entry \"" + attr.name() + "\" has non-standard datatype - " +
-                 "it`s supposed to be a fixed-length string, but isn`t.";
+                 "it`s supposed to be a fixed-length string, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.";
       break;
     case OdimEntry::Real :
       message += " entry \"" + attr.name() + "\" has non-standard datatype - " +
-                 "it`s supposed to be a 64-bit real scalar, but isn`t.";
+                 "it`s supposed to be a 64-bit real scalar, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.";
       break;
     case OdimEntry::RealArray :
       message += " entry \"" + attr.name() + "\" has non-standard datatype - " +
-                 "it`s supposed to be a 64-bit real array, but isn`t.";
+                 "it`s supposed to be a 64-bit real array, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.";
       break;
     case OdimEntry::Integer :
       message += " entry \"" + attr.name() + "\" has non-standard datatype - " +
-                 "it`s supposed to be a 64-bit integer scalar, but isn`t.";
+                 "it`s supposed to be a 64-bit integer scalar, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.";
       break;
     case OdimEntry::IntegerArray :
       message += " entry \"" + attr.name() + "\" has non-standard datatype - " +
-                 "it`s supposed to be a 64-bit integer array, but isn`t.";
+                 "it`s supposed to be a 64-bit integer array, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.";
       break;
     default :
       break;
