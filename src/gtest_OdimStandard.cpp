@@ -10,6 +10,7 @@ using namespace myodim;
 const std::string TEST_CSV_FILE = "./data/ODIM_H5_V2_1_PVOL.csv";
 const std::string UPDATE_CSV_FILE = "./data/example/T_PAGZ41_C_LZIB.values.interval.csv";
 const std::string WRONG_CSV_FILE = "./data/ODIM_H5_V2_1_PVOL.csvx";
+const std::string TEST_CSV_FILE_WITHOUT_REFS = "./data/test/ODIM_H5_V2_1_PVOL_norefs.csv";
 
 TEST(testOdimStandard, isEmptyWhenDefaultConstructed) {
   OdimStandard oStand;
@@ -23,6 +24,13 @@ TEST(testOdimStandard, canReadFromCSV) {
   ASSERT_NO_THROW( oStand.readFromCsv(TEST_CSV_FILE) );
   ASSERT_FALSE( oStand.entries.empty() );
   ASSERT_ANY_THROW( oStand.readFromCsv(WRONG_CSV_FILE) );
+}
+
+TEST(testOdimStandard, canReadFromCSVWithoutReferences) {
+  OdimStandard oStand;
+
+  ASSERT_NO_THROW( oStand.readFromCsv(TEST_CSV_FILE_WITHOUT_REFS) );
+  ASSERT_FALSE( oStand.entries.empty() );
 }
 
 TEST(testOdimStandard, canConstructByCSV) {

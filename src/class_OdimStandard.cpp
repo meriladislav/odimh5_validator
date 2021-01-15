@@ -19,13 +19,17 @@ OdimStandard::OdimStandard(const std::string& csvFilePath) {
 void OdimStandard::readFromCsv(const std::string& csvFilePath) {
   entries.clear();
   
-  io::CSVReader<CSV_COL_NUM, io::trim_chars<CSV_SEPARATOR>, 
+  io::CSVReader<CSV_COL_NUM, io::trim_chars<CSV_SEPARATOR>,
                 io::no_quote_escape<CSV_SEPARATOR>> csv(csvFilePath);
-  
-  csv.read_header(io::ignore_no_column, 
+
+  csv.read_header(io::ignore_missing_column,
                   "Node", "Category", "Type", "IsMandatory", "PossibleValues", "Reference");
-  
-  std::string node, category, type, isMandatory, possibleValues, reference;
+  if ( !csv.has_column("Node") || !csv.has_column("Category") || !csv.has_column("Type") ||
+       !csv.has_column("IsMandatory") ) {
+    throw io::error::missing_column_in_header();
+  }
+
+  std::string node, category, type, isMandatory, possibleValues="", reference="";
   while(csv.read_row(node, category, type, isMandatory, possibleValues, reference)){
     entries.emplace_back(OdimEntry{node, category, type, isMandatory, possibleValues, reference});
   }
@@ -35,10 +39,14 @@ void OdimStandard::updateWithCsv(const std::string& csvFilePath) {
   io::CSVReader<CSV_COL_NUM, io::trim_chars<CSV_SEPARATOR>,
                 io::no_quote_escape<CSV_SEPARATOR>> csv(csvFilePath);
 
-  csv.read_header(io::ignore_no_column,
+  csv.read_header(io::ignore_missing_column,
                   "Node", "Category", "Type", "IsMandatory", "PossibleValues", "Reference");
+  if ( !csv.has_column("Node") || !csv.has_column("Category") || !csv.has_column("Type") ||
+       !csv.has_column("IsMandatory") ) {
+    throw io::error::missing_column_in_header();
+  }
 
-  std::string node, category, type, isMandatory, possibleValues, reference;
+  std::string node, category, type, isMandatory, possibleValues="", reference="";
   while(csv.read_row(node, category, type, isMandatory, possibleValues, reference)){
     const OdimEntry e(node, category, type, isMandatory, possibleValues, reference);
     OdimEntry* myEntry = entry_(e);
