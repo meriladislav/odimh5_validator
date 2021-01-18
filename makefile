@@ -9,7 +9,8 @@ include makefile-commons.in
 LIB_LIST = $(LIB_DIR)/libmyodimh5.a 
            
 BIN_LIST = $(BIN_DIR)/odimh5-validate \
-           $(BIN_DIR)/odimh5-check-value
+           $(BIN_DIR)/odimh5-check-value \
+           $(BIN_DIR)/odimh5-repair
 
 OBJ_LIST = $(OBJ_DIR)/class_H5Layout.o \
            $(OBJ_DIR)/class_OdimEntry.o \
@@ -49,6 +50,13 @@ $(BIN_DIR)/odimh5-check-value: $(SRC_DIR)/odimh5-check-value.cpp $(LIB_LIST)
 	@echo "Compiling odimh5-check-value ..."
 	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -o $@ $(SRC_DIR)/odimh5-check-value.cpp $(LIB_FLAGS) 
 	@echo "Compiling odimh5-check-value ... OK"
+	@echo ""
+	
+$(BIN_DIR)/odimh5-repair: $(SRC_DIR)/odimh5-repair.cpp $(LIB_LIST)
+	@echo ""
+	@echo "Compiling odimh5-repair ..."
+	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -o $@ $(SRC_DIR)/odimh5-repair.cpp $(LIB_FLAGS) 
+	@echo "Compiling odimh5-repair ... OK"
 	@echo ""
 	
 $(OBJ_DIR)/class_H5Layout.o: $(SRC_DIR)/class_H5Layout.cpp $(SRC_DIR)/class_H5Layout.hpp 
