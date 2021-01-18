@@ -17,6 +17,7 @@ int main(int argc, const char* argv[]) {
     ("c,csv", "standard-definition .csv table, e.g. your_path/your_table.csv", cxxopts::value<std::string>())
     ("v,version", "standard version to use, e.g. 2.1", cxxopts::value<std::string>())
     ("t,valueTable", "optional .csv table with the assumed attribute values - the format is as in the standard-definition .csv table", cxxopts::value<std::string>())
+    ("f,failedEntriesTable", "the csv table to save the problematic entries, which is used in the repair step - the format is as in the standard-definition .csv table", cxxopts::value<std::string>())
     ("onlyValueCheck", "check only the values defined by the -t or --valueTable option, default is False",
         cxxopts::value<bool>()->default_value("false"))
     ("checkOptional", "check the presence of the optional ODIM entries, default is False",  
@@ -25,6 +26,7 @@ int main(int argc, const char* argv[]) {
         cxxopts::value<bool>()->default_value("false"))
     ("noInfo", "don`t print INFO messages, only WARNINGs and ERRORs, default is False",  
         cxxopts::value<bool>()->default_value("false"));
+
   
   auto cmdLineOptions = options.parse(argc, argv);
   if ( cmdLineOptions.count("input") != 1 || cmdLineOptions.count("help") > 0 ) {
@@ -70,6 +72,13 @@ int main(int argc, const char* argv[]) {
   }
 
 
+  myodim::OdimStandard failedEntries;
+  std::string failedFile{""};
+  if ( cmdLineOptions.count("failedEntriesTable") == 1 ) {
+    failedFile = cmdLineOptions["failedEntriesTable"].as<std::string>();
+  }
+
+
 
   const bool checkOptional{cmdLineOptions["checkOptional"].as<bool>()};
   const bool checkExtras{cmdLineOptions["checkExtras"].as<bool>()};
@@ -77,7 +86,7 @@ int main(int argc, const char* argv[]) {
   //compare the layout to the standard
   bool isCompliant = false;
   try {
-    isCompliant = myodim::compare(h5layout, odimStandard, checkOptional, checkExtras);
+    isCompliant = myodim::compare(h5layout, odimStandard, checkOptional, checkExtras, &failedEntries);
   }
   catch (const std::exception& e) {
     std::cout << e.what() << std::endl;
@@ -103,8 +112,13 @@ int main(int argc, const char* argv[]) {
     return 0;
   }
   else { 
+    if ( !failedFile.empty() ) {
+      std::cout << "INFO - saving failed entries to  " << failedFile << " csv table" << std::endl;
+      failedEntries.writeToCsv(failedFile);
+    }
     std::cout << "WARNING - NON-COMPLIANT FILE - file " << h5File <<
                  " IS NOT a standard-compliant ODIM-H5 file - see the previous WARNING messages" << std::endl;
+
     return -1;
   }
 }
