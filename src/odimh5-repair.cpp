@@ -29,6 +29,13 @@ int main(int argc, const char* argv[]) {
     return -1;
   }
 
+  myodim::printInfo = !(cmdLineOptions["noInfo"].as<bool>());
+
+  std::string inH5File(cmdLineOptions["input"].as<std::string>());
+  std::string outH5File(cmdLineOptions["output"].as<std::string>());
+  std::string csvFile = cmdLineOptions["failedEntriesTable"].as<std::string>();
+
+
 
   return 0;
 }

@@ -15,7 +15,8 @@ BIN_LIST = $(BIN_DIR)/odimh5-validate \
 OBJ_LIST = $(OBJ_DIR)/class_H5Layout.o \
            $(OBJ_DIR)/class_OdimEntry.o \
            $(OBJ_DIR)/class_OdimStandard.o \
-           $(OBJ_DIR)/module_Compare.o
+           $(OBJ_DIR)/module_Compare.o  \
+           $(OBJ_DIR)/module_Repair.o
 
 all : $(LIB_LIST) $(BIN_LIST)
 	@echo ""
@@ -73,3 +74,8 @@ $(OBJ_DIR)/module_Compare.o: $(SRC_DIR)/module_Compare.cpp $(SRC_DIR)/module_Com
                              $(OBJ_DIR)/class_H5Layout.o \
                              $(OBJ_DIR)/class_OdimStandard.o
 	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -c -o $@ $(SRC_DIR)/module_Compare.cpp
+
+$(OBJ_DIR)/module_Repair.o: $(SRC_DIR)/module_Repair.cpp $(SRC_DIR)/module_Repair.hpp \
+                            $(OBJ_DIR)/class_OdimStandard.o
+	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -c -o $@ $(SRC_DIR)/module_Repair.cpp
+	

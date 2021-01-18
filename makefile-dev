@@ -14,16 +14,19 @@ TEST_LIB_FLAGS = $(LIB_FLAGS) ~/wrk/lib/libmygmock.a
 LIB_LIST = $(LIB_DIR)/libmyodimh5.a 
            
 BIN_LIST = $(BIN_DIR)/odimh5-validate \
-           $(BIN_DIR)/odimh5-check-value
+           $(BIN_DIR)/odimh5-check-value \
+           $(BIN_DIR)/odimh5-repair
            
 TEST_LIST = $(BIN_DIR)/gtest_H5Layout \
             $(BIN_DIR)/gtest_OdimStandard \
-            $(BIN_DIR)/gtest_Compare
+            $(BIN_DIR)/gtest_Compare  \
+            $(BIN_DIR)/gtest_Repair
 
 OBJ_LIST = $(OBJ_DIR)/class_H5Layout.o \
            $(OBJ_DIR)/class_OdimEntry.o \
            $(OBJ_DIR)/class_OdimStandard.o \
-           $(OBJ_DIR)/module_Compare.o
+           $(OBJ_DIR)/module_Compare.o   \
+           $(OBJ_DIR)/module_Repair.o
 
 all : $(LIB_LIST) $(BIN_LIST) $(TEST_LIST)
 	@echo ""
@@ -37,11 +40,13 @@ test : $(TEST_LIST)
 	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_H5Layout
 	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_OdimStandard
 	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_Compare
+	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_Repair
 
 bug : $(TEST_LIST)
 	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_H5Layout --gtest_filter=*BUG*
 	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_OdimStandard --gtest_filter=*BUG*
 	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_Compare --gtest_filter=*BUG*
+    export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_Repair --gtest_filter=*BUG*
 	
 clean: 
 	rm -rf $(BIN_DIR)/* \
@@ -79,6 +84,9 @@ $(BIN_DIR)/gtest_OdimStandard: $(SRC_DIR)/gtest_OdimStandard.cpp $(LIB_LIST)
 $(BIN_DIR)/gtest_Compare: $(SRC_DIR)/gtest_Compare.cpp $(LIB_LIST)
 	$(CXX) $(CXX_TEST_FLAGS) $(TEST_INC_FLAGS) -o $@ $(SRC_DIR)/gtest_Compare.cpp $(TEST_LIB_FLAGS) 
 	
+$(BIN_DIR)/gtest_Repair: $(SRC_DIR)/gtest_Repair.cpp $(LIB_LIST)
+	$(CXX) $(CXX_TEST_FLAGS) $(TEST_INC_FLAGS) -o $@ $(SRC_DIR)/gtest_Repair.cpp $(TEST_LIB_FLAGS) 
+	
 $(OBJ_DIR)/class_H5Layout.o: $(SRC_DIR)/class_H5Layout.cpp $(SRC_DIR)/class_H5Layout.hpp 
 	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -c -o $@ $(SRC_DIR)/class_H5Layout.cpp
 
@@ -93,3 +101,8 @@ $(OBJ_DIR)/module_Compare.o: $(SRC_DIR)/module_Compare.cpp $(SRC_DIR)/module_Com
                              $(OBJ_DIR)/class_H5Layout.o \
                              $(OBJ_DIR)/class_OdimStandard.o
 	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -c -o $@ $(SRC_DIR)/module_Compare.cpp
+	
+$(OBJ_DIR)/module_Repair.o: $(SRC_DIR)/module_Repair.cpp $(SRC_DIR)/module_Repair.hpp \
+                            $(OBJ_DIR)/class_OdimStandard.o
+	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -c -o $@ $(SRC_DIR)/module_Repair.cpp
+
