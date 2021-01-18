@@ -41,6 +41,19 @@ TEST(testCompare, compareReturnsFalseWhenProblemFound) {
   ASSERT_FALSE( compare(h5Lay, oStand, checkOptional, checkExtras) );
 }
 
+TEST(testCompare, compareReturnsFailedEntriesWhenProblemFound) {
+  printInfo = false; // turn-off INFO messages
+
+  H5Layout h5Lay(TEST_ODIM_FILE);
+  OdimStandard oStand(TEST_CSV_FILE);
+  const bool checkOptional = true; // - some optional entries are not full compliant
+  const bool checkExtras = false;
+  OdimStandard failedEntries;
+  ASSERT_FALSE( compare(h5Lay, oStand, checkOptional, checkExtras, &failedEntries) );
+  ASSERT_FALSE( failedEntries.entries.empty() );
+  ASSERT_THAT( failedEntries.entries.size(), Eq(4u) );
+}
+
 TEST(testCompare, isStringWhenAtLeastOneAlphabetcalCharacterPresent) {
   ASSERT_TRUE( isStringValue("123a") );
   ASSERT_FALSE(isStringValue("1.2") );

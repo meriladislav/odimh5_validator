@@ -30,6 +30,46 @@ void OdimEntry::set(const std::string nodeStr, const std::string categoryStr,
   reference = referenceStr;
 }
 
+std::string OdimEntry::categoryToString() const {
+  return category == OdimEntry::Category::Group ? "Group" :
+         (category == OdimEntry::Category::Dataset ? "Dataset" : "Attribute");
+}
+
+std::string OdimEntry::typeToString() const {
+  switch ( type ) {
+    case OdimEntry::Type::String :
+      return "string";
+      break;
+    case OdimEntry::Type::Real :
+      return "real";
+      break;
+    case OdimEntry::Type::Integer :
+      return "integer";
+      break;
+    case OdimEntry::Type::Boolean :
+      return "boolean";
+      break;
+    case OdimEntry::Type::StringArray :
+      return "string array";
+      break;
+    case OdimEntry::Type::RealArray :
+      return "real array";
+      break;
+    case OdimEntry::Type::IntegerArray :
+      return "integer array";
+      break;
+    case OdimEntry::Type::BooleanArray :
+      return "boolean array";
+      break;
+    case OdimEntry::Type::Undefined :
+      return "";
+      break;
+    default :
+      throw std::runtime_error("ERROR - unknown OdimEntry type");
+      break;
+  }
+}
+
 void OdimEntry::parseCategory_(const std::string categoryStr) {
   const std::string lowerCategoryStr = toLower(categoryStr);
   if ( lowerCategoryStr == "group" ) category = Category::Group;

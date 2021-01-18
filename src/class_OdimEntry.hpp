@@ -32,6 +32,8 @@ class OdimEntry {
     bool isGroup() const {return category == Group;}
     bool isAttribute() const {return category == Attribute;}
     bool isDataset() const {return category == Dataset;}
+    std::string categoryToString() const;
+    std::string typeToString() const;
     
   
   private:

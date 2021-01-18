@@ -4,6 +4,8 @@
 // v_0.0, 04.2018
 
 #include <iostream>
+#include <cstdio>
+#include <stdexcept>
 #include "csv.h"
 #include "class_OdimStandard.hpp"
 
@@ -57,6 +59,21 @@ void OdimStandard::updateWithCsv(const std::string& csvFilePath) {
       entries.push_back(e);
     }
   }
+}
+
+void OdimStandard::writeToCsv(const std::string& csvFilePath) {
+  FILE* f = fopen(csvFilePath.c_str(), "w");
+  if ( !f ) {
+    throw std::runtime_error("ERROR - can not create file "+csvFilePath);
+  }
+
+  fprintf(f, "Node;Category;Type;IsMandatory;PossibleValues;Reference\n");
+  for (const OdimEntry& e : entries) {
+    fprintf(f, "%s;%s;%s;%s;%s;%s\n", e.node.c_str(), e.categoryToString().c_str(), e.typeToString().c_str(),
+            e.isMandatory ? "TRUE" : "FALSE", e.possibleValues.c_str(), e.reference.c_str());
+  }
+
+  fclose(f);
 }
 
 OdimEntry* OdimStandard::entry_(const OdimEntry& e) {

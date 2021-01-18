@@ -27,9 +27,10 @@ static const std::string WIGOS_REGEX = "WIGOS:[0-9]*-[0-9]*-[0-9]*-[\\x00-\\x7F]
 
 static const std::string csvDirPathEnv{"ODIMH5_VALIDATOR_CSV_DIR"};
 static bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
-                            const bool checkOptional);
+                            const bool checkOptional, OdimStandard* failedEntries=nullptr);
 static bool checkExtraFeatures(const myodim::H5Layout& h5layout, const OdimStandard& odimStandard);
-static bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard& odimStandard);
+static bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
+                                        OdimStandard* failedEntries=nullptr);
 static void splitNodePath(const std::string& node, std::string& parent, std::string& child);
 static void addIfUnique(std::vector<std::string>& list, const std::string& str);
 static bool hasIntervalSigns(const std::string& assumedValueStr);
@@ -107,10 +108,11 @@ std::string getCsvFileNameFrom(const myodim::H5Layout& h5layout, std::string ver
 }
 
 bool compare(myodim::H5Layout& h5layout, const OdimStandard& odimStandard, 
-             const bool checkOptional, const bool checkExtras) {
+             const bool checkOptional, const bool checkExtras,
+             OdimStandard* failedEntries) {
   
-  bool isCompliant = checkCompliance(h5layout, odimStandard, checkOptional) ;
-  bool mandatoryExistsInAll = checkMandatoryExitenceInAll(h5layout, odimStandard);
+  bool isCompliant = checkCompliance(h5layout, odimStandard, checkOptional, failedEntries) ;
+  bool mandatoryExistsInAll = checkMandatoryExitenceInAll(h5layout, odimStandard, failedEntries);
   isCompliant = isCompliant && mandatoryExistsInAll;
 
   if ( checkExtras ) checkExtraFeatures(h5layout, odimStandard);
@@ -119,9 +121,11 @@ bool compare(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
 }
 
 bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
-                     const bool checkOptional) {
+                     const bool checkOptional, OdimStandard* failedEntries) {
   bool isCompliant{true};
   
+  if ( failedEntries ) failedEntries->entries.clear();
+
   for (const auto& entry : odimStandard.entries) {
     
     if ( !checkOptional && !entry.isMandatory ) continue;
@@ -149,6 +153,14 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
               if ( !h5layout.ucharDatasetHasImageAttributes(d.name()) ) {
                 isCompliant = false;
                 printWrongImageAttributes(entry);
+                if ( failedEntries ) {
+                  failedEntries->entries.push_back(
+                    OdimEntry(entry.node+"/CLASS", "Attribute", "String", "True",
+                             "IMAGE", "Section 5 in all ODIM-H5 version documents"));
+                  failedEntries->entries.push_back(
+                    OdimEntry(entry.node+"/IMAGE_VERSION", "Attribute", "String", "True",
+                             "1.2", "Section 5 in all ODIM-H5 version documents"));
+                }
               }
             }
           }
@@ -187,12 +199,14 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                       if ( !hasProperValue ) {
                         isCompliant = false;
                         printIncorrectValueMessage(entry, a, failedValueMessage);
+                        if ( failedEntries ) failedEntries->entries.push_back(entry);
                       }
                     }
                   }
                   else {
                     isCompliant = false;
                     printWrongTypeMessage(entry, a);
+                    if ( failedEntries ) failedEntries->entries.push_back(entry);
                   }
                 }
                 break;
@@ -202,6 +216,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                 if ( !hasProperDatatype ) {
                   isCompliant = false;
                   printWrongTypeMessage(entry, a);
+                  if ( failedEntries ) failedEntries->entries.push_back(entry);
                 }
                 if ( !entry.possibleValues.empty() ) {
                   double value=0.0;
@@ -210,6 +225,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   if ( !hasProperValue ) {
                     isCompliant = false;
                     printIncorrectValueMessage(entry, a, failedValueMessage);
+                    if ( failedEntries ) failedEntries->entries.push_back(entry);
                   }
                 }
                 break;
@@ -218,7 +234,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                                     h5layout.is1DArrayAttribute(a.name());
                 if ( !hasProperDatatype ) {
                   isCompliant = false;
-                  printWrongTypeMessage(entry, a);
+                  printWrongTypeMessage(entry, a);if ( failedEntries ) failedEntries->entries.push_back(entry);
                 }
                 if ( !entry.possibleValues.empty() ) {
                   std::vector<double> values;
@@ -227,6 +243,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   if ( !hasProperValue ) {
                     isCompliant = false;
                     printIncorrectValueMessage(entry, a, failedValueMessage);
+                    if ( failedEntries ) failedEntries->entries.push_back(entry);
                   }
                 }
                 break;
@@ -236,6 +253,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                 if ( !hasProperDatatype ) {
                   isCompliant = false;
                   printWrongTypeMessage(entry, a);
+                  if ( failedEntries ) failedEntries->entries.push_back(entry);
                 }
                 if ( !entry.possibleValues.empty() ) {
                   int64_t value=0;
@@ -244,6 +262,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   if ( !hasProperValue ) {
                     isCompliant = false;
                     printIncorrectValueMessage(entry, a, failedValueMessage);
+                    if ( failedEntries ) failedEntries->entries.push_back(entry);
                   }
                 }
                 break;
@@ -253,6 +272,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                 if ( !hasProperDatatype ) {
                   isCompliant = false;
                   printWrongTypeMessage(entry, a);
+                  if ( failedEntries ) failedEntries->entries.push_back(entry);
                 }
                 if ( !entry.possibleValues.empty() ) {
                   std::vector<int64_t> values;
@@ -263,6 +283,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   if ( !hasProperValue ) {
                     isCompliant = false;
                     printIncorrectValueMessage(entry, a, failedValueMessage);
+                    if ( failedEntries ) failedEntries->entries.push_back(entry);
                   }
                 }
                 break;
@@ -283,6 +304,9 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                      "\" doesn`t exist in the file.";
         if ( !entry.reference.empty() ) std::cout << " See " << entry.reference;
         std::cout << std::endl;
+        if ( failedEntries ) {
+          failedEntries->entries.push_back(entry);
+        }
       }
       else {
         if ( printInfo ) {
@@ -352,7 +376,8 @@ bool checkExtraFeatures(const myodim::H5Layout& h5layout, const OdimStandard& od
   return extrasPresent;
 }
 
-bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard& odimStandard) {
+bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
+                                 OdimStandard* failedEntries) {
   bool isCompliant = true;
 
   for (const auto& entry : odimStandard.entries) {
@@ -432,14 +457,22 @@ bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard&
                            entry.node << "\" not found in " << parents[i] << ".";
               if ( !entry.reference.empty() ) std::cout << " See " << entry.reference;
               std::cout << std::endl;
+              if ( failedEntries ) {
+                std::string p, c;
+                splitNodePath(entry.node, p, c);
+                OdimEntry failedEntry = entry;
+                failedEntry.node = parents[i]+"/"+c;
+                failedEntries->entries.push_back(failedEntry);
+              }
             }
           }
         }
         else {
           std::cout << "WARNING - MISSING ENTRY - mandatory entry \"" <<
                            entry.node << "\" not found in any its parents" << ".";
-              if ( !entry.reference.empty() ) std::cout << " See " << entry.reference;
-              std::cout << std::endl;
+          if ( !entry.reference.empty() ) std::cout << " See " << entry.reference;
+          std::cout << std::endl;
+          if ( failedEntries ) failedEntries->entries.push_back(entry);
         }
         isCompliant = false;
       }
