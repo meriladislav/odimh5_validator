@@ -1,12 +1,12 @@
-// module_Reapir.cpp
-// functions to reapir, fix or change the ODIM-H5 files
+// module_Correctcpp
+// functions to correct, fix or change the ODIM-H5 files
 // Ladislav Meri, SHMU
 // v_0.0, 01.2020
 
 #include <stdexcept>
 #include <cstdio>
 #include <hdf5.h>
-#include "module_Repair.hpp"
+#include "module_Correct.hpp"
 
 namespace myodim {
 

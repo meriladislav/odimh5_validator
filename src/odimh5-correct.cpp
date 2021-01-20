@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
+#include "cxxopts.hpp"
 #include "class_H5Layout.hpp"
 #include "class_OdimStandard.hpp"
 #include "module_Compare.hpp"
-#include "cxxopts.hpp"
 
 int main(int argc, const char* argv[]) {
 

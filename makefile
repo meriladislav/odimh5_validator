@@ -10,13 +10,13 @@ LIB_LIST = $(LIB_DIR)/libmyodimh5.a
            
 BIN_LIST = $(BIN_DIR)/odimh5-validate \
            $(BIN_DIR)/odimh5-check-value \
-           $(BIN_DIR)/odimh5-repair
+           $(BIN_DIR)/odimh5-correct
 
 OBJ_LIST = $(OBJ_DIR)/class_H5Layout.o \
            $(OBJ_DIR)/class_OdimEntry.o \
            $(OBJ_DIR)/class_OdimStandard.o \
            $(OBJ_DIR)/module_Compare.o  \
-           $(OBJ_DIR)/module_Repair.o
+           $(OBJ_DIR)/module_Correct.o
 
 all : $(LIB_LIST) $(BIN_LIST)
 	@echo ""
@@ -53,11 +53,11 @@ $(BIN_DIR)/odimh5-check-value: $(SRC_DIR)/odimh5-check-value.cpp $(LIB_LIST)
 	@echo "Compiling odimh5-check-value ... OK"
 	@echo ""
 	
-$(BIN_DIR)/odimh5-repair: $(SRC_DIR)/odimh5-repair.cpp $(LIB_LIST)
+$(BIN_DIR)/odimh5-correct: $(SRC_DIR)/odimh5-correct.cpp $(LIB_LIST)
 	@echo ""
-	@echo "Compiling odimh5-repair ..."
-	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -o $@ $(SRC_DIR)/odimh5-repair.cpp $(LIB_FLAGS) 
-	@echo "Compiling odimh5-repair ... OK"
+	@echo "Compiling odimh5-correct ..."
+	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -o $@ $(SRC_DIR)/odimh5-correct.cpp $(LIB_FLAGS) 
+	@echo "Compiling odimh5-correct ... OK"
 	@echo ""
 	
 $(OBJ_DIR)/class_H5Layout.o: $(SRC_DIR)/class_H5Layout.cpp $(SRC_DIR)/class_H5Layout.hpp 
@@ -75,7 +75,7 @@ $(OBJ_DIR)/module_Compare.o: $(SRC_DIR)/module_Compare.cpp $(SRC_DIR)/module_Com
                              $(OBJ_DIR)/class_OdimStandard.o
 	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -c -o $@ $(SRC_DIR)/module_Compare.cpp
 
-$(OBJ_DIR)/module_Repair.o: $(SRC_DIR)/module_Repair.cpp $(SRC_DIR)/module_Repair.hpp \
+$(OBJ_DIR)/module_Correct.o: $(SRC_DIR)/module_Correct.cpp $(SRC_DIR)/module_Correct.hpp \
                             $(OBJ_DIR)/class_OdimStandard.o
-	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -c -o $@ $(SRC_DIR)/module_Repair.cpp
+	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -c -o $@ $(SRC_DIR)/module_Correct.cpp
 	

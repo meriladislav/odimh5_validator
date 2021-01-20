@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "module_Repair.hpp"
+#include "module_Correct.hpp"
 
 using namespace testing;
 using namespace myodim;
