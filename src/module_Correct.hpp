@@ -12,6 +12,8 @@
 namespace myodim {
 
 extern void copyFile(const std::string& sourceFile, const std::string& copyFile);
+extern void correct(const std::string& sourceFile, const std::string& targetFile,
+                     const OdimStandard& toCorrect);
 
 } // end myodim
 

@@ -227,6 +227,25 @@ bool H5Layout::isStringAttribute(const std::string& attrName) const {
   return isString;
 }
 
+bool H5Layout::isFixedLenghtStringAttribute(const std::string& attrName) const {
+  std::string path, name;
+  splitAttributeToPathAndName(attrName, path, name);
+  auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
+  }
+  auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+  if ( attr < 0  ) {
+    throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
+  }
+  auto type = H5Aget_type(attr);
+  bool isString{H5Tget_class(type) == H5T_STRING && !H5Tis_variable_str(type)};
+  H5Tclose(type);
+  H5Aclose(attr);
+  H5Oclose(parent);
+  return isString;
+}
+
 bool H5Layout::isReal64Attribute(const std::string& attrName) const {
   std::string path, name;
   splitAttributeToPathAndName(attrName, path, name);
