@@ -155,10 +155,10 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                 printWrongImageAttributes(entry);
                 if ( failedEntries ) {
                   failedEntries->entries.push_back(
-                    OdimEntry(entry.node+"/CLASS", "Attribute", "String", "True",
+                    OdimEntry(d.name()+"/CLASS", "Attribute", "String", "True",
                              "IMAGE", "Section 5 in all ODIM-H5 version documents"));
                   failedEntries->entries.push_back(
-                    OdimEntry(entry.node+"/IMAGE_VERSION", "Attribute", "String", "True",
+                    OdimEntry(d.name()+"/IMAGE_VERSION", "Attribute", "String", "True",
                              "1.2", "Section 5 in all ODIM-H5 version documents"));
                 }
               }
@@ -183,6 +183,11 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   catch (const std::exception& e) {
                 	  hasProperDatatype = false;
                 	  std::string message(e.what());
+                	  if ( failedEntries ) {
+                      OdimEntry eFailed = entry;
+                      eFailed.node = a.name();
+                      failedEntries->entries.push_back(eFailed);
+                    }
                 	  if ( message.find("WARNING") != std::string::npos ) {
                 	    if ( !entry.reference.empty() ) message += "see "+entry.reference;
                 	    std::cout << message << std::endl;
@@ -199,14 +204,22 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                       if ( !hasProperValue ) {
                         isCompliant = false;
                         printIncorrectValueMessage(entry, a, failedValueMessage);
-                        if ( failedEntries ) failedEntries->entries.push_back(entry);
+                        if ( failedEntries ) {
+                          OdimEntry eFailed = entry;
+                          eFailed.node = a.name();
+                          failedEntries->entries.push_back(eFailed);
+                        }
                       }
                     }
                   }
                   else {
                     isCompliant = false;
                     printWrongTypeMessage(entry, a);
-                    if ( failedEntries ) failedEntries->entries.push_back(entry);
+                    if ( failedEntries ) {
+                      OdimEntry eFailed = entry;
+                      eFailed.node = a.name();
+                      failedEntries->entries.push_back(eFailed);
+                    }
                   }
                 }
                 break;
@@ -216,7 +229,11 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                 if ( !hasProperDatatype ) {
                   isCompliant = false;
                   printWrongTypeMessage(entry, a);
-                  if ( failedEntries ) failedEntries->entries.push_back(entry);
+                  if ( failedEntries ) {
+                    OdimEntry eFailed = entry;
+                    eFailed.node = a.name();
+                    failedEntries->entries.push_back(eFailed);
+                  }
                 }
                 if ( !entry.possibleValues.empty() ) {
                   double value=0.0;
@@ -225,7 +242,11 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   if ( !hasProperValue ) {
                     isCompliant = false;
                     printIncorrectValueMessage(entry, a, failedValueMessage);
-                    if ( failedEntries ) failedEntries->entries.push_back(entry);
+                    if ( failedEntries ) {
+                     OdimEntry eFailed = entry;
+                     eFailed.node = a.name();
+                     failedEntries->entries.push_back(eFailed);
+                    }
                   }
                 }
                 break;
@@ -234,7 +255,12 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                                     h5layout.is1DArrayAttribute(a.name());
                 if ( !hasProperDatatype ) {
                   isCompliant = false;
-                  printWrongTypeMessage(entry, a);if ( failedEntries ) failedEntries->entries.push_back(entry);
+                  printWrongTypeMessage(entry, a);
+                  if ( failedEntries ) {
+                    OdimEntry eFailed = entry;
+                    eFailed.node = a.name();
+                    failedEntries->entries.push_back(eFailed);
+                  }
                 }
                 if ( !entry.possibleValues.empty() ) {
                   std::vector<double> values;
@@ -243,7 +269,11 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   if ( !hasProperValue ) {
                     isCompliant = false;
                     printIncorrectValueMessage(entry, a, failedValueMessage);
-                    if ( failedEntries ) failedEntries->entries.push_back(entry);
+                    if ( failedEntries ) {
+                      OdimEntry eFailed = entry;
+                      eFailed.node = a.name();
+                      failedEntries->entries.push_back(eFailed);
+                    }
                   }
                 }
                 break;
@@ -253,7 +283,11 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                 if ( !hasProperDatatype ) {
                   isCompliant = false;
                   printWrongTypeMessage(entry, a);
-                  if ( failedEntries ) failedEntries->entries.push_back(entry);
+                  if ( failedEntries ) {
+                    OdimEntry eFailed = entry;
+                    eFailed.node = a.name();
+                    failedEntries->entries.push_back(eFailed);
+                  }
                 }
                 if ( !entry.possibleValues.empty() ) {
                   int64_t value=0;
@@ -262,7 +296,11 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   if ( !hasProperValue ) {
                     isCompliant = false;
                     printIncorrectValueMessage(entry, a, failedValueMessage);
-                    if ( failedEntries ) failedEntries->entries.push_back(entry);
+                    if ( failedEntries ) {
+                      OdimEntry eFailed = entry;
+                      eFailed.node = a.name();
+                      failedEntries->entries.push_back(eFailed);
+                    }
                   }
                 }
                 break;
@@ -272,7 +310,11 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                 if ( !hasProperDatatype ) {
                   isCompliant = false;
                   printWrongTypeMessage(entry, a);
-                  if ( failedEntries ) failedEntries->entries.push_back(entry);
+                  if ( failedEntries ) {
+                    OdimEntry eFailed = entry;
+                    eFailed.node = a.name();
+                    failedEntries->entries.push_back(eFailed);
+                  }
                 }
                 if ( !entry.possibleValues.empty() ) {
                   std::vector<int64_t> values;
@@ -283,7 +325,11 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   if ( !hasProperValue ) {
                     isCompliant = false;
                     printIncorrectValueMessage(entry, a, failedValueMessage);
-                    if ( failedEntries ) failedEntries->entries.push_back(entry);
+                    if ( failedEntries ) {
+                      OdimEntry eFailed = entry;
+                      eFailed.node = a.name();
+                      failedEntries->entries.push_back(eFailed);
+                    }
                   }
                 }
                 break;
@@ -305,7 +351,8 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
         if ( !entry.reference.empty() ) std::cout << " See " << entry.reference;
         std::cout << std::endl;
         if ( failedEntries ) {
-          failedEntries->entries.push_back(entry);
+          OdimEntry eFailed = entry;
+          failedEntries->entries.push_back(eFailed);
         }
       }
       else {
