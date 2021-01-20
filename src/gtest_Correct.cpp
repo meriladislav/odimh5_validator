@@ -14,7 +14,7 @@ static long int fileSize(const std::string& fName);
 const std::string TEST_IN_FILE = "./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf";
 const std::string TEST_OUT_FILE = "./out/T_PAGZ41_C_LZIB_20180403000000.hdf";
 const std::string TEST_CSV_FILE = "./data/ODIM_H5_V2_1_PVOL.csv";
-const std::string CSV_TO_CORRECT = "./out/test_failed_entries.csv";
+const std::string CSV_TO_CORRECT = "./data/example/failed_entries.csv";
 
 TEST(testRepair, canCopyHdf5File) {
   std::remove(TEST_OUT_FILE.c_str());
@@ -27,7 +27,7 @@ TEST(testRepair, canCopyHdf5File) {
   ASSERT_THAT( fileSize(TEST_IN_FILE), Eq(fileSize(TEST_OUT_FILE)) );
 }
 
-TEST(testRepair, canRepairAttributeDataTypes) {
+TEST(testRepair, canRepairReal64AttributeDataTypes) {
   std::remove(TEST_OUT_FILE.c_str());
 
   printInfo = false;
@@ -49,6 +49,8 @@ TEST(testRepair, canRepairAttributeDataTypes) {
   ASSERT_TRUE( compare(h5LayOut, oStand, checkOptional, checkExtras, &failedEntriesOut) );
   ASSERT_TRUE( failedEntriesOut.entries.empty() );
 }
+
+
 
 
 //statics
