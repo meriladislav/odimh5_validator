@@ -1,0 +1,4 @@
+Node;Category;Type;IsMandatory;PossibleValues;Reference
+/how/beamwidth;Attribute;real;FALSE;1.0;
+/how/highprf;Attribute;integer;FALSE;601;
+/how/system;Attribute;string;FALSE;selex;

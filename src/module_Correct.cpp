@@ -83,6 +83,11 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
             if ( !source.isReal64Attribute(entry.node) ) {
               replaceAsReal64Attribute_(f, source, entry.node);
             }
+            else {
+              if ( !entry.possibleValues.empty() ) {
+                saveAsReal64Attribute_(f, entry.node, parseRealValue_(entry.possibleValues, entry.node));
+              }
+            }
           }
           else {
             saveAsReal64Attribute_(f, entry.node, parseRealValue_(entry.possibleValues, entry.node));
@@ -94,6 +99,11 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
             if ( !source.isInt64Attribute(entry.node) ) {
               replaceAsInt64Attribute_(f, source, entry.node);
             }
+            else {
+              if ( !entry.possibleValues.empty() ) {
+                saveAsInt64Attribute_(f, entry.node, parseIntValue_(entry.possibleValues, entry.node));
+              }
+            }
           }
           else {
             saveAsInt64Attribute_(f, entry.node, parseIntValue_(entry.possibleValues, entry.node));
@@ -104,6 +114,11 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
           if ( source.hasAttribute(entry.node) ){
             if ( !source.isFixedLenghtStringAttribute(entry.node) ) {
               replaceAsFixedLenghtStringAttribute_(f, source, entry.node);
+            }
+            else {
+              if ( !entry.possibleValues.empty() ) {
+                saveAsFixedLenghtStringAttribute_(f, entry.node, entry.possibleValues);
+              }
             }
           }
           else {

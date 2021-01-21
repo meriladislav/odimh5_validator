@@ -18,6 +18,7 @@ const std::string CSV_TO_CORRECT = "./data/example/failed_entries.csv";
 const std::string CSV_TO_ADD = "./data/example/add_entries.csv";
 const std::string CSV_TO_ADD_WRONG = "./data/example/add_entries_wrong.csv";
 const std::string CSV_TO_ADD_REGEX = "./data/example/add_entries_regex.csv";
+const std::string CSV_TO_REPLACE = "./data/example/replace_entries.csv";
 
 TEST(testRepair, canCopyHdf5File) {
   const std::string testOutFile = TEST_OUT_DIR+"testRepair"+"."+"canCopyHdf5File"+".hdf";
@@ -129,7 +130,29 @@ TEST(testRepair, worksWithRegexInNodes) {
   ASSERT_THAT( s, StrEq("foobar") );
 }
 
-//TODO :: has attribute describing the changed entries
+TEST(testRepair, canReplaceExistingValues) {
+  const std::string testOutFile = TEST_OUT_DIR+"testRepair"+"."+"canReplaceExistingValues"+".hdf";
+  std::remove(testOutFile.c_str());
+
+  printInfo = false;
+
+  OdimStandard toAdd(CSV_TO_REPLACE);
+
+  ASSERT_NO_THROW( correct(TEST_IN_FILE, testOutFile, toAdd) );
+
+  H5Layout h5LayOut(testOutFile);
+  int64_t i64;
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/how/highprf", i64) );
+  ASSERT_THAT( (int)i64, Eq(601) );
+  double r64;
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/how/beamwidth", r64) );
+  ASSERT_THAT( r64, DoubleEq(1.0) );
+  std::string s;
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/how/system", s) );
+  ASSERT_THAT( s, StrEq("selex") );
+}
+
+//TODO :: has attribute describing the changed entries - /how/metadata_changed ","separated string
 
 //statics
 
