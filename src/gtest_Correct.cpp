@@ -12,23 +12,28 @@ using namespace myodim;
 static long int fileSize(const std::string& fName);
 
 const std::string TEST_IN_FILE = "./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf";
-const std::string TEST_OUT_FILE = "./out/T_PAGZ41_C_LZIB_20180403000000.hdf";
+const std::string TEST_OUT_DIR = "./out/";
 const std::string TEST_CSV_FILE = "./data/ODIM_H5_V2_1_PVOL.csv";
 const std::string CSV_TO_CORRECT = "./data/example/failed_entries.csv";
+const std::string CSV_TO_ADD = "./data/example/add_entries.csv";
+const std::string CSV_TO_ADD_WRONG = "./data/example/add_entries_wrong.csv";
+const std::string CSV_TO_ADD_REGEX = "./data/example/add_entries_regex.csv";
 
 TEST(testRepair, canCopyHdf5File) {
-  std::remove(TEST_OUT_FILE.c_str());
+  const std::string testOutFile = TEST_OUT_DIR+"testRepair"+"."+"canCopyHdf5File"+".hdf";
+  std::remove(testOutFile.c_str());
 
-  ASSERT_NO_THROW( copyFile(TEST_IN_FILE, TEST_OUT_FILE) );
-  FILE* f = fopen(TEST_OUT_FILE.c_str(), "r");
+  ASSERT_NO_THROW( copyFile(TEST_IN_FILE, testOutFile) );
+  FILE* f = fopen(testOutFile.c_str(), "r");
   ASSERT_THAT( f, NotNull() );
   fclose(f);
 
-  ASSERT_THAT( fileSize(TEST_IN_FILE), Eq(fileSize(TEST_OUT_FILE)) );
+  ASSERT_THAT( fileSize(TEST_IN_FILE), Eq(fileSize(testOutFile)) );
 }
 
 TEST(testRepair, canRepairReal64AttributeDataTypes) {
-  std::remove(TEST_OUT_FILE.c_str());
+  const std::string testOutFile = TEST_OUT_DIR+"testRepair"+"."+"canRepairReal64AttributeDataTypes"+".hdf";
+  std::remove(testOutFile.c_str());
 
   printInfo = false;
 
@@ -36,22 +41,95 @@ TEST(testRepair, canRepairReal64AttributeDataTypes) {
   OdimStandard oStand(TEST_CSV_FILE);
   const bool checkOptional = true; // - some optional entries are not full compliant
   const bool checkExtras = false;
-  OdimStandard failedEntries;
-  ASSERT_FALSE( compare(h5LayIn, oStand, checkOptional, checkExtras, &failedEntries) );
-  ASSERT_FALSE( failedEntries.entries.empty() );
-  ASSERT_THAT( failedEntries.entries.size(), Eq(4u) );
+  OdimStandard failedBeforeCorrect;
+  ASSERT_FALSE( compare(h5LayIn, oStand, checkOptional, checkExtras, &failedBeforeCorrect) );
+  ASSERT_FALSE( failedBeforeCorrect.entries.empty() );
+  ASSERT_THAT( failedBeforeCorrect.entries.size(), Eq(4u) );
   OdimStandard toCorrect(CSV_TO_CORRECT);
 
-  ASSERT_NO_THROW( correct(TEST_IN_FILE, TEST_OUT_FILE, toCorrect) );
+  ASSERT_NO_THROW( correct(TEST_IN_FILE, testOutFile, toCorrect) );
 
-  H5Layout h5LayOut(TEST_OUT_FILE);
-  OdimStandard failedEntriesOut;
-  ASSERT_TRUE( compare(h5LayOut, oStand, checkOptional, checkExtras, &failedEntriesOut) );
-  ASSERT_TRUE( failedEntriesOut.entries.empty() );
+  H5Layout h5LayOut(testOutFile);
+  OdimStandard failedAfterCorrect;
+  ASSERT_TRUE( compare(h5LayOut, oStand, checkOptional, checkExtras, &failedAfterCorrect) );
+  ASSERT_TRUE( failedAfterCorrect.entries.empty() );
 }
 
+TEST(testRepair, canAddAttributesAndGroups) {
+  const std::string testOutFile = TEST_OUT_DIR+"testRepair"+"."+"canAddAttributesAndGroups"+".hdf";
+  std::remove(testOutFile.c_str());
 
+  printInfo = false;
 
+  OdimStandard toAdd(CSV_TO_ADD);
+
+  ASSERT_NO_THROW( correct(TEST_IN_FILE, testOutFile, toAdd) );
+
+  H5Layout h5LayOut(testOutFile);
+  ASSERT_TRUE( h5LayOut.hasGroup("/testGroup") );
+  ASSERT_TRUE( h5LayOut.hasAttribute("/testGroup/testInt") );
+  ASSERT_TRUE( h5LayOut.hasAttribute("/testGroup/testReal") );
+  ASSERT_TRUE( h5LayOut.hasAttribute("/testGroup/testString") );
+  ASSERT_TRUE( h5LayOut.isInt64Attribute("/testGroup/testInt") );
+  ASSERT_TRUE( h5LayOut.isReal64Attribute("/testGroup/testReal") );
+  ASSERT_TRUE( h5LayOut.isStringAttribute("/testGroup/testString") );
+  int64_t i64;
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/testGroup/testInt", i64) );
+  ASSERT_THAT( (int)i64, Eq(5678) );
+  double r64;
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/testGroup/testReal", r64) );
+  ASSERT_THAT( r64, DoubleEq(0.1234) );
+  std::string s;
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/testGroup/testString", s) );
+  ASSERT_THAT( s, StrEq("foobar") );
+}
+
+TEST(testRepair, addAttributeThrowsWhenNoOrWrongValuePresent) {
+  const std::string testOutFile = TEST_OUT_DIR+"testRepair"+"."+"addAttributeThrowsWhenNoOrWrongValuePresent"+".hdf";
+  std::remove(testOutFile.c_str());
+
+  printInfo = false;
+
+  OdimStandard toAdd(CSV_TO_ADD_WRONG);
+
+  ASSERT_ANY_THROW( correct(TEST_IN_FILE, testOutFile, toAdd) );
+}
+
+TEST(testRepair, worksWithRegexInNodes) {
+  const std::string testOutFile = TEST_OUT_DIR+"testRepair"+"."+"worksWithRegexInNodes"+".hdf";
+  std::remove(testOutFile.c_str());
+
+  printInfo = false;
+
+  OdimStandard toAdd(CSV_TO_ADD_REGEX);
+
+  ASSERT_NO_THROW( correct(TEST_IN_FILE, testOutFile, toAdd) );
+
+  H5Layout h5LayOut(testOutFile);
+  ASSERT_TRUE( h5LayOut.hasGroup("/dataset1/testGroup") );
+  ASSERT_TRUE( h5LayOut.hasGroup("/dataset12/testGroup") );
+
+  int64_t i64;
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/dataset1/testGroup/testInt", i64) );
+  ASSERT_THAT( (int)i64, Eq(5678) );
+  double r64;
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/dataset1/testGroup/testReal", r64) );
+  ASSERT_THAT( r64, DoubleEq(0.1234) );
+  std::string s;
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/dataset1/testGroup/testString", s) );
+  ASSERT_THAT( s, StrEq("foobar") );
+
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/dataset12/testGroup/testInt", i64) );
+  ASSERT_THAT( (int)i64, Eq(5678) );
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/dataset12/testGroup/testReal", r64) );
+  ASSERT_THAT( r64, DoubleEq(0.1234) );
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/dataset12/testGroup/testString", s) );
+  ASSERT_THAT( s, StrEq("foobar") );
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/dataset12/data1/testGroup/testString", s) );
+  ASSERT_THAT( s, StrEq("foobar") );
+}
+
+//TODO :: has attribute describing the changed entries
 
 //statics
 

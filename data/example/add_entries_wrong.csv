@@ -1,0 +1,5 @@
+Node;Category;Type;IsMandatory;PossibleValues;Reference
+/testGroup;Group;;FALSE;;
+/testGroup/testInt;Attribute;integer;FALSE;;
+/testGroup/testReal;Attribute;real;FALSE;x;
+/testGroup/testString;Attribute;string;FALSE;foobar;

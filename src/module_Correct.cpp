@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <cstdio>
 #include <cstdint>
+#include <regex>
 #include <hdf5.h>
 #include "module_Correct.hpp"
 #include "class_H5Layout.hpp"
@@ -22,8 +23,17 @@ static void saveAsInt64Attribute_(hid_t f, const std::string attrName, const int
 static void replaceAsInt64Attribute_(hid_t f, const H5Layout& source, const std::string attrName);
 static void saveAsFixedLenghtStringAttribute_(hid_t f, const std::string attrName, const std::string& attrValue);
 static void replaceAsFixedLenghtStringAttribute_(hid_t f, const H5Layout& source, const std::string attrName);
+static void addGroup_(hid_t f, const std::string& name);
 static void splitAttributeToPathAndName_(const std::string& attrName,
                                          std::string& path, std::string& name);
+static double parseRealValue_(const std::string& valStr, const std::string attrName);
+static int64_t parseIntValue_(const std::string& valStr, const std::string attrName);
+static std::vector<OdimEntry> subsituteWildcards_(const H5Layout& h5Layout, const OdimEntry& wildcardEntry);
+static OdimStandard subsituteWildcards_(const H5Layout& h5Layout, const OdimStandard& wildcardStandard);
+static bool hasWildcard_(const std::string& str);
+static void splitByWildcard_(const std::string& str, std::string& wildcardPart, std::string& noWildcardPart);
+static std::string getMatchingPart_(const std::string str, const std::regex& r);
+static void addIfUnique_(std::vector<OdimEntry>& list, const OdimEntry& e);
 
 void copyFile(const std::string& sourceFile, const std::string& copyFile) {
   FILE* fIn = fopen(sourceFile.c_str(), "rb");
@@ -56,12 +66,18 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
 
   H5Layout source(sourceFile);
 
+  OdimStandard toCorrectWithoutWildcards = subsituteWildcards_(source, toCorrect);
+  //for (const auto& e : toCorrectWithoutWildcards.entries) {
+  //  std::cout << "dbg - " << e.node << std::endl;
+  //}
+
   auto f = openH5File_(targetFile, H5F_ACC_RDWR);
 
-  for (const auto& entry : toCorrect.entries) {
+  for (const auto& entry : toCorrectWithoutWildcards.entries) {
     if ( entry.category == OdimEntry::Category::Attribute ) {
 
       switch (entry.type) {
+
         case OdimEntry::Type::Real :
           if ( source.hasAttribute(entry.node) ){
             if ( !source.isReal64Attribute(entry.node) ) {
@@ -69,7 +85,7 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
             }
           }
           else {
-            saveAsReal64Attribute_(f, entry.node, std::stod(entry.possibleValues));
+            saveAsReal64Attribute_(f, entry.node, parseRealValue_(entry.possibleValues, entry.node));
           }
           break;
 
@@ -80,7 +96,7 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
             }
           }
           else {
-            saveAsInt64Attribute_(f, entry.node, std::stoi(entry.possibleValues));
+            saveAsInt64Attribute_(f, entry.node, parseIntValue_(entry.possibleValues, entry.node));
           }
           break;
 
@@ -101,8 +117,11 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
           break;
       }
     }
+    else if ( entry.category == OdimEntry::Category::Group ) {
+      addGroup_(f, entry.node);
+    }
     else {
-     throw std::runtime_error("ERROR - only Attribute correction implemented yet");
+      throw std::runtime_error("ERROR - dataset correction not implemented yet");
     }
   }
 
@@ -176,12 +195,12 @@ void saveAsInt64Attribute_(hid_t f, const std::string attrName, const int64_t at
   H5Adelete(parent, name.c_str());
 
   hid_t sp = H5Screate(H5S_SCALAR);
-  auto a = H5Acreate2(parent, name.c_str(), H5T_STD_I64LE, sp, H5P_DEFAULT, H5P_DEFAULT);
+  auto a = H5Acreate2(parent, name.c_str(), H5T_NATIVE_INT64, sp, H5P_DEFAULT, H5P_DEFAULT);
   if ( a < 0 ) {
     throw std::runtime_error("ERROR - attribute "+name+" not opened.");
   }
 
-  auto ret  = H5Awrite(a, H5T_NATIVE_DOUBLE, &attrValue);
+  auto ret  = H5Awrite(a, H5T_NATIVE_INT64, &attrValue);
   if ( ret < 0  ) {
     H5Aclose(a);
     H5Oclose(parent);
@@ -213,7 +232,7 @@ void saveAsFixedLenghtStringAttribute_(hid_t f, const std::string attrName, cons
   auto t = H5Tcopy(H5T_C_S1);
   H5Tset_size(t, attrValue.length()+1);
   H5Tset_strpad(t, H5T_STR_NULLTERM);
-  auto a = H5Acreate2(parent, attrName.c_str(), t, sp, H5P_DEFAULT, H5P_DEFAULT);
+  auto a = H5Acreate2(parent, name.c_str(), t, sp, H5P_DEFAULT, H5P_DEFAULT);
   if ( a < 0 ) {
     H5Sclose(sp);
     H5Tclose(t);
@@ -242,6 +261,18 @@ void replaceAsFixedLenghtStringAttribute_(hid_t f, const H5Layout& source, const
   saveAsFixedLenghtStringAttribute_(f, attrName, attrValue);
 }
 
+void addGroup_(hid_t f, const std::string& name) {
+  auto g = H5Oopen(f, name.c_str(), H5P_DEFAULT);
+  if ( g < 0 ) {
+    g = H5Gcreate(f, name.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    if ( g < 0 ) {
+      throw std::runtime_error("ERROR - group "+name+" not created");
+    }
+  }
+  H5Oclose(g);
+  return;
+}
+
 void splitAttributeToPathAndName_(const std::string& attrName,
                                   std::string& path, std::string& name) {
   auto found = attrName.find_last_of('/');
@@ -249,5 +280,143 @@ void splitAttributeToPathAndName_(const std::string& attrName,
   name = attrName.substr(found+1);
 }
 
+double parseRealValue_(const std::string& valStr, const std::string attrName) {
+  double d;
+  try {
+    d = std::stod(valStr);
+  }
+  catch(...) {
+    throw std::invalid_argument("ERROR - the value of "+attrName+" not parsed correctly");
+  }
+  return d;
+}
+
+int64_t parseIntValue_(const std::string& valStr, const std::string attrName) {
+  int64_t i;
+  try {
+    i = std::stoi(valStr);
+  }
+  catch(...) {
+    throw std::invalid_argument("ERROR - the value of "+attrName+" not parsed correctly");
+  }
+  return i;
+}
+
+std::vector<OdimEntry> subsituteWildcards_(const H5Layout& h5Layout, const OdimEntry& wildcardEntry) {
+  std::vector<OdimEntry> resultEntries;
+
+  if ( hasWildcard_(wildcardEntry.node) ) {
+    std::string wc, other;
+    splitByWildcard_(wildcardEntry.node, wc, other);
+    std::regex wildcardRegex{wc};
+    //std::cout << "dbg - 2 - " << wc << std::endl;
+
+    if ( wildcardEntry.category == OdimEntry::Category::Group ) {
+      for (const auto& g : h5Layout.groups) {
+        if ( std::regex_match(g.name(), wildcardRegex)  ) {
+          OdimEntry e = wildcardEntry;
+          //std::cout << "dbg - getmatchingpart = " << getMatchingPart_(g.name(), wildcardRegex) << std::endl;
+          std::string matchingPart = getMatchingPart_(g.name(), wildcardRegex);
+          if ( matchingPart.empty() ) continue;
+          e.node = matchingPart+other;
+          addIfUnique_(resultEntries, e);
+        }
+      }
+    }
+    else if ( wildcardEntry.category == OdimEntry::Category::Attribute ) {
+      for (const auto& a : h5Layout.attributes) {
+        if ( std::regex_match(a.name(), wildcardRegex)  ) {
+          OdimEntry e = wildcardEntry;
+          std::string matchingPart = getMatchingPart_(a.name(), wildcardRegex);
+          if ( matchingPart.empty() ) continue;
+          e.node = matchingPart+other;
+          addIfUnique_(resultEntries, e);
+        }
+      }
+    }
+    else {
+      for (const auto& d : h5Layout.datasets) {
+        if ( std::regex_match(d.name(), wildcardRegex)  ) {
+          OdimEntry e = wildcardEntry;
+          std::string matchingPart = getMatchingPart_(d.name(), wildcardRegex);
+          if ( matchingPart.empty() ) continue;
+          e.node = matchingPart+other;
+          addIfUnique_(resultEntries, e);
+        }
+      }
+    }
+  }
+  else {
+    resultEntries.push_back(wildcardEntry);
+  }
+
+  return resultEntries;
+}
+
+OdimStandard subsituteWildcards_(const H5Layout& h5Layout, const OdimStandard& wildcardStandard) {
+  OdimStandard result;
+  for (const auto& e : wildcardStandard.entries) {
+    //std::cout << "dbg - 4 - " << e.node << std::endl;
+    std::vector<OdimEntry> entries = subsituteWildcards_(h5Layout, e);
+    for (const auto& ee : entries) {
+      //std::cout << "dbg - 3 - " << ee.node << std::endl;
+      result.entries.push_back(ee);
+    }
+  }
+  return result;
+}
+
+bool hasWildcard_(const std::string& str) {
+  return str.find('*') != std::string::npos ||
+         str.find('[') != std::string::npos ||
+         str.find('?') != std::string::npos ;
+}
+
+void splitByWildcard_(const std::string& str, std::string& wildcardPart, std::string& noWildcardPart) {
+  if ( !hasWildcard_(str) ) {
+    wildcardPart = str;
+    noWildcardPart = "";
+    return;
+  }
+
+  std::vector<size_t> tmp = {str.find_last_of("*"),
+                             str.find_last_of("["),
+                             str.find_last_of("]"),
+                             str.find_last_of("?")};
+
+  size_t lastWCPosi = 0;
+  for (int i=0; i<4; ++i) {
+    if ( tmp[i] == std::string::npos ) continue;
+    if ( tmp[i] > lastWCPosi ) lastWCPosi = tmp[i];
+  }
+  std::string wrkStr = str.substr(lastWCPosi);
+  auto p = wrkStr.find("/");
+  wildcardPart = str.substr(0,lastWCPosi+p);
+  noWildcardPart = str.substr(lastWCPosi+p);
+}
+
+std::string getMatchingPart_(const std::string str, const std::regex& r) {
+  std::string tmp = "";
+  auto strlen = str.length();
+  size_t i = 0;
+  while ( !std::regex_match(tmp, r) ) {
+    i++;
+    if ( i >= strlen ) break;
+    tmp = str.substr(0, i);
+  }
+  auto p = str.substr(i).find("/");
+  if ( p == std::string::npos ) {
+    i = 0;
+    p = 0;
+  }
+  return str.substr(0,i+p);
+}
+
+void addIfUnique_(std::vector<OdimEntry>& list, const OdimEntry& e) {
+  for (const auto& element : list) {
+    if ( element.node == e.node ) return;
+  }
+  list.push_back(e);
+}
 
 } //end namespace myodim

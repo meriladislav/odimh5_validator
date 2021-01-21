@@ -1,0 +1,7 @@
+Node;Category;Type;IsMandatory;PossibleValues;Reference
+/dataset.*/testGroup;Group;;FALSE;;
+/dataset.*/testGroup/testInt;Attribute;integer;FALSE;5678;
+/dataset.*/testGroup/testReal;Attribute;real;FALSE;0.1234;
+/dataset.*/testGroup/testString;Attribute;string;FALSE;foobar;
+/dataset.*/data.*/testGroup;Group;string;FALSE;foobar;
+/dataset.*/data.*/testGroup/testString;Attribute;string;FALSE;foobar;
