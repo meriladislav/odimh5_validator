@@ -17,7 +17,7 @@ int main(int argc, const char* argv[]) {
     ("c,csv", "standard-definition .csv table, e.g. your_path/your_table.csv", cxxopts::value<std::string>())
     ("v,version", "standard version to use, e.g. 2.1", cxxopts::value<std::string>())
     ("t,valueTable", "optional .csv table with the assumed attribute values - the format is as in the standard-definition .csv table", cxxopts::value<std::string>())
-    ("f,failedEntriesTable", "the csv table to save the problematic entries, which is used in the repair step - the format is as in the standard-definition .csv table", cxxopts::value<std::string>())
+    ("f,failedEntriesTable", "the csv table to save the problematic entries, which is used in the correction step - the format is as in the standard-definition .csv table", cxxopts::value<std::string>())
     ("onlyValueCheck", "check only the values defined by the -t or --valueTable option, default is False",
         cxxopts::value<bool>()->default_value("false"))
     ("checkOptional", "check the presence of the optional ODIM entries, default is False",  
