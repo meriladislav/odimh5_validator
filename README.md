@@ -39,21 +39,25 @@ $odimh5-validate [OPTION...]
   -i, --input arg  input ODIM-H5 file to analyze
 
  Optional options:
-  -h, --help           print this help message
-  -c, --csv arg        standard-definition .csv table, e.g.
-                       your_path/your_table.csv
-  -v, --version arg    standard version to use, e.g. 2.1
-  -t, --valueTable arg  optional .csv table with the assumed attribute values
-                        - the format is as in the standard-definition .csv
-                        table
-      --onlyValueCheck  check only the values defined by the -t or
-                        --valueTable option, default is False
-      --checkOptional  check the presence of the optional ODIM entries,
-                       default is False
-      --checkExtras    check the presence of extra entries, not mentioned in
-                       the standard, default is False
-      --noInfo         don`t print INFO messages, only WARNINGs and ERRORs,
-                       default is False
+  -h, --help                    print this help message
+  -c, --csv arg                 standard-definition .csv table, e.g.
+                                your_path/your_table.csv
+  -v, --version arg             standard version to use, e.g. 2.1
+  -t, --valueTable arg          optional .csv table with the assumed
+                                attribute values - the format is as in the
+                                standard-definition .csv table
+  -f, --failedEntriesTable arg  the csv table to save the problematic
+                                entries, which is used in the correction step - the
+                                format is as in the standard-definition .csv table
+      --onlyValueCheck          check only the values defined by the -t or
+                                --valueTable option, default is False
+      --checkOptional           check the presence of the optional ODIM
+                                entries, default is False
+      --checkExtras             check the presence of extra entries, not
+                                mentioned in the standard, default is False
+      --noInfo                  don`t print INFO messages, only WARNINGs and
+                                ERRORs, default is False
+
 ```
 
 Program to analyze the ODIM-H5 standard-conformance.
@@ -75,6 +79,26 @@ You can enable the controlling of the optional items with the `-checkOptional` o
 and enable the checking of the presence of some extra items not mentioned in the standard with the `--checkExtras` option.
 
 To restrict the output only to WARNING and ERROR messages You can use the `--noInfo` option.
+
+##### odimh5-correct #####
+```
+$odimh5-correct [OPTION...]
+
+ Mandatory options:
+  -i, --input arg            input ODIM-H5 file to change
+  -o, --output arg           output - the changed ODIM-H5 file to save
+  -c, --correctionTable arg  the csv table to listing the problematic entries
+                             - the format is as in the standard-definition
+                             .csv table
+
+ Optional options:
+  -h, --help    print this help message
+      --noInfo  don`t print INFO messages, only WARNINGs and ERRORs, default
+                is False
+
+```
+
+Program to correcting or adding new entries to a ODIM-H5 file.
 
 ##### odimh5-check-value #####
 ```
