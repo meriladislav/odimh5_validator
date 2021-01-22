@@ -97,12 +97,17 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::string& value
 			                   " which is not supported by the ODIM standard.");
   }
 
-  char str[1024] = {'\0'};
+  auto sz = H5Tget_size(type);
+
+  char* str;
+  str = (char*)malloc(sz+1);
+  str[sz] = '\0';
   auto ret  = H5Aread(attr, type, str);
   if ( ret < 0  ) {
     throw std::runtime_error("ERROR - attribute "+attrName+" not read");
   }
   value = str;
+  free(str);
 
   H5Tclose(type);
   H5Aclose(attr);

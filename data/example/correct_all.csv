@@ -1,0 +1,14 @@
+Node;Category;Type;IsMandatory;PossibleValues;Reference
+/how/startepochs;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
+/how/endepochs;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
+/how/lowprf;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
+/how/highprf;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
+/dataset.*/testGroup;Group;;FALSE;;
+/dataset.*/testGroup/testInt;Attribute;integer;FALSE;5678;
+/dataset.*/testGroup/testReal;Attribute;real;FALSE;0.1234;
+/dataset.*/testGroup/testString;Attribute;string;FALSE;foobar;
+/dataset.*/data.*/testGroup;Group;string;FALSE;foobar;
+/dataset.*/data.*/testGroup/testString;Attribute;string;FALSE;foobar;
+/how/beamwidth;Attribute;real;FALSE;1.0;
+/how/highprf;Attribute;integer;FALSE;601;
+/how/system;Attribute;string;FALSE;selex;

@@ -34,6 +34,7 @@ static bool hasWildcard_(const std::string& str);
 static void splitByWildcard_(const std::string& str, std::string& wildcardPart, std::string& noWildcardPart);
 static std::string getMatchingPart_(const std::string str, const std::regex& r);
 static void addIfUnique_(std::vector<OdimEntry>& list, const OdimEntry& e);
+static void addHowMetadataChanged_(hid_t f, const std::vector<std::string>& metadataChanged);
 
 void copyFile(const std::string& sourceFile, const std::string& copyFile) {
   FILE* fIn = fopen(sourceFile.c_str(), "rb");
@@ -67,9 +68,8 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
   H5Layout source(sourceFile);
 
   OdimStandard toCorrectWithoutWildcards = subsituteWildcards_(source, toCorrect);
-  //for (const auto& e : toCorrectWithoutWildcards.entries) {
-  //  std::cout << "dbg - " << e.node << std::endl;
-  //}
+
+  std::vector<std::string> metadataChanged;
 
   auto f = openH5File_(targetFile, H5F_ACC_RDWR);
 
@@ -82,15 +82,18 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
           if ( source.hasAttribute(entry.node) ){
             if ( !source.isReal64Attribute(entry.node) ) {
               replaceAsReal64Attribute_(f, source, entry.node);
+              metadataChanged.push_back(entry.node);
             }
             else {
               if ( !entry.possibleValues.empty() ) {
                 saveAsReal64Attribute_(f, entry.node, parseRealValue_(entry.possibleValues, entry.node));
+                metadataChanged.push_back(entry.node);
               }
             }
           }
           else {
             saveAsReal64Attribute_(f, entry.node, parseRealValue_(entry.possibleValues, entry.node));
+            metadataChanged.push_back(entry.node);
           }
           break;
 
@@ -98,15 +101,18 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
           if ( source.hasAttribute(entry.node) ){
             if ( !source.isInt64Attribute(entry.node) ) {
               replaceAsInt64Attribute_(f, source, entry.node);
+              metadataChanged.push_back(entry.node);
             }
             else {
               if ( !entry.possibleValues.empty() ) {
                 saveAsInt64Attribute_(f, entry.node, parseIntValue_(entry.possibleValues, entry.node));
+                metadataChanged.push_back(entry.node);
               }
             }
           }
           else {
             saveAsInt64Attribute_(f, entry.node, parseIntValue_(entry.possibleValues, entry.node));
+            metadataChanged.push_back(entry.node);
           }
           break;
 
@@ -114,15 +120,18 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
           if ( source.hasAttribute(entry.node) ){
             if ( !source.isFixedLenghtStringAttribute(entry.node) ) {
               replaceAsFixedLenghtStringAttribute_(f, source, entry.node);
+              metadataChanged.push_back(entry.node);
             }
             else {
               if ( !entry.possibleValues.empty() ) {
                 saveAsFixedLenghtStringAttribute_(f, entry.node, entry.possibleValues);
+                metadataChanged.push_back(entry.node);
               }
             }
           }
           else {
             saveAsFixedLenghtStringAttribute_(f, entry.node, entry.possibleValues);
+            metadataChanged.push_back(entry.node);
           }
           break;
 
@@ -134,11 +143,14 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
     }
     else if ( entry.category == OdimEntry::Category::Group ) {
       addGroup_(f, entry.node);
+      metadataChanged.push_back(entry.node);
     }
     else {
       throw std::runtime_error("ERROR - dataset correction not implemented yet");
     }
   }
+
+  addHowMetadataChanged_(f, metadataChanged);
 
   closeH5File_(f);
 }
@@ -432,6 +444,17 @@ void addIfUnique_(std::vector<OdimEntry>& list, const OdimEntry& e) {
     if ( element.node == e.node ) return;
   }
   list.push_back(e);
+}
+
+void addHowMetadataChanged_(hid_t f, const std::vector<std::string>& metadataChanged) {
+  addGroup_(f, "/how");
+  std::string value = "";
+  const int n = metadataChanged.size();
+  for (int i=0; i<n-1; ++i) {
+    value += metadataChanged[i]+",";
+  }
+  value += metadataChanged[n-1];
+  saveAsFixedLenghtStringAttribute_(f, "/how/metadata_changed", value);
 }
 
 } //end namespace myodim
