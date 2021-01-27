@@ -19,6 +19,8 @@ static hid_t openH5File_(const std::string& h5FilePath, unsigned h5AccessFlag=H5
 static void closeH5File_(const hid_t f);
 static void saveAsReal64Attribute_(hid_t f, const std::string attrName, const double attrValue);
 static void replaceAsReal64Attribute_(hid_t f, const H5Layout& source, const std::string attrName);
+static void saveAsReal64ArrayAttribute_(hid_t f, const std::string attrName, const std::vector<double>& attrValue);
+static void replaceAsReal64ArrayAttribute_(hid_t f, const H5Layout& source, const std::string attrName);
 static void saveAsInt64Attribute_(hid_t f, const std::string attrName, const int64_t attrValue);
 static void replaceAsInt64Attribute_(hid_t f, const H5Layout& source, const std::string attrName);
 static void saveAsFixedLenghtStringAttribute_(hid_t f, const std::string attrName, const std::string& attrValue);
@@ -27,7 +29,9 @@ static void addGroup_(hid_t f, const std::string& name);
 static void splitAttributeToPathAndName_(const std::string& attrName,
                                          std::string& path, std::string& name);
 static double parseRealValue_(const std::string& valStr, const std::string attrName);
+static std::vector<double> parseRealArrayValue_(std::string valStr, const std::string attrName);
 static int64_t parseIntValue_(const std::string& valStr, const std::string attrName);
+static std::vector<int64_t> parseIntArrayValue_(std::string valStr, const std::string attrName);
 static std::vector<OdimEntry> subsituteWildcards_(const H5Layout& h5Layout, const OdimEntry& wildcardEntry);
 static OdimStandard subsituteWildcards_(const H5Layout& h5Layout, const OdimStandard& wildcardStandard);
 static bool hasWildcard_(const std::string& str);
@@ -135,6 +139,44 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
           }
           break;
 
+        case OdimEntry::Type::RealArray :
+          if ( source.hasAttribute(entry.node) ){
+            if ( !source.isReal64Attribute(entry.node) || !source.is1DArrayAttribute(entry.node) ) {
+              replaceAsReal64ArrayAttribute_(f, source, entry.node);
+              metadataChanged.push_back(entry.node);
+            }
+            else {
+              if ( !entry.possibleValues.empty() ) {
+                saveAsReal64ArrayAttribute_(f, entry.node, parseRealArrayValue_(entry.possibleValues, entry.node));
+                metadataChanged.push_back(entry.node);
+              }
+            }
+          }
+          else {
+            saveAsReal64ArrayAttribute_(f, entry.node, parseRealArrayValue_(entry.possibleValues, entry.node));
+            metadataChanged.push_back(entry.node);
+          }
+          break;
+
+        case OdimEntry::Type::IntegerArray :
+          if ( source.hasAttribute(entry.node) ){
+            if ( !source.isInt64Attribute(entry.node) ) {
+              replaceAsInt64Attribute_(f, source, entry.node);
+              metadataChanged.push_back(entry.node);
+            }
+            else {
+              if ( !entry.possibleValues.empty() ) {
+                saveAsInt64Attribute_(f, entry.node, parseIntValue_(entry.possibleValues, entry.node));
+                metadataChanged.push_back(entry.node);
+              }
+            }
+          }
+          else {
+            saveAsInt64Attribute_(f, entry.node, parseIntValue_(entry.possibleValues, entry.node));
+            metadataChanged.push_back(entry.node);
+          }
+          break;
+
         default :
           std::cout << "WARNING - the attribute data type is " << entry.typeToString() << std::endl;
           throw std::runtime_error("ERROR - only Real, Integer or String type attribute correction is implemented yet");
@@ -204,10 +246,47 @@ void saveAsReal64Attribute_(hid_t f, const std::string attrName, const double at
   H5Oclose(parent);
 }
 
+void saveAsReal64ArrayAttribute_(hid_t f, const std::string attrName, const std::vector<double>& attrValue) {
+  std::string path, name;
+  splitAttributeToPathAndName_(attrName, path, name);
+
+  auto parent = H5Oopen(f, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
+  }
+
+  H5Adelete(parent, name.c_str());
+
+  //TODO:: implement real array save, the do the same with int attributes
+  /*
+  hid_t sp = H5Screate(H5S_SCALAR);
+  auto a = H5Acreate2(parent, name.c_str(), H5T_NATIVE_DOUBLE, sp, H5P_DEFAULT, H5P_DEFAULT);
+  if ( a < 0 ) {
+    throw std::runtime_error("ERROR - attribute "+name+" not opened.");
+  }
+
+  auto ret  = H5Awrite(a, H5T_NATIVE_DOUBLE, &attrValue);
+  if ( ret < 0  ) {
+    H5Aclose(a);
+    H5Oclose(parent);
+    throw std::runtime_error("ERROR - attribute "+attrName+" not written");
+  }
+
+  H5Aclose(a);
+  */
+  H5Oclose(parent);
+}
+
 void replaceAsReal64Attribute_(hid_t f, const H5Layout& source, const std::string attrName) {
   double attrValue;
   source.getAttributeValue(attrName, attrValue);
   saveAsReal64Attribute_(f, attrName, attrValue);
+}
+
+void replaceAsReal64ArrayAttribute_(hid_t f, const H5Layout& source, const std::string attrName) {
+  std::vector<double> attrValue;
+  source.getAttributeValue(attrName, attrValue);
+  saveAsReal64ArrayAttribute_(f, attrName, attrValue);
 }
 
 void saveAsInt64Attribute_(hid_t f, const std::string attrName, const int64_t attrValue) {
@@ -318,6 +397,19 @@ double parseRealValue_(const std::string& valStr, const std::string attrName) {
   return d;
 }
 
+std::vector<double> parseRealArrayValue_(std::string valStr, const std::string attrName) {
+  std::vector<double> result;
+  size_t pos = 0;
+  std::string token;
+  while ((pos = valStr.find(",")) != std::string::npos) {
+    token = valStr.substr(0, pos);
+    result.push_back(std::stod(token));
+    valStr.erase(0, pos + 1);
+  }
+  result.push_back(std::stod(valStr));
+  return result;
+}
+
 int64_t parseIntValue_(const std::string& valStr, const std::string attrName) {
   int64_t i;
   try {
@@ -327,6 +419,19 @@ int64_t parseIntValue_(const std::string& valStr, const std::string attrName) {
     throw std::invalid_argument("ERROR - the value of "+attrName+" not parsed correctly");
   }
   return i;
+}
+
+std::vector<int64_t> parseIntArrayValue_(std::string valStr, const std::string attrName) {
+  std::vector<int64_t> result;
+  size_t pos = 0;
+  std::string token;
+  while ((pos = valStr.find(",")) != std::string::npos) {
+    token = valStr.substr(0, pos);
+    result.push_back(std::stod(token));
+    valStr.erase(0, pos + 1);
+  }
+  result.push_back(std::stoi(valStr));
+  return result;
 }
 
 std::vector<OdimEntry> subsituteWildcards_(const H5Layout& h5Layout, const OdimEntry& wildcardEntry) {

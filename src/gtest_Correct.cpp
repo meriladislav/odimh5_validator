@@ -20,6 +20,7 @@ const std::string CSV_TO_ADD_WRONG = "./data/example/add_entries_wrong.csv";
 const std::string CSV_TO_ADD_REGEX = "./data/example/add_entries_regex.csv";
 const std::string CSV_TO_REPLACE = "./data/example/replace_entries.csv";
 const std::string CSV_CORRECT_ALL = "./data/example/correct_all.csv";
+const std::string CSV_ADD_ARRAYS = "./data/example/add_arrays.csv";
 
 TEST(testRepair, canCopyHdf5File) {
   const std::string testOutFile = TEST_OUT_DIR+"testRepair"+"."+"canCopyHdf5File"+".hdf";
@@ -171,6 +172,21 @@ TEST(testRepair, hasMetadataChangedAttributeAfterCorrect) {
   ASSERT_THAT( s.find("testGroup"), Ne(std::string::npos) );
   ASSERT_THAT( s.find("testInt"), Ne(std::string::npos) );
   ASSERT_THAT( s.find("startepochs"), Ne(std::string::npos) );
+}
+
+TEST(testRepair, canAddArrayAttributes) {
+  const std::string testOutFile = TEST_OUT_DIR+"testRepair"+"."+"hasMetadataChangedAttributeAfterCorrect"+".hdf";
+  std::remove(testOutFile.c_str());
+
+  printInfo = false;
+
+  OdimStandard toAdd(CSV_ADD_ARRAYS);
+
+  ASSERT_NO_THROW( correct(TEST_IN_FILE, testOutFile, toAdd) );
+
+  H5Layout h5LayOut(testOutFile);
+  ASSERT_TRUE( h5LayOut.hasAttribute("/testGroup/testIntArray") );
+  ASSERT_TRUE( h5LayOut.is1DArrayAttribute("/testGroup/testIntArray") );
 }
 
 //statics
