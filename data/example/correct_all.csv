@@ -12,3 +12,6 @@ Node;Category;Type;IsMandatory;PossibleValues;Reference
 /how/beamwidth;Attribute;real;FALSE;1.0;
 /how/highprf;Attribute;integer;FALSE;601;
 /how/system;Attribute;string;FALSE;selex;
+/testGroup;Group;;FALSE;;
+/testGroup/testIntArray;Attribute;integer array;FALSE;1,2,3,4,5,6,7,8,9,10;
+/testGroup/testRealArray;Attribute;real array;FALSE;1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0;

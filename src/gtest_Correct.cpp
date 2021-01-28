@@ -154,26 +154,6 @@ TEST(testRepair, canReplaceExistingValues) {
   ASSERT_THAT( s, StrEq("selex") );
 }
 
-TEST(testRepair, hasMetadataChangedAttributeAfterCorrect) {
-  const std::string testOutFile = TEST_OUT_DIR+"testRepair"+"."+"hasMetadataChangedAttributeAfterCorrect"+".hdf";
-  std::remove(testOutFile.c_str());
-
-  printInfo = false;
-
-  OdimStandard toAdd(CSV_CORRECT_ALL);
-
-  ASSERT_NO_THROW( correct(TEST_IN_FILE, testOutFile, toAdd) );
-
-  H5Layout h5LayOut(testOutFile);
-  ASSERT_TRUE( h5LayOut.hasAttribute("/how/metadata_changed") );
-  std::string s;
-  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/how/metadata_changed", s) );
-  ASSERT_THAT( s.find("/how/system"), Ne(std::string::npos) );
-  ASSERT_THAT( s.find("testGroup"), Ne(std::string::npos) );
-  ASSERT_THAT( s.find("testInt"), Ne(std::string::npos) );
-  ASSERT_THAT( s.find("startepochs"), Ne(std::string::npos) );
-}
-
 TEST(testRepair, canAddArrayAttributes) {
   const std::string testOutFile = TEST_OUT_DIR+"testRepair"+"."+"canAddArrayAttributes"+".hdf";
   std::remove(testOutFile.c_str());
@@ -202,6 +182,29 @@ TEST(testRepair, canAddArrayAttributes) {
   ASSERT_THAT( rValues[0], DoubleEq(1.0) );
   ASSERT_THAT( rValues[9], DoubleEq(10.0) );
 }
+
+TEST(testRepair, hasMetadataChangedAttributeAfterCorrect) {
+  const std::string testOutFile = TEST_OUT_DIR+"testRepair"+"."+"hasMetadataChangedAttributeAfterCorrect"+".hdf";
+  std::remove(testOutFile.c_str());
+
+  printInfo = false;
+
+  OdimStandard toAdd(CSV_CORRECT_ALL);
+
+  ASSERT_NO_THROW( correct(TEST_IN_FILE, testOutFile, toAdd) );
+
+  H5Layout h5LayOut(testOutFile);
+  ASSERT_TRUE( h5LayOut.hasAttribute("/how/metadata_changed") );
+  std::string s;
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/how/metadata_changed", s) );
+  ASSERT_THAT( s.find("/how/system"), Ne(std::string::npos) );
+  ASSERT_THAT( s.find("testGroup"), Ne(std::string::npos) );
+  ASSERT_THAT( s.find("testInt"), Ne(std::string::npos) );
+  ASSERT_THAT( s.find("startepochs"), Ne(std::string::npos) );
+  ASSERT_THAT( s.find("/dataset10/data1/testGroup/testString"), Ne(std::string::npos) );
+  ASSERT_THAT( s.find("/testGroup/testRealArray"), Ne(std::string::npos) );
+}
+
 
 //statics
 
