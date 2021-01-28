@@ -238,7 +238,8 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                 if ( !entry.possibleValues.empty() ) {
                   double value=0.0;
                   h5layout.getAttributeValue(a.name(), value);
-                  hasProperValue = checkValue(value, entry.possibleValues, failedValueMessage);
+                  const bool isReal = true;
+                  hasProperValue = checkValue(value, entry.possibleValues, failedValueMessage, isReal);
                   if ( !hasProperValue ) {
                     isCompliant = false;
                     printIncorrectValueMessage(entry, a, failedValueMessage);
