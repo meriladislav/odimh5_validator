@@ -23,6 +23,8 @@ static void saveAsReal64ArrayAttribute_(hid_t f, const std::string attrName, con
 static void replaceAsReal64ArrayAttribute_(hid_t f, const H5Layout& source, const std::string attrName);
 static void saveAsInt64Attribute_(hid_t f, const std::string attrName, const int64_t attrValue);
 static void replaceAsInt64Attribute_(hid_t f, const H5Layout& source, const std::string attrName);
+static void saveAsInt64ArrayAttribute_(hid_t f, const std::string attrName, const std::vector<int64_t>& attrValue);
+static void replaceAsInt64ArrayAttribute_(hid_t f, const H5Layout& source, const std::string attrName);
 static void saveAsFixedLenghtStringAttribute_(hid_t f, const std::string attrName, const std::string& attrValue);
 static void replaceAsFixedLenghtStringAttribute_(hid_t f, const H5Layout& source, const std::string attrName);
 static void addGroup_(hid_t f, const std::string& name);
@@ -160,19 +162,19 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
 
         case OdimEntry::Type::IntegerArray :
           if ( source.hasAttribute(entry.node) ){
-            if ( !source.isInt64Attribute(entry.node) ) {
-              replaceAsInt64Attribute_(f, source, entry.node);
+            if ( !source.isInt64Attribute(entry.node) || !source.is1DArrayAttribute(entry.node) ) {
+              replaceAsInt64ArrayAttribute_(f, source, entry.node);
               metadataChanged.push_back(entry.node);
             }
             else {
               if ( !entry.possibleValues.empty() ) {
-                saveAsInt64Attribute_(f, entry.node, parseIntValue_(entry.possibleValues, entry.node));
+                saveAsInt64ArrayAttribute_(f, entry.node, parseIntArrayValue_(entry.possibleValues, entry.node));
                 metadataChanged.push_back(entry.node);
               }
             }
           }
           else {
-            saveAsInt64Attribute_(f, entry.node, parseIntValue_(entry.possibleValues, entry.node));
+            saveAsInt64ArrayAttribute_(f, entry.node, parseIntArrayValue_(entry.possibleValues, entry.node));
             metadataChanged.push_back(entry.node);
           }
           break;
@@ -241,7 +243,7 @@ void saveAsReal64Attribute_(hid_t f, const std::string attrName, const double at
     H5Oclose(parent);
     throw std::runtime_error("ERROR - attribute "+attrName+" not written");
   }
-
+  H5Sclose(sp);
   H5Aclose(a);
   H5Oclose(parent);
 }
@@ -257,23 +259,22 @@ void saveAsReal64ArrayAttribute_(hid_t f, const std::string attrName, const std:
 
   H5Adelete(parent, name.c_str());
 
-  //TODO:: implement real array save, the do the same with int attributes
-  /*
-  hid_t sp = H5Screate(H5S_SCALAR);
+  const hsize_t dims[1] = {attrValue.size()};
+  hid_t sp = H5Screate_simple (1, dims, NULL);
   auto a = H5Acreate2(parent, name.c_str(), H5T_NATIVE_DOUBLE, sp, H5P_DEFAULT, H5P_DEFAULT);
   if ( a < 0 ) {
     throw std::runtime_error("ERROR - attribute "+name+" not opened.");
   }
 
-  auto ret  = H5Awrite(a, H5T_NATIVE_DOUBLE, &attrValue);
+  auto ret  = H5Awrite(a, H5T_NATIVE_DOUBLE, attrValue.data());
   if ( ret < 0  ) {
     H5Aclose(a);
     H5Oclose(parent);
     throw std::runtime_error("ERROR - attribute "+attrName+" not written");
   }
 
+  H5Sclose(sp);
   H5Aclose(a);
-  */
   H5Oclose(parent);
 }
 
@@ -313,14 +314,51 @@ void saveAsInt64Attribute_(hid_t f, const std::string attrName, const int64_t at
     throw std::runtime_error("ERROR - attribute "+attrName+" not written");
   }
 
+  H5Sclose(sp);
   H5Aclose(a);
   H5Oclose(parent);
 }
+
+void saveAsInt64ArrayAttribute_(hid_t f, const std::string attrName, const std::vector<int64_t>& attrValue) {
+  std::string path, name;
+  splitAttributeToPathAndName_(attrName, path, name);
+
+  auto parent = H5Oopen(f, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
+  }
+
+  H5Adelete(parent, name.c_str());
+
+  const hsize_t dims[1] = {attrValue.size()};
+  hid_t sp = H5Screate_simple (1, dims, NULL);
+  auto a = H5Acreate2(parent, name.c_str(), H5T_NATIVE_INT64, sp, H5P_DEFAULT, H5P_DEFAULT);
+  if ( a < 0 ) {
+    throw std::runtime_error("ERROR - attribute "+name+" not opened.");
+  }
+
+  auto ret  = H5Awrite(a, H5T_NATIVE_INT64, attrValue.data());
+  if ( ret < 0  ) {
+    H5Aclose(a);
+    H5Oclose(parent);
+    throw std::runtime_error("ERROR - attribute "+attrName+" not written");
+  }
+  H5Sclose(sp);
+  H5Aclose(a);
+  H5Oclose(parent);
+}
+
 
 void replaceAsInt64Attribute_(hid_t f, const H5Layout& source, const std::string attrName) {
   int64_t attrValue;
   source.getAttributeValue(attrName, attrValue);
   saveAsInt64Attribute_(f, attrName, attrValue);
+}
+
+void replaceAsInt64ArrayAttribute_(hid_t f, const H5Layout& source, const std::string attrName) {
+  std::vector<int64_t> attrValue;
+  source.getAttributeValue(attrName, attrValue);
+  saveAsInt64ArrayAttribute_(f, attrName, attrValue);
 }
 
 void saveAsFixedLenghtStringAttribute_(hid_t f, const std::string attrName, const std::string& attrValue) {
@@ -399,14 +437,19 @@ double parseRealValue_(const std::string& valStr, const std::string attrName) {
 
 std::vector<double> parseRealArrayValue_(std::string valStr, const std::string attrName) {
   std::vector<double> result;
-  size_t pos = 0;
-  std::string token;
-  while ((pos = valStr.find(",")) != std::string::npos) {
-    token = valStr.substr(0, pos);
-    result.push_back(std::stod(token));
-    valStr.erase(0, pos + 1);
+  try {
+    size_t pos = 0;
+    std::string token;
+    while ((pos = valStr.find(",")) != std::string::npos) {
+      token = valStr.substr(0, pos);
+      result.push_back(std::stod(token));
+      valStr.erase(0, pos + 1);
+    }
+    result.push_back(std::stod(valStr));
   }
-  result.push_back(std::stod(valStr));
+  catch(...) {
+    throw std::invalid_argument("ERROR - the value of "+attrName+" not parsed correctly");
+  }
   return result;
 }
 
@@ -423,14 +466,19 @@ int64_t parseIntValue_(const std::string& valStr, const std::string attrName) {
 
 std::vector<int64_t> parseIntArrayValue_(std::string valStr, const std::string attrName) {
   std::vector<int64_t> result;
-  size_t pos = 0;
-  std::string token;
-  while ((pos = valStr.find(",")) != std::string::npos) {
-    token = valStr.substr(0, pos);
-    result.push_back(std::stod(token));
-    valStr.erase(0, pos + 1);
+  try {
+    size_t pos = 0;
+    std::string token;
+    while ((pos = valStr.find(",")) != std::string::npos) {
+      token = valStr.substr(0, pos);
+      result.push_back(std::stod(token));
+      valStr.erase(0, pos + 1);
+    }
+    result.push_back(std::stoi(valStr));
   }
-  result.push_back(std::stoi(valStr));
+  catch(...) {
+    throw std::invalid_argument("ERROR - the value of "+attrName+" not parsed correctly");
+  }
   return result;
 }
 
@@ -441,13 +489,11 @@ std::vector<OdimEntry> subsituteWildcards_(const H5Layout& h5Layout, const OdimE
     std::string wc, other;
     splitByWildcard_(wildcardEntry.node, wc, other);
     std::regex wildcardRegex{wc};
-    //std::cout << "dbg - 2 - " << wc << std::endl;
 
     if ( wildcardEntry.category == OdimEntry::Category::Group ) {
       for (const auto& g : h5Layout.groups) {
         if ( std::regex_match(g.name(), wildcardRegex)  ) {
           OdimEntry e = wildcardEntry;
-          //std::cout << "dbg - getmatchingpart = " << getMatchingPart_(g.name(), wildcardRegex) << std::endl;
           std::string matchingPart = getMatchingPart_(g.name(), wildcardRegex);
           if ( matchingPart.empty() ) continue;
           e.node = matchingPart+other;
@@ -488,10 +534,8 @@ std::vector<OdimEntry> subsituteWildcards_(const H5Layout& h5Layout, const OdimE
 OdimStandard subsituteWildcards_(const H5Layout& h5Layout, const OdimStandard& wildcardStandard) {
   OdimStandard result;
   for (const auto& e : wildcardStandard.entries) {
-    //std::cout << "dbg - 4 - " << e.node << std::endl;
     std::vector<OdimEntry> entries = subsituteWildcards_(h5Layout, e);
     for (const auto& ee : entries) {
-      //std::cout << "dbg - 3 - " << ee.node << std::endl;
       result.entries.push_back(ee);
     }
   }

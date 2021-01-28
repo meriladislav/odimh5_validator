@@ -175,7 +175,7 @@ TEST(testRepair, hasMetadataChangedAttributeAfterCorrect) {
 }
 
 TEST(testRepair, canAddArrayAttributes) {
-  const std::string testOutFile = TEST_OUT_DIR+"testRepair"+"."+"hasMetadataChangedAttributeAfterCorrect"+".hdf";
+  const std::string testOutFile = TEST_OUT_DIR+"testRepair"+"."+"canAddArrayAttributes"+".hdf";
   std::remove(testOutFile.c_str());
 
   printInfo = false;
@@ -185,8 +185,22 @@ TEST(testRepair, canAddArrayAttributes) {
   ASSERT_NO_THROW( correct(TEST_IN_FILE, testOutFile, toAdd) );
 
   H5Layout h5LayOut(testOutFile);
+
   ASSERT_TRUE( h5LayOut.hasAttribute("/testGroup/testIntArray") );
   ASSERT_TRUE( h5LayOut.is1DArrayAttribute("/testGroup/testIntArray") );
+  std::vector<int64_t> iValues;
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/testGroup/testIntArray", iValues) );
+  ASSERT_THAT( iValues.size(), Eq(10u) );
+  ASSERT_THAT( iValues[0], Eq(1) );
+  ASSERT_THAT( iValues[9], Eq(10) );
+
+  ASSERT_TRUE( h5LayOut.hasAttribute("/testGroup/testRealArray") );
+  ASSERT_TRUE( h5LayOut.is1DArrayAttribute("/testGroup/testRealArray") );
+  std::vector<double> rValues;
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/testGroup/testRealArray", rValues) );
+  ASSERT_THAT( rValues.size(), Eq(10u) );
+  ASSERT_THAT( rValues[0], DoubleEq(1.0) );
+  ASSERT_THAT( rValues[9], DoubleEq(10.0) );
 }
 
 //statics
