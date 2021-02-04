@@ -110,7 +110,8 @@ If a completely new group is created during the correction, the new group must b
 When some correction is applied to a given file a new /how/metadata_changed attribute is created, listing the affected attributes.
 
 Example usage:
-1.	This step is optional. The user can create correction table by its own, if the problematic entries are known. If not, check the file with the odimh5-validate and create a table with the problematic entries:
+
+- This step is optional. The user can create correction table by its own, if the problematic entries are known. If not, check the file with the odimh5-validate and create a table with the problematic entries:
 
 ```
 $./bin/odimh5-validate -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -c ./data/ODIM_H5_V2_1_PVOL.csv  -f ./out/T_PAGZ41_C_LZIB.failed.csv --checkOptional –noInfo
@@ -139,7 +140,7 @@ Node;Category;Type;IsMandatory;PossibleValues;Reference
 
 **Warning**: If there is an attribute, which does not corresponds with the `PossibleValues` column from the standard-definition table (in this case the `./data/ODIM_H5_V2_1_PVOL.csv`  file), the correction table (the `./out/T_PAGZ41_C_LZIB.failed.csv` file) will contain this entry also with this `PossibleValues` value (e.g `>0.`). This entry needs to be edited by the user to specify the exact value which will be used during the correction step. 
 
-2.	In the correction step the ./out/T_PAGZ41_C_LZIB.failed.csv table is used to correct the problematic attributes:
+- In the correction step the ./out/T_PAGZ41_C_LZIB.failed.csv table is used to correct the problematic attributes:
 
 ```
 ./bin/odimh5-correct -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -o ./out/T_PAGZ41_C_LZIB_20180403000000.corrected.hdf -c ./out/T_PAGZ41_C_LZIB.failed.csv
