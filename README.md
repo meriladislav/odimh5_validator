@@ -121,15 +121,10 @@ Example usage:
 
     ```
     WARNING - NON-STANDARD DATA TYPE - optional entry "/how/startepochs" has non-standard datatype - it`s supposed to be a 64-bit real scalar, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.
-    
     WARNING - NON-STANDARD DATA TYPE - optional entry "/how/endepochs" has non-standard datatype - it`s supposed to be a 64-bit real scalar, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.
-    
     WARNING - NON-STANDARD DATA TYPE - optional entry "/how/lowprf" has non-standard datatype - it`s supposed to be a 64-bit real scalar, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.
-    
     WARNING - NON-STANDARD DATA TYPE - optional entry "/how/highprf" has non-standard datatype - it`s supposed to be a 64-bit real scalar, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.
-    
     INFO - saving failed entries to  ./out/T_PAGZ41_C_LZIB.failed.csv csv table
-    
     WARNING - NON-COMPLIANT FILE - file ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf IS NOT a standard-compliant ODIM-H5 file - see the previous WARNING messages
     ```
 
