@@ -111,7 +111,7 @@ When some correction is applied to a given file a new /how/metadata_changed attr
 
 Example usage:
 
-1.  This step is optional. The user can create correction table by its own, if the problematic entries are known. If not, check the file with the odimh5-validate and create a table with the problematic entries:
+1.  This step is optional. The user can create correction table by its own, if the problematic entries are known. If not, check the file with the odimh5-validate and create a table with the problematic entries. Assuming you are in the odimh5_validator directory:
 
     ```
     $./bin/odimh5-validate -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -c    ./data/ODIM_H5_V2_1_PVOL.csv  -f ./out/T_PAGZ41_C_LZIB.failed.csv --checkOptional –noInfo
