@@ -111,42 +111,42 @@ When some correction is applied to a given file a new /how/metadata_changed attr
 
 Example usage:
 
-- This step is optional. The user can create correction table by its own, if the problematic entries are known. If not, check the file with the odimh5-validate and create a table with the problematic entries:
+1.  This step is optional. The user can create correction table by its own, if the problematic entries are known. If not, check the file with the odimh5-validate and create a table with the problematic entries:
 
-```
-$./bin/odimh5-validate -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -c ./data/ODIM_H5_V2_1_PVOL.csv  -f ./out/T_PAGZ41_C_LZIB.failed.csv --checkOptional –noInfo
-```
+    ```
+    $./bin/odimh5-validate -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -c    ./data/ODIM_H5_V2_1_PVOL.csv  -f ./out/T_PAGZ41_C_LZIB.failed.csv --checkOptional –noInfo
+    ```
 
-The output of this command should be:
+    The output of this command should be:
 
-```
-WARNING - NON-STANDARD DATA TYPE - optional entry "/how/startepochs" has non-standard datatype - it`s supposed to be a 64-bit real scalar, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.
-WARNING - NON-STANDARD DATA TYPE - optional entry "/how/endepochs" has non-standard datatype - it`s supposed to be a 64-bit real scalar, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.
-WARNING - NON-STANDARD DATA TYPE - optional entry "/how/lowprf" has non-standard datatype - it`s supposed to be a 64-bit real scalar, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.
-WARNING - NON-STANDARD DATA TYPE - optional entry "/how/highprf" has non-standard datatype - it`s supposed to be a 64-bit real scalar, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.
-INFO - saving failed entries to  ./out/T_PAGZ41_C_LZIB.failed.csv csv table
-WARNING - NON-COMPLIANT FILE - file ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf IS NOT a standard-compliant ODIM-H5 file - see the previous WARNING messages
-```
+    ```
+    WARNING - NON-STANDARD DATA TYPE - optional entry "/how/startepochs" has non-standard datatype - it`s supposed to be a 64-bit real scalar, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.
+    WARNING - NON-STANDARD DATA TYPE - optional entry "/how/endepochs" has non-standard datatype - it`s supposed to be a 64-bit real scalar, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.
+    WARNING - NON-STANDARD DATA TYPE - optional entry "/how/lowprf" has non-standard datatype - it`s supposed to be a 64-bit real scalar, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.
+    WARNING - NON-STANDARD DATA TYPE - optional entry "/how/highprf" has non-standard datatype - it`s supposed to be a 64-bit real scalar, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documetaton.
+    INFO - saving failed entries to  ./out/T_PAGZ41_C_LZIB.failed.csv csv table
+    WARNING - NON-COMPLIANT FILE - file ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf IS NOT a standard-compliant ODIM-H5 file - see the previous WARNING messages
+    ```
 
-Four problematic attributes were found with non-standard datatype and the created `./out/T_PAGZ41_C_LZIB.failed.csv` correction table should have this content:
+    Four problematic attributes were found with non-standard datatype and the created `./out/T_PAGZ41_C_LZIB.failed.csv` correction table should have this content:
+     
+    ```
+    Node;Category;Type;IsMandatory;PossibleValues;Reference
+    /how/startepochs;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
+    /how/endepochs;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
+    /how/lowprf;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
+    /how/highprf;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
+    ```
 
-```
-Node;Category;Type;IsMandatory;PossibleValues;Reference
-/how/startepochs;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
-/how/endepochs;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
-/how/lowprf;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
-/how/highprf;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
-```
+    **Warning**: If there is an attribute, which does not corresponds with the `PossibleValues` column     from the standard-definition table (in this case the `./data/ODIM_H5_V2_1_PVOL.csv`  file), the correction table (the `./out/T_PAGZ41_C_LZIB.failed.csv` file) will contain this entry also with this `PossibleValues` value (e.g `>0.`). This entry needs to be edited by the user to specify the exact value which will be used during the correction step. 
 
-**Warning**: If there is an attribute, which does not corresponds with the `PossibleValues` column from the standard-definition table (in this case the `./data/ODIM_H5_V2_1_PVOL.csv`  file), the correction table (the `./out/T_PAGZ41_C_LZIB.failed.csv` file) will contain this entry also with this `PossibleValues` value (e.g `>0.`). This entry needs to be edited by the user to specify the exact value which will be used during the correction step. 
+2.  In the correction step the ./out/T_PAGZ41_C_LZIB.failed.csv table is used to correct the problematic attributes:
 
-- In the correction step the ./out/T_PAGZ41_C_LZIB.failed.csv table is used to correct the problematic attributes:
+    ```
+    ./bin/odimh5-correct -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -o    ./out/T_PAGZ41_C_LZIB_20180403000000.corrected.hdf -c ./out/T_PAGZ41_C_LZIB.failed.csv
+    ```
 
-```
-./bin/odimh5-correct -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -o ./out/T_PAGZ41_C_LZIB_20180403000000.corrected.hdf -c ./out/T_PAGZ41_C_LZIB.failed.csv
-```
-
-In this case the new `./out/T_PAGZ41_C_LZIB_20180403000000.corrected.hdf`  file is created with the corrected attributes. 
+    In this case the new `./out/T_PAGZ41_C_LZIB_20180403000000.corrected.hdf`  file is created with the corrected attributes. When checking this file again by the `odimh5-validate` tool, no non-compliant attributes are found.
 
 
 ##### odimh5-check-value #####
