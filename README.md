@@ -138,7 +138,7 @@ Example usage:
     /how/highprf;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
     ```
 
-    **Warning**: If there is an attribute, which does not corresponds with the `PossibleValues` column     from the standard-definition table (in this case the `./data/ODIM_H5_V2_1_PVOL.csv`  file), the correction table (the `./out/T_PAGZ41_C_LZIB.failed.csv` file) will contain this entry also with this `PossibleValues` value (e.g `>0.`). This entry needs to be edited by the user to specify the exact value which will be used during the correction step. 
+    **Warning**: If there is an attribute, which does not corresponds with the `PossibleValues` column     from the standard-definition table (in this case the `./data/ODIM_H5_V2_1_PVOL.csv`  file), the correction table (the `./out/T_PAGZ41_C_LZIB.failed.csv` file) will contain this entry also with this `PossibleValues` value (e.g. `">0.0"`). This entry needs to be edited by the user to specify the exact value which will be used during the correction step. 
 
 2.  In the correction step the ./out/T_PAGZ41_C_LZIB.failed.csv table is used to correct the problematic attributes:
 
