@@ -100,7 +100,7 @@ $odimh5-correct [OPTION...]
 
 Program to correct or add new entries to an ODIM-H5 file.
 To correct an ODIM-H5 file, the user needs to create a csv table to describe the desired corrections.
-The csv table can be created by simply writing one by the user (see example correction csv files in the data/example directory), or it can be created by the `odimh5-validate` program using the `-f` or `--failedEntriesTable` command line option.
+The csv table can be created by simply writing one by the user (see example correction csv files in the `data/example` directory), or it can be created by the `odimh5-validate` program using the `-f` or `--failedEntriesTable` command line option.
 This option creates a csv table listing the problematic entries found in the file, which can be used in the `-c` or `--correctionTable` command line option of the `odimh5-correct` program.
 
 If there is no value present in the correction table for the given attribute, only the datatype of the attribute is checked and corrected.
