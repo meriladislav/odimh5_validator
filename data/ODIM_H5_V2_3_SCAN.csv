@@ -126,8 +126,8 @@ Node;Category;Type;IsMandatory;PossibleValues;Reference
 .*how/SNRVXT;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
 .*how/smoothed_PHIDP;Attribute;real;FALSE;(True)?(False)?;OPERA_ODIM_v2.3.pdf,Section 4.4
 .*how/polarization;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/scan_index;Attribute;integer;FALSE;[1][0-9]*;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/scan_count;Attribute;integer;FALSE;[1][0-9]*;OPERA_ODIM_v2.3.pdf,Section 4.4
+.*how/scan_index;Attribute;integer;FALSE;>0&&<=999;OPERA_ODIM_v2.3.pdf,Section 4.4
+.*how/scan_count;Attribute;integer;FALSE;>0&&<=999;OPERA_ODIM_v2.3.pdf,Section 4.4
 /dataset1;Group;;TRUE;;
 /dataset1/what;Group;;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.5
 /dataset1/what/product;Attribute;string;TRUE;SCAN;OPERA_ODIM_v2.3.pdf,Section 4.5
