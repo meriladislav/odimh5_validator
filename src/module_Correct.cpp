@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <regex>
+#include <cmath>
 #include <hdf5.h>
 #include "module_Correct.hpp"
 #include "class_H5Layout.hpp"
@@ -41,6 +42,15 @@ static void splitByWildcard_(const std::string& str, std::string& wildcardPart, 
 static std::string getMatchingPart_(const std::string str, const std::regex& r);
 static void addIfUnique_(std::vector<OdimEntry>& list, const OdimEntry& e);
 static void addHowMetadataChanged_(hid_t f, const std::vector<std::string>& metadataChanged);
+static bool hasIntervalSigns_(const std::string& assumedValueStr);
+static void parseAssumedValueStr_(const std::string& assumedValueStr,
+                                 std::vector<std::string>& comparisons,
+                                 std::vector<std::string>& operators);
+static void splitPlusMinus_(std::string pmString, double& center, double& interval);
+static void getSignAndNumberStr_(const std::string& compareStr,
+                                 std::string& signStr, std::string& numberStr, bool& hasPlusMinus);
+static void parseRealFromInterval_(const std::string& valStr, const std::string attrName, double& realVal);
+static void parseIntFromInterval_(const std::string& valStr, const std::string attrName, int64_t& intVal);
 
 void copyFile(const std::string& sourceFile, const std::string& copyFile) {
   FILE* fIn = fopen(sourceFile.c_str(), "rb");
@@ -86,7 +96,7 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
 
         case OdimEntry::Type::Real :
           if ( source.hasAttribute(entry.node) ){
-            if ( !source.isReal64Attribute(entry.node) ) {
+            if ( !source.isReal64Attribute(entry.node) ) {        // TODO - what if type and also value changes
               replaceAsReal64Attribute_(f, source, entry.node);
               metadataChanged.push_back(entry.node);
             }
@@ -425,13 +435,19 @@ void splitAttributeToPathAndName_(const std::string& attrName,
 }
 
 double parseRealValue_(const std::string& valStr, const std::string attrName) {
-  double d;
-  try {
-    d = std::stod(valStr);
+  double d = std::nan("");
+  if ( hasIntervalSigns_(valStr) ) {
+    parseRealFromInterval_(valStr, attrName, d);
   }
-  catch(...) {
-    throw std::invalid_argument("ERROR - the value of "+attrName+" not parsed correctly");
+  else {
+    try {
+      d = std::stod(valStr);
+   }
+    catch(...) {
+      throw std::invalid_argument("ERROR - the value of "+attrName+" not parsed correctly");
+    }
   }
+
   return d;
 }
 
@@ -455,11 +471,16 @@ std::vector<double> parseRealArrayValue_(std::string valStr, const std::string a
 
 int64_t parseIntValue_(const std::string& valStr, const std::string attrName) {
   int64_t i;
-  try {
-    i = std::stoi(valStr);
+  if ( hasIntervalSigns_(valStr) ) {
+    parseIntFromInterval_(valStr, attrName, i);
   }
-  catch(...) {
-    throw std::invalid_argument("ERROR - the value of "+attrName+" not parsed correctly");
+  else {
+    try {
+      i = std::stoi(valStr);
+    }
+    catch(...) {
+      throw std::invalid_argument("ERROR - the value of "+attrName+" not parsed correctly");
+    }
   }
   return i;
 }
@@ -604,6 +625,151 @@ void addHowMetadataChanged_(hid_t f, const std::vector<std::string>& metadataCha
   }
   value += metadataChanged[n-1];
   saveAsFixedLenghtStringAttribute_(f, "/how/metadata_changed", value);
+}
+
+bool hasIntervalSigns_(const std::string& assumedValueStr) {
+  return assumedValueStr.find('=') != std::string::npos ||
+         assumedValueStr.find('<') != std::string::npos ||
+         assumedValueStr.find('>') != std::string::npos ||
+         assumedValueStr.find("+-") != std::string::npos;
+}
+
+void parseAssumedValueStr_(const std::string& assumedValueStr,
+                          std::vector<std::string>& comparisons,
+                          std::vector<std::string>& operators) {
+  std::string avs = assumedValueStr;
+  size_t pos;
+  while ((pos = std::min(avs.find("&&"), avs.find("||"))) != std::string::npos) {
+    const std::string comparison = avs.substr(0, pos);
+    if ( hasIntervalSigns_(comparison) ) {
+      comparisons.push_back(comparison);
+    }
+    operators.push_back(avs.substr(pos,2));
+    avs.erase(0, pos + 2);
+  }
+  if ( hasIntervalSigns_(avs) ) {
+    comparisons.push_back(avs);
+  }
+  if ( comparisons.size() != operators.size()+1 ) {
+    throw std::runtime_error("ERROR - assumed value string \"" + assumedValueStr +
+                             "\" not parsed correctly.");
+  }
+}
+
+void splitPlusMinus_(std::string pmString, double& center, double& interval) {
+  const std::string delimiter = "+-";
+  size_t pos = 0;
+  std::string centerStr;
+  if ((pos = pmString.find(delimiter)) != std::string::npos) {
+    centerStr = pmString.substr(0, pos);
+    center = std::stod(centerStr);
+    pmString.erase(0, pos + delimiter.length());
+    interval = std::stod(pmString);
+  }
+  else {
+    center = std::nan("");
+    interval = std::nan("");
+  }
+}
+
+void getSignAndNumberStr_(const std::string& compareStr, std::string& signStr, std::string& numberStr,
+                          bool& hasPlusMinus) {
+  hasPlusMinus = false;
+  for (int i=0; i<(int)compareStr.length(); ++i) {
+    if ( (compareStr[i] >= '0' && compareStr[i] <= '9') || compareStr[i] <= '.' ) {
+      numberStr.append(1, compareStr[i]);
+      if ( compareStr[i] == '-' && i > 0 && compareStr[i-1] == '+') {
+        hasPlusMinus = true;
+      }
+    }
+    else {
+      signStr.append(1, compareStr[i]);
+    }
+  }
+}
+
+void parseRealFromInterval_(const std::string& valStr, const std::string attrName, double& realVal) {
+  realVal = std::nan("");
+  std::vector<std::string> comparisons;
+  std::vector<std::string> operators;
+  parseAssumedValueStr_(valStr, comparisons, operators);
+  if ( comparisons.size() == 1 ) {
+    std::string signStr, numberStr;
+    bool hasPlusMinus = false;
+    getSignAndNumberStr_(comparisons[0], signStr, numberStr, hasPlusMinus);
+    if ( hasPlusMinus ) {
+      double center, interval;
+      splitPlusMinus_(numberStr, center, interval);
+      realVal = center;
+    }
+    else {
+      throw std::invalid_argument("ERROR - the value of "+attrName+" - defined as "+valStr+" - not parsed correctly - it is an open interval");
+    }
+  }
+  else if ( comparisons.size() == 2 ) {
+    if ( operators[0] != "&&" ) {
+      throw std::invalid_argument("ERROR - the value of "+attrName+" - defined as "+valStr+" - not parsed correctly ");
+    }
+    std::vector<std::string> signStr(2), numberStr(2);
+    bool hasPlusMinus[2];
+    for (int i=0; i<2; ++i) {
+      getSignAndNumberStr_(comparisons[i], signStr[i], numberStr[i], hasPlusMinus[i]);
+    }
+    if ( (signStr[0].find('<') != std::string::npos && signStr[1].find('>') != std::string::npos) ||
+         (signStr[0].find('>') != std::string::npos && signStr[1].find('<') != std::string::npos) ) {
+      double d1 = numberStr[0].empty() ? std::nan("") : std::stod(numberStr[0]);
+      double d2 = numberStr[1].empty() ? std::nan("") : std::stod(numberStr[1]);
+      realVal = (d1 + d2) / 2;
+    }
+    else {
+      throw std::invalid_argument("ERROR - the value of "+attrName+" - defined as "+valStr+" - not parsed correctly - it is an open interval");
+    }
+  }
+  else {
+    throw std::invalid_argument("ERROR - the value of "+attrName+" - defined as "+valStr+" - not parsed correctly ");
+  }
+}
+
+void parseIntFromInterval_(const std::string& valStr, const std::string attrName, int64_t& intVal) {
+  intVal = 0;
+  std::vector<std::string> comparisons;
+  std::vector<std::string> operators;
+  parseAssumedValueStr_(valStr, comparisons, operators);
+  if ( comparisons.size() == 1 ) {
+    std::string signStr, numberStr;
+    bool hasPlusMinus = false;
+    getSignAndNumberStr_(comparisons[0], signStr, numberStr, hasPlusMinus);
+    if ( hasPlusMinus ) {
+      double center, interval;
+      splitPlusMinus_(numberStr, center, interval);
+      intVal = center;
+    }
+    else {
+      throw std::invalid_argument("ERROR - the value of "+attrName+" - defined as "+valStr+" - not parsed correctly - it is an open interval");
+    }
+  }
+  else if ( comparisons.size() == 2 ) {
+    if ( operators[0] != "&&" ) {
+      throw std::invalid_argument("ERROR - the value of "+attrName+" - defined as "+valStr+" - not parsed correctly ");
+    }
+    std::vector<std::string> signStr(2), numberStr(2);
+    bool hasPlusMinus[2];
+    for (int i=0; i<2; ++i) {
+      getSignAndNumberStr_(comparisons[i], signStr[i], numberStr[i], hasPlusMinus[i]);
+    }
+    if ( (signStr[0].find('<') != std::string::npos && signStr[1].find('>') != std::string::npos) ||
+         (signStr[0].find('>') != std::string::npos && signStr[1].find('<') != std::string::npos) ) {
+      double d1 = numberStr[0].empty() ? std::nan("") : std::stod(numberStr[0]);
+      double d2 = numberStr[1].empty() ? std::nan("") : std::stod(numberStr[1]);
+      intVal = (d1 + d2) / 2.0;
+    }
+    else {
+      throw std::invalid_argument("ERROR - the value of "+attrName+" - defined as "+valStr+" - not parsed correctly - it is an open interval");
+    }
+  }
+  else {
+    throw std::invalid_argument("ERROR - the value of "+attrName+" - defined as "+valStr+" - not parsed correctly ");
+  }
 }
 
 } //end namespace myodim

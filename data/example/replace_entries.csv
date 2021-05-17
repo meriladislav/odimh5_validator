@@ -1,4 +1,6 @@
 Node;Category;Type;IsMandatory;PossibleValues;Reference
-/how/beamwidth;Attribute;real;FALSE;1.0;
-/how/highprf;Attribute;integer;FALSE;601;
+/how/beamwidth;Attribute;real;FALSE;=1.0+-0.01;
+/how/beamwH;Attribute;real;FALSE;>=0.99&&<=1.01;
+/how/highprf;Attribute;integer;FALSE;>600&&<602;
+/how/lowprf;Attribute;integer;FALSE;=501+-1;
 /how/system;Attribute;string;FALSE;selex;

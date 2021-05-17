@@ -143,12 +143,16 @@ TEST(testRepair, canReplaceExistingValues) {
   ASSERT_NO_THROW( correct(TEST_IN_FILE, testOutFile, toAdd) );
 
   H5Layout h5LayOut(testOutFile);
-  int64_t i64;
-  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/how/highprf", i64) );
-  ASSERT_THAT( (int)i64, Eq(601) );
   double r64;
   ASSERT_NO_THROW( h5LayOut.getAttributeValue("/how/beamwidth", r64) );
   ASSERT_THAT( r64, DoubleEq(1.0) );
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/how/beamwH", r64) );
+  ASSERT_THAT( r64, DoubleEq(1.0) );
+  int64_t i64;
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/how/highprf", i64) );
+  ASSERT_THAT( (int)i64, Eq(601) );
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/how/lowprf", i64) );
+  ASSERT_THAT( (int)i64, Eq(501) );
   std::string s;
   ASSERT_NO_THROW( h5LayOut.getAttributeValue("/how/system", s) );
   ASSERT_THAT( s, StrEq("selex") );

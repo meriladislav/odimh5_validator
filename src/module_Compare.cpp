@@ -574,7 +574,6 @@ bool checkValue(const double attrValue, const std::string& assumedValueStr,
     std::vector<std::string> comparisons;
     std::vector<std::string> operators;
     parseAssumedValueStr(assumedValueStr, comparisons, operators);
-    for (const auto& comp : comparisons) std::cout << "dbg - " << comp << std::endl;
 
     hasProperValue = checkValueInterval(attrValue, comparisons[0]);
     for (int i=0, n=operators.size(); i<n; ++i) {
