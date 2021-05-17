@@ -194,6 +194,14 @@ TEST(testCompare, checkValueForNumbersWorksInsideInterval) {
   ASSERT_FALSE( errorMessage.empty() );
 }
 
+TEST(testCompare, checkValueForNumbersWorksWithTolerance) {
+  double myNum = 1.255;
+  std::string assumedNum = "=1.254+-0.002";
+  std::string errorMessage = "";
+  ASSERT_TRUE( checkValue(myNum, assumedNum, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+}
+
 TEST(testCompare, checkValueForNumbersWorksOutsideInterval) {
   double myNum = 1.253;
   std::string assumedNum = "<1.254||>1.256";

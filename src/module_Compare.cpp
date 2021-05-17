@@ -14,7 +14,7 @@
 namespace myodim {
 
 bool printInfo{true};
-static const double MAX_DOUBLE_DIFF = 0.001;
+static const double MAX_DOUBLE_DIFF = 0.0001;
 static const std::string WMO_REGEX = "(WMO:[0-9]{5})|(WMO:[0-9]{7})";
 static const std::string NOD_REGEX = "NOD:[\\x00-\\x7F]*";  //only ASCII
 static const std::string RAD_REGEX = "RAD:.*";
@@ -48,6 +48,7 @@ static void getArrayStatistics(const std::vector<double>& values, double& first,
                                double& min, double& max, double& mean);
 static double valueFromStatistics(std::string& comparison,
                                   double first, double last, double min, double max, double mean);
+static void splitPlusMinus(std::string pmString, double& center, double& interval);
 
 std::string getCsvFileNameFrom(const myodim::H5Layout& h5layout) {
   std::string csvFileName;
@@ -573,6 +574,7 @@ bool checkValue(const double attrValue, const std::string& assumedValueStr,
     std::vector<std::string> comparisons;
     std::vector<std::string> operators;
     parseAssumedValueStr(assumedValueStr, comparisons, operators);
+    for (const auto& comp : comparisons) std::cout << "dbg - " << comp << std::endl;
 
     hasProperValue = checkValueInterval(attrValue, comparisons[0]);
     for (int i=0, n=operators.size(); i<n; ++i) {
@@ -650,41 +652,56 @@ bool checkValue(const std::vector<double>& attrValues, const std::string& assume
 bool hasIntervalSigns(const std::string& assumedValueStr) {
   return assumedValueStr.find('=') != std::string::npos ||
          assumedValueStr.find('<') != std::string::npos ||
-         assumedValueStr.find('>') != std::string::npos;
+         assumedValueStr.find('>') != std::string::npos ||
+         assumedValueStr.find("+-") != std::string::npos;
 }
 
 bool checkValueInterval(const double attrValue, const std::string& assumedValueStr) {
   //get first sign and number
   std::string signStr, numberStr;
+  bool hasPlusMinus = false;
   for (int i=0; i<(int)assumedValueStr.length(); ++i) {
     if ( (assumedValueStr[i] >= '0' && assumedValueStr[i] <= '9') || assumedValueStr[i] <= '.' ) {
       numberStr.append(1, assumedValueStr[i]);
+      if ( assumedValueStr[i] == '-' && i > 0 && assumedValueStr[i-1] == '+') {
+        hasPlusMinus = true;
+      }
     }
     else {
       signStr.append(1, assumedValueStr[i]);
     }
   }
-  const double theNumber = numberStr.empty() ? std::nan("") : std::stod(numberStr);
 
   bool result = false;
-  if ( signStr == "=" || signStr == "==" ) {
-    result = std::fabs(attrValue - theNumber) < MAX_DOUBLE_DIFF;
-  }
-  else if ( signStr == "<=" ) {
-    result = attrValue <= theNumber;
-  }
-  else if ( signStr == "<" ) {
-    result = attrValue < theNumber;
-  }
-  else if ( signStr == ">=" ) {
-    result = attrValue >= theNumber;
-  }
-  else if ( signStr == ">" ) {
-    result = attrValue > theNumber;
+
+  if ( hasPlusMinus ) {
+    double center, interval;
+    splitPlusMinus(numberStr, center, interval);
+
+    result = attrValue >= center-interval && attrValue <= center+interval;
   }
   else {
-    throw std::runtime_error("ERROR - unknown sign in the "+
-                             assumedValueStr+" PossibleValues string");
+    const double theNumber = numberStr.empty() ? std::nan("") : std::stod(numberStr);
+
+    if ( signStr == "=" || signStr == "==" ) {
+      result = std::fabs(attrValue - theNumber) < MAX_DOUBLE_DIFF;
+    }
+    else if ( signStr == "<=" ) {
+      result = attrValue <= theNumber;
+    }
+    else if ( signStr == "<" ) {
+      result = attrValue < theNumber;
+    }
+    else if ( signStr == ">=" ) {
+      result = attrValue >= theNumber;
+    }
+    else if ( signStr == ">" ) {
+      result = attrValue > theNumber;
+    }
+    else {
+      throw std::runtime_error("ERROR - unknown sign in the "+
+                               assumedValueStr+" PossibleValues string");
+    }
   }
 
   return result;
@@ -863,6 +880,22 @@ double valueFromStatistics(std::string& comparison,
   else {
     throw std::runtime_error("ERROR - proper statistics not found in the \"" +
                              comparison + "\" comparison");
+  }
+}
+
+void splitPlusMinus(std::string pmString, double& center, double& interval) {
+  const std::string delimiter = "+-";
+  size_t pos = 0;
+  std::string centerStr;
+  if ((pos = pmString.find(delimiter)) != std::string::npos) {
+    centerStr = pmString.substr(0, pos);
+    center = std::stod(centerStr);
+    pmString.erase(0, pos + delimiter.length());
+    interval = std::stod(pmString);
+  }
+  else {
+    center = std::nan("");
+    interval = std::nan("");
   }
 }
 
