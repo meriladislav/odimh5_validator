@@ -214,11 +214,13 @@ Examples:
 
 `$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "<=6.0" -t real`  
 
-- to check whether the value of the "/how/wavelength" real attribute **lies inside some interval** use the "&&" (and) logical operator. WARNING - You should use the quotation marks to not parse the "<" and ">" signs by the shell as redirections :  
+- to check whether the value of the "/how/wavelength" real attribute **lies inside some interval** use the "&&" (and) logical operator or the +- tolerance notation. WARNING - You should use the quotation marks to not parse the "<" and ">" signs by the shell as redirections :  
 
 `$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">5.0&&<6.0" -t real` 
 
 `$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v ">=5.0&&<=6.0" -t real`   
+
+`$./bin/odimh5-check-value -i ./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf -a /how/wavelength -v "=5.5+-0.5" -t real` 
 
 - to check whether the value of the "/how/wavelength" real attribute **lies outside some interval** use the "||" (or) logical operator. WARNING - You should use the quotation marks to not parse the "<" and ">" signs by the shell as redirections :  
 
