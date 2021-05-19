@@ -96,7 +96,7 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
 
         case OdimEntry::Type::Real :
           if ( source.hasAttribute(entry.node) ){
-            if ( !source.isReal64Attribute(entry.node) ) {        // TODO - what if type and also value changes
+            if ( !source.isReal64Attribute(entry.node) ) {        //!!! TODO - what if type and also value changes
               replaceAsReal64Attribute_(f, source, entry.node);
               metadataChanged.push_back(entry.node);
             }
