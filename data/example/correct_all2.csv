@@ -1,0 +1,3 @@
+Node;Category;Type;IsMandatory;PossibleValues;Reference
+/how/startepochs;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
+/testGroup/testRealArray2;Attribute;real array;FALSE;2.0,4.0,6.0,8.0,10.0;

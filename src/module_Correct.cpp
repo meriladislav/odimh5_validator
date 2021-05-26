@@ -41,7 +41,7 @@ static bool hasWildcard_(const std::string& str);
 static void splitByWildcard_(const std::string& str, std::string& wildcardPart, std::string& noWildcardPart);
 static std::string getMatchingPart_(const std::string str, const std::regex& r);
 static void addIfUnique_(std::vector<OdimEntry>& list, const OdimEntry& e);
-static void addHowMetadataChanged_(hid_t f, const std::vector<std::string>& metadataChanged);
+static void addHowMetadataChanged_(hid_t f, const H5Layout& source, const std::vector<std::string>& metadataChanged);
 static bool hasIntervalSigns_(const std::string& assumedValueStr);
 static void parseAssumedValueStr_(const std::string& assumedValueStr,
                                  std::vector<std::string>& comparisons,
@@ -77,18 +77,13 @@ void copyFile(const std::string& sourceFile, const std::string& copyFile) {
 }
 
 void correct(const std::string& sourceFile, const std::string& targetFile,
-                     const OdimStandard& toCorrect) {
+             const OdimStandard& toCorrect) {
   checkH5File_(sourceFile);
   copyFile(sourceFile, targetFile);
-
   H5Layout source(sourceFile);
-
   OdimStandard toCorrectWithoutWildcards = subsituteWildcards_(source, toCorrect);
-
   std::vector<std::string> metadataChanged;
-
   auto f = openH5File_(targetFile, H5F_ACC_RDWR);
-
   for (const auto& entry : toCorrectWithoutWildcards.entries) {
     if ( entry.category == OdimEntry::Category::Attribute ) {
 
@@ -204,7 +199,7 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
     }
   }
 
-  addHowMetadataChanged_(f, metadataChanged);
+  addHowMetadataChanged_(f, source, metadataChanged);
 
   closeH5File_(f);
 }
@@ -616,14 +611,23 @@ void addIfUnique_(std::vector<OdimEntry>& list, const OdimEntry& e) {
   list.push_back(e);
 }
 
-void addHowMetadataChanged_(hid_t f, const std::vector<std::string>& metadataChanged) {
-  addGroup_(f, "/how");
-  std::string value = "";
-  const int n = metadataChanged.size();
-  for (int i=0; i<n-1; ++i) {
-    value += metadataChanged[i]+",";
+void addHowMetadataChanged_(hid_t f, const H5Layout& source,
+                            const std::vector<std::string>& metadataChanged) {
+  std::string metaBefore = "";
+  if ( source.hasAttribute("/how/metadata_changed") ) {
+    source.getAttributeValue("/how/metadata_changed", metaBefore);
   }
-  value += metadataChanged[n-1];
+
+  addGroup_(f, "/how");
+  std::string value = metaBefore;
+  const int n = metadataChanged.size();
+  for (int i=0; i<n; ++i) {
+    if ( value.find(metadataChanged[i]) == std::string::npos ) {
+      if ( !value.empty() && value.back() != ',' ) value += ",";
+      value += metadataChanged[i]+",";
+    }
+  }
+  value.pop_back(); //remove last ','
   saveAsFixedLenghtStringAttribute_(f, "/how/metadata_changed", value);
 }
 

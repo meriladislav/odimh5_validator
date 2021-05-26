@@ -20,6 +20,7 @@ const std::string CSV_TO_ADD_WRONG = "./data/example/add_entries_wrong.csv";
 const std::string CSV_TO_ADD_REGEX = "./data/example/add_entries_regex.csv";
 const std::string CSV_TO_REPLACE = "./data/example/replace_entries.csv";
 const std::string CSV_CORRECT_ALL = "./data/example/correct_all.csv";
+const std::string CSV_CORRECT_ALL2 = "./data/example/correct_all2.csv";
 const std::string CSV_ADD_ARRAYS = "./data/example/add_arrays.csv";
 
 TEST(testRepair, canCopyHdf5File) {
@@ -207,6 +208,22 @@ TEST(testRepair, hasMetadataChangedAttributeAfterCorrect) {
   ASSERT_THAT( s.find("startepochs"), Ne(std::string::npos) );
   ASSERT_THAT( s.find("/dataset10/data1/testGroup/testString"), Ne(std::string::npos) );
   ASSERT_THAT( s.find("/testGroup/testRealArray"), Ne(std::string::npos) );
+
+  const std::string testOutFile2 = TEST_OUT_DIR+"testRepair"+"."+"hasMetadataChangedAttributeAfterCorrect2"+".hdf";
+  toAdd.readFromCsv(CSV_CORRECT_ALL2);
+  ASSERT_NO_THROW( correct(testOutFile, testOutFile2, toAdd) );
+
+  h5LayOut.explore(testOutFile2);
+  ASSERT_TRUE( h5LayOut.hasAttribute("/how/metadata_changed") );
+
+  ASSERT_NO_THROW( h5LayOut.getAttributeValue("/how/metadata_changed", s) );
+  ASSERT_THAT( s.find("/how/system"), Ne(std::string::npos) );
+  ASSERT_THAT( s.find("testGroup"), Ne(std::string::npos) );
+  ASSERT_THAT( s.find("testInt"), Ne(std::string::npos) );
+  ASSERT_THAT( s.find("startepochs"), Ne(std::string::npos) );
+  ASSERT_THAT( s.find("/dataset10/data1/testGroup/testString"), Ne(std::string::npos) );
+  ASSERT_THAT( s.find("/testGroup/testRealArray"), Ne(std::string::npos) );
+  ASSERT_THAT( s.find("/testGroup/testRealArray2"), Ne(std::string::npos) );
 }
 
 
