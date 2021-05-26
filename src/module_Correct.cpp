@@ -613,6 +613,7 @@ void addIfUnique_(std::vector<OdimEntry>& list, const OdimEntry& e) {
 
 void addHowMetadataChanged_(hid_t f, const H5Layout& source,
                             const std::vector<std::string>& metadataChanged) {
+  if ( metadataChanged.size() == 0 ) return;
   std::string metaBefore = "";
   if ( source.hasAttribute("/how/metadata_changed") ) {
     source.getAttributeValue("/how/metadata_changed", metaBefore);
@@ -627,7 +628,7 @@ void addHowMetadataChanged_(hid_t f, const H5Layout& source,
       value += metadataChanged[i]+",";
     }
   }
-  value.pop_back(); //remove last ','
+  if ( !value.empty() ) value.pop_back(); //remove last ','
   saveAsFixedLenghtStringAttribute_(f, "/how/metadata_changed", value);
 }
 
