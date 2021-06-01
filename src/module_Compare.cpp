@@ -200,6 +200,15 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   if ( hasProperDatatype ) {
                     std::regex valueRegex{entry.possibleValues};
                     hasProperValue = checkValue(value, entry.possibleValues, failedValueMessage);
+                    if ( !hasProperValue ) {
+                      isCompliant = false;
+                      printIncorrectValueMessage(entry, a, failedValueMessage);
+                      if ( failedEntries ) {
+                       OdimEntry eFailed = entry;
+                       eFailed.node = a.name();
+                       failedEntries->entries.push_back(eFailed);
+                      }
+                    }
                     if ( a.name() == "/what/source" && hasProperValue ) {
                       hasProperValue = checkWhatSource(value, entry.possibleValues, failedValueMessage);
                       if ( !hasProperValue ) {

@@ -86,6 +86,15 @@ TEST(testCompare, checkValueForStringsWorksForRegexAssumedValue) {
   ASSERT_THAT( errorMessage, IsEmpty() );
 }
 
+TEST(testCompare, checkValueForVersionAttributeWorks) {
+  std::string myStr = "H5rad 2.0";
+  std::string assumedStr = "H5rad 2.1";
+  std::string errorMessage = "";
+  ASSERT_FALSE( checkValue(myStr, assumedStr, errorMessage) );
+  ASSERT_FALSE( errorMessage.empty() );
+  std::cout << "dbg - " << errorMessage << std::endl;
+}
+
 TEST(testCompare, checkValueForNumbersWorksForConcreteAssumedValue) {
   double myNum = 1.256;
   std::string assumedNum = "1.256";
