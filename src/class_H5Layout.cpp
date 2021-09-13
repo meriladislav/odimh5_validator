@@ -177,6 +177,32 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::vector<double
     H5Aclose(attr);
     H5Oclose(parent);
   }
+  else if ( is2DArrayAttribute(attrName) ) {
+    std::string path, name;
+    splitAttributeToPathAndName(attrName, path, name);
+    auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+    if ( parent < 0  ) {
+      throw std::runtime_error("ERROR - node "+path+" not opened");
+    }
+    auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+    if ( attr < 0  ) {
+      throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
+    }
+    auto space = H5Aget_space(attr);
+
+    hsize_t sizes[2];
+    H5Sget_simple_extent_dims(space, sizes, NULL);
+
+    values.resize(sizes[0]*sizes[1], 0.0);
+    auto ret = H5Aread(attr, H5T_NATIVE_DOUBLE, values.data());
+    if ( ret < 0  ) {
+      throw std::runtime_error("ERROR - attribute "+attrName+" not read");
+    }
+
+    H5Sclose(space);
+    H5Aclose(attr);
+    H5Oclose(parent);
+  }
   else {
     values.resize(1);
     getAttributeValue(attrName, values[0]);
@@ -343,9 +369,29 @@ bool H5Layout::is1DArrayAttribute(const std::string& attrName) const {
   return isArray;
 }
 
+bool H5Layout::is2DArrayAttribute(const std::string& attrName) const {
+  std::string path, name;
+  splitAttributeToPathAndName(attrName, path, name);
+  auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
+  }
+  auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+  if ( attr < 0  ) {
+    throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
+  }
+  auto space = H5Aget_space(attr);
+  auto rank = H5Sget_simple_extent_ndims(space);
+  bool is2DArray = rank == 2;
+  H5Sclose(space);
+  H5Aclose(attr);
+  H5Oclose(parent);
+  return is2DArray;
+}
+
 void H5Layout::attributeStatistics(const std::string& attrName, double& first, double& last,
                                    double& min, double& max, double& mean) const {
-  if ( is1DArrayAttribute(attrName) ) {
+  if ( is1DArrayAttribute(attrName) || is2DArrayAttribute(attrName) ) {
     std::vector<double> values;
     getAttributeValue(attrName, values);
     first = values.front();

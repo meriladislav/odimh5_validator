@@ -51,6 +51,7 @@ class H5Layout {
     bool isBooleanAttribute(const std::string& attrName) const;
     bool isUcharDataset(const std::string& dsetName) const;
     bool is1DArrayAttribute(const std::string& attrName) const;
+    bool is2DArrayAttribute(const std::string& attrName) const;
     void attributeStatistics(const std::string& attrName, double& first, double& last,
                              double& min, double& max, double& mean) const;
     void attributeStatistics(const std::string& attrName, int64_t& first, int64_t& last,

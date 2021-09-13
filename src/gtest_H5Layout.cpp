@@ -9,6 +9,7 @@ using namespace myodim;
 
 const std::string TEST_ODIM_FILE = "./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf";
 const std::string WRONG_ODIM_FILE = "./data/example/T_PAGZ41_C_LZIB_20180403000000.hdfx";
+const std::string TEST_ODIM_FILE_V24 = "./data/example/v2.4/T_PAZE50_C_LFPW_20190426132340.h5";
 
 TEST(testH5Layout, isEmptyWhenConstructed) {
   const H5Layout h5layout;
@@ -172,3 +173,35 @@ TEST(testH5Layout, canReturnMinMaxMeanOfAttribute) {
   ASSERT_THAT( mean, Gt(175.0) );
   ASSERT_THAT( mean, Lt(185.0) );
 }
+
+TEST(testH5Layout, canSayIs2DArrayAttribute) {
+  const H5Layout h5layout(TEST_ODIM_FILE_V24);
+
+  ASSERT_TRUE( h5layout.is2DArrayAttribute("/dataset1/how/zr_a_A") );
+  ASSERT_FALSE( h5layout.is2DArrayAttribute("/dataset1/how/startazA") );
+  ASSERT_FALSE( h5layout.is2DArrayAttribute("/where/lon") );
+}
+
+TEST(testH5Layout, canGetValuesOf2DArrayAttribute) {
+  const H5Layout h5layout(TEST_ODIM_FILE_V24);
+  std::vector<double> values;
+
+  ASSERT_NO_THROW( h5layout.getAttributeValue("/dataset1/how/zr_a_A", values) );
+  const int n = values.size();
+  ASSERT_THAT( n, Eq(360*22) );
+  ASSERT_THAT( values[0], DoubleEq(0.0) );
+  ASSERT_THAT( values[n-1], DoubleEq(359.0) );
+
+}
+
+TEST(testH5Layout, canReturnMinMaxMeanOf2DAttribute) {
+  const H5Layout h5layout(TEST_ODIM_FILE_V24);
+  double first=-1.0, last=-1.0, min=-1.0, max=-1.0, mean=-1.0;
+
+  ASSERT_NO_THROW( h5layout.attributeStatistics("/dataset1/how/zr_a_A", first, last, min, max, mean) );
+  ASSERT_THAT( first, DoubleEq(0.0) );
+  ASSERT_THAT( last, DoubleEq(359.0) );
+  ASSERT_THAT( min, DoubleEq(0.0) );
+  ASSERT_THAT( max, DoubleEq(359.0) );
+}
+
