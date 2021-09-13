@@ -13,9 +13,9 @@ namespace myodim {
 class OdimEntry {
   public:
     enum Category { Group, Attribute, Dataset };
-    enum Type { String, Real, Integer, Boolean,
-                StringArray, RealArray, IntegerArray, BooleanArray,
-                StringArray2D, RealArray2D, IntegerArray2D, BooleanArray2D,
+    enum Type { String, Real, Integer,
+                StringArray, RealArray, IntegerArray,
+                StringArray2D, RealArray2D, IntegerArray2D,
                 Undefined };
     
     std::string node{""};

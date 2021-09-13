@@ -46,9 +46,6 @@ std::string OdimEntry::typeToString() const {
     case OdimEntry::Type::Integer :
       return "integer";
       break;
-    case OdimEntry::Type::Boolean :
-      return "boolean";
-      break;
     case OdimEntry::Type::StringArray :
       return "string array";
       break;
@@ -58,8 +55,14 @@ std::string OdimEntry::typeToString() const {
     case OdimEntry::Type::IntegerArray :
       return "integer array";
       break;
-    case OdimEntry::Type::BooleanArray :
-      return "boolean array";
+    case OdimEntry::Type::StringArray2D :
+      return "string array 2d";
+      break;
+    case OdimEntry::Type::RealArray2D :
+      return "real array 2d";
+      break;
+    case OdimEntry::Type::IntegerArray2D :
+      return "integer array 2d";
       break;
     case OdimEntry::Type::Undefined :
       return "";
@@ -99,11 +102,6 @@ void OdimEntry::parseType_(const std::string typeStr) {
       type = containsSubString(lowerTypeStr, "2d") ? Type::IntegerArray2D : Type::IntegerArray;
     else
       type = Type::Integer;
-  else if ( containsSubString(lowerTypeStr, "boolean") )
-    if ( containsSubString(lowerTypeStr, "array") )
-      type = containsSubString(lowerTypeStr, "2d") ? Type::BooleanArray2D : Type::BooleanArray;
-    else
-      type = Type::Boolean;
   else throw std::invalid_argument{"Unknown type - "+typeStr};
 }
     
