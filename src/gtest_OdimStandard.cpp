@@ -13,6 +13,8 @@ const std::string UPDATE_CSV_FILE = "./data/example/T_PAGZ41_C_LZIB.values.inter
 const std::string WRONG_CSV_FILE = "./data/ODIM_H5_V2_1_PVOL.csvx";
 const std::string TEST_CSV_FILE_WITHOUT_REFS = "./data/test/ODIM_H5_V2_1_PVOL_norefs.csv";
 const std::string WRITE_CSV_FILE = "./out/ODIM_H5_V2_1_PVOL_write.csv";
+const std::string TEST_CSV_FILE_V2_4 = "./data/ODIM_H5_V2_4_PVOL.csv";
+
 
 TEST(testOdimStandard, isEmptyWhenDefaultConstructed) {
   OdimStandard oStand;
@@ -67,3 +69,15 @@ TEST(testOdimStandard, canWriteToCSV) {
     ASSERT_TRUE( oStandWritten.entries[i].reference == oStand.entries[i].reference );
   }
 }
+
+TEST(testOdimStandard, canParse2DArrayEntries) {
+  OdimStandard oStand(TEST_CSV_FILE_V2_4);
+
+  bool has2D = false;
+  for (int i=0, n=oStand.entries.size(); i<n; ++i) {
+    has2D = oStand.entries[i].type == OdimEntry::Type::RealArray2D;
+    if ( has2D ) break;
+  }
+  ASSERT_TRUE( has2D );
+}
+

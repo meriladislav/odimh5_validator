@@ -15,6 +15,7 @@ class OdimEntry {
     enum Category { Group, Attribute, Dataset };
     enum Type { String, Real, Integer, Boolean,
                 StringArray, RealArray, IntegerArray, BooleanArray,
+                StringArray2D, RealArray2D, IntegerArray2D, BooleanArray2D,
                 Undefined };
     
     std::string node{""};

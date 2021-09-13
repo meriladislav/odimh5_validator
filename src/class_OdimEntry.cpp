@@ -85,13 +85,25 @@ void OdimEntry::parseType_(const std::string typeStr) {
   }
   const std::string lowerTypeStr = toLower(typeStr);
   if ( containsSubString(lowerTypeStr, "string") )
-    type = containsSubString(lowerTypeStr, "array") ? Type::StringArray : Type::String;
+    if ( containsSubString(lowerTypeStr, "array") )
+      type = containsSubString(lowerTypeStr, "2d") ? Type::StringArray2D : Type::StringArray;
+    else
+      type = Type::String;
   else if ( containsSubString(lowerTypeStr, "real") )
-    type = containsSubString(lowerTypeStr, "array") ? Type::RealArray : Type::Real;
+    if ( containsSubString(lowerTypeStr, "array") )
+      type = containsSubString(lowerTypeStr, "2d") ? Type::RealArray2D : Type::RealArray;
+    else
+      type = Type::Real;
   else if ( containsSubString(lowerTypeStr, "integer") )
-    type = containsSubString(lowerTypeStr, "array") ? Type::IntegerArray : Type::Integer;
+    if ( containsSubString(lowerTypeStr, "array") )
+      type = containsSubString(lowerTypeStr, "2d") ? Type::IntegerArray2D : Type::IntegerArray;
+    else
+      type = Type::Integer;
   else if ( containsSubString(lowerTypeStr, "boolean") )
-    type = containsSubString(lowerTypeStr, "array") ? Type::BooleanArray : Type::Boolean;
+    if ( containsSubString(lowerTypeStr, "array") )
+      type = containsSubString(lowerTypeStr, "2d") ? Type::BooleanArray2D : Type::BooleanArray;
+    else
+      type = Type::Boolean;
   else throw std::invalid_argument{"Unknown type - "+typeStr};
 }
     
