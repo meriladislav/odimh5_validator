@@ -6,7 +6,7 @@ Node;Category;Type;IsMandatory;PossibleValues;Reference
 /what/version;Attribute;string;TRUE;H5rad 2.3;OPERA_ODIM_v2.3.pdf,Section 4.2
 /what/date;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.3.pdf,Section 4.2
 /what/time;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.3.pdf,Section 4.2
-/what/source;Attribute;string;TRUE;(WIGOS:.*)|(WMO:.*)|(RAD:.*)|(PLC:.*)|(NOD:.*)|(ORG:.*)|(CTY:.*)|(CMT:.*);OPERA_ODIM_v2.3.pdf,Section 4.2
+/what/source;Attribute;string;TRUE;((WIGOS:.*)|(WMO:.*)|(RAD:.*)|(PLC:.*)|(ORG:.*)|(CTY:.*)|(CMT:.*))*.*NOD:.*((WIGOS:.*)|(WMO:.*)|(RAD:.*)|(PLC:.*)|(ORG:.*)|(CTY:.*)|(CMT:.*))*;OPERA_ODIM_v2.3.pdf,Section 4.2
 /where;Group;;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.3.1
 /where/lon;Attribute;real;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.3.1
 /where/lat;Attribute;real;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.3.1

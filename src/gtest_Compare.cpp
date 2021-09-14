@@ -385,3 +385,29 @@ TEST(testCompare, compareWorksForV24Files) {
 
   ASSERT_TRUE( compare(h5Lay, oStand, checkOptional, checkExtras, &failedEntries) );
 }
+
+TEST(testCompare, canCheckWhatSourceInV24) {
+  std::string whatSource = "WMO:11812,NOD:skjav";
+  std::string basicRegex = "((WIGOS:.*)|"  //WIGOS format
+                           "(WMO:.*)|"  //WMO format
+                           "(RAD:.*)|"
+                           "(PLC:.*)|"
+                           "(ORG:.*)|"
+                           "(CTY:.*)|"
+                           "(CMT:.*))*"
+                           ".*NOD:.*"
+                           "((WIGOS:.*)|"  //WIGOS format
+                           "(WMO:.*)|"  //WMO format
+                           "(RAD:.*)|"
+                           "(PLC:.*)|"
+                           "(ORG:.*)|"
+                           "(CTY:.*)|"
+                           "(CMT:.*))*";
+  std::string errorMessage = "";
+  ASSERT_TRUE( checkValue(whatSource, basicRegex, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  std::string whatSourceWrong = "WMO:11812";  // without NOD
+  ASSERT_FALSE( checkValue(whatSourceWrong, basicRegex, errorMessage) );
+  ASSERT_THAT( errorMessage, Not(IsEmpty()) );
+}
