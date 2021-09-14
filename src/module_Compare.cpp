@@ -288,6 +288,33 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   }
                 }
                 break;
+              case OdimEntry::RealArray2D :
+                hasProperDatatype = h5layout.isReal64Attribute(a.name()) &&
+                                    h5layout.is2DArrayAttribute(a.name());
+                if ( !hasProperDatatype ) {
+                  isCompliant = false;
+                  printWrongTypeMessage(entry, a);
+                  if ( failedEntries ) {
+                    OdimEntry eFailed = entry;
+                    eFailed.node = a.name();
+                    failedEntries->entries.push_back(eFailed);
+                  }
+                }
+                if ( !entry.possibleValues.empty() ) {
+                  std::vector<double> values;
+                  h5layout.getAttributeValue(a.name(), values);
+                  hasProperValue = checkValue(values, entry.possibleValues, failedValueMessage);
+                  if ( !hasProperValue ) {
+                    isCompliant = false;
+                    printIncorrectValueMessage(entry, a, failedValueMessage);
+                    if ( failedEntries ) {
+                      OdimEntry eFailed = entry;
+                      eFailed.node = a.name();
+                      failedEntries->entries.push_back(eFailed);
+                    }
+                  }
+                }
+                break;
               case OdimEntry::Integer :
                 hasProperDatatype = h5layout.isInt64Attribute(a.name()) &&
                                    !h5layout.is1DArrayAttribute(a.name());
@@ -318,6 +345,35 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
               case OdimEntry::IntegerArray :
                 hasProperDatatype = h5layout.isInt64Attribute(a.name()) &&
                                     h5layout.is1DArrayAttribute(a.name());
+                if ( !hasProperDatatype ) {
+                  isCompliant = false;
+                  printWrongTypeMessage(entry, a);
+                  if ( failedEntries ) {
+                    OdimEntry eFailed = entry;
+                    eFailed.node = a.name();
+                    failedEntries->entries.push_back(eFailed);
+                  }
+                }
+                if ( !entry.possibleValues.empty() ) {
+                  std::vector<int64_t> values;
+                  h5layout.getAttributeValue(a.name(), values);
+                  std::vector<double> dValues(values.size());
+                  for (int i=0, n=dValues.size(); i<n; ++i) dValues[i] = values[i];
+                  hasProperValue = checkValue(dValues, entry.possibleValues, failedValueMessage);
+                  if ( !hasProperValue ) {
+                    isCompliant = false;
+                    printIncorrectValueMessage(entry, a, failedValueMessage);
+                    if ( failedEntries ) {
+                      OdimEntry eFailed = entry;
+                      eFailed.node = a.name();
+                      failedEntries->entries.push_back(eFailed);
+                    }
+                  }
+                }
+                break;
+              case OdimEntry::IntegerArray2D :
+                hasProperDatatype = h5layout.isInt64Attribute(a.name()) &&
+                                    h5layout.is2DArrayAttribute(a.name());
                 if ( !hasProperDatatype ) {
                   isCompliant = false;
                   printWrongTypeMessage(entry, a);
@@ -425,7 +481,7 @@ bool checkExtraFeatures(const myodim::H5Layout& h5layout, const OdimStandard& od
       extrasPresent = true;
       if ( !(h5layout.isInt64Attribute(attribute.name()) || 
              h5layout.isReal64Attribute(attribute.name()) || 
-             h5layout.isStringAttribute(attribute.name())) ) {
+             h5layout.isStringAttribute(attribute.name()) ) ) {
         if ( printInfo) std::cout << "INFO - extra feature - entry \"" + attribute.name() + "\" has non-standard datatype." << std::endl;
       }
     }
@@ -440,7 +496,6 @@ bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard&
 
   for (const auto& entry : odimStandard.entries) {
     if ( !entry.isMandatory ) continue;
-
     //if node contains some wildcard, check ALL h5layout elements which fulfill the given regex
     if ( entry.node.find('*') != std::string::npos ||
          entry.node.find('[') != std::string::npos ||
@@ -506,6 +561,7 @@ bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard&
       if ( parents.size() != entries.size() ) {
         if ( entries.size() > 0 ) {
           for (int i=0, j=0, n=parents.size(); i<n; ++i) {
+            if ( j >= (int)entries.size() ) break;
             if ( entries[j].find(parents[i]) != std::string::npos ) {
               j++;
               continue;

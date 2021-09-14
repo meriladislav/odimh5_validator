@@ -233,6 +233,29 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::vector<int64_
     H5Aclose(attr);
     H5Oclose(parent);
   }
+  else if ( is2DArrayAttribute(attrName) ) {
+    std::string path, name;
+    splitAttributeToPathAndName(attrName, path, name);
+    auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+    if ( parent < 0  ) {
+      throw std::runtime_error("ERROR - node "+path+" not opened");
+    }
+    auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+    if ( attr < 0  ) {
+      throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
+    }
+    auto space = H5Aget_space(attr);
+    hsize_t sizes[2];
+    H5Sget_simple_extent_dims(space, sizes, NULL);
+    values.resize(sizes[0]*sizes[1], 0.0);
+    auto ret = H5Aread(attr, H5T_NATIVE_INT64, values.data());
+    if ( ret < 0  ) {
+      throw std::runtime_error("ERROR - attribute "+attrName+" not read");
+    }
+    H5Sclose(space);
+    H5Aclose(attr);
+    H5Oclose(parent);
+  }
   else {
     values.resize(1);
     getAttributeValue(attrName, values[0]);

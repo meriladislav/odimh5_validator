@@ -18,6 +18,38 @@ int main() {
     throw std::runtime_error{"ERROR - file "+inFile+" not opened"};
   }
 
+  //overwrite "/Conventions"
+  {
+    hid_t root = H5Gopen2(f, "/", H5P_DEFAULT);
+    H5Adelete(root, "Conventions");
+    auto sp  = H5Screate(H5S_SCALAR);
+    auto t = H5Tcopy(H5T_C_S1);
+    H5Tset_size(t, std::string("ODIM_H5/V2_4").length()+1);
+    H5Tset_strpad(t, H5T_STR_NULLTERM);
+    auto a = H5Acreate2(root, "Conventions", t, sp, H5P_DEFAULT, H5P_DEFAULT);
+    H5Awrite(a, t, "ODIM_H5/V2_4");
+    H5Sclose(sp);
+    H5Tclose(t);
+    H5Aclose(a);
+    H5Gclose(root);
+  }
+
+  //overwrite "/what/version"
+  {
+    hid_t what = H5Gopen2(f, "/what", H5P_DEFAULT);
+    H5Adelete(what, "version");
+    auto sp  = H5Screate(H5S_SCALAR);
+    auto t = H5Tcopy(H5T_C_S1);
+    H5Tset_size(t, std::string("H5rad 2.4").length()+1);
+    H5Tset_strpad(t, H5T_STR_NULLTERM);
+    auto a = H5Acreate2(what, "version", t, sp, H5P_DEFAULT, H5P_DEFAULT);
+    H5Awrite(a, t, "H5rad 2.4");
+    H5Sclose(sp);
+    H5Tclose(t);
+    H5Aclose(a);
+    H5Gclose(what);
+  }
+
   hid_t how = H5Gopen2(f, "/dataset1/how", H5P_DEFAULT);
 
   H5Adelete(how, "zr_a_A");

@@ -13,6 +13,8 @@ const std::string WRONG_ODIM_FILE = "./data/example/T_PAGZ41_C_LZIB_201804030000
 const std::string TEST_CSV_FILE = "./data/ODIM_H5_V2_1_PVOL.csv";
 const std::string UPDATE_CSV_FILE = "./data/example/T_PAGZ41_C_LZIB.values.interval.csv";
 const std::string WRONG_CSV_FILE = "./data/ODIM_H5_V2_1_PVOL.csvx";
+const std::string TEST_ODIM_FILE_V24 = "./data/example/v2.4/T_PAZE50_C_LFPW_20190426132340.h5";
+const std::string TEST_CSV_FILE_V24 = "./data/ODIM_H5_V2_4_SCAN.csv";
 
 TEST(testCompare, canCreateCVSFileNameFromH5ayout) {
   H5Layout h5Lay(TEST_ODIM_FILE);
@@ -372,4 +374,14 @@ TEST(testCompare, canCheckWhatSource) {
   errorMessage = "";
   ASSERT_FALSE( checkWhatSource(whatSource, basicRegex, errorMessage) );
   ASSERT_FALSE( errorMessage.empty() );
+}
+
+TEST(testCompare, compareWorksForV24Files) {
+  H5Layout h5Lay(TEST_ODIM_FILE_V24);
+  OdimStandard oStand(TEST_CSV_FILE_V24);
+  const bool checkOptional = true;
+  const bool checkExtras = true;
+  OdimStandard failedEntries;
+
+  ASSERT_TRUE( compare(h5Lay, oStand, checkOptional, checkExtras, &failedEntries) );
 }
