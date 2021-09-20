@@ -1,160 +1,171 @@
 Node;Category;Type;IsMandatory;PossibleValues;Reference
-/;Group;;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.1
-/Conventions;Attribute;string;TRUE;ODIM_H5/V2_4;OPERA_ODIM_v2.3.pdf,Section 4.1
-/what;Group;;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.2
-/what/object;Attribute;string;TRUE;SCAN;OPERA_ODIM_v2.3.pdf,Section 4.2
-/what/version;Attribute;string;TRUE;H5rad 2.4;OPERA_ODIM_v2.3.pdf,Section 4.2
-/what/date;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.3.pdf,Section 4.2
-/what/time;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.3.pdf,Section 4.2
-/what/source;Attribute;string;TRUE;((WIGOS:.*)|(WMO:.*)|(RAD:.*)|(PLC:.*)|(ORG:.*)|(CTY:.*)|(CMT:.*))*.*NOD:.*((WIGOS:.*)|(WMO:.*)|(RAD:.*)|(PLC:.*)|(ORG:.*)|(CTY:.*)|(CMT:.*))*;OPERA_ODIM_v2.3.pdf,Section 4.2
-/where;Group;;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.3.1
-/where/lon;Attribute;real;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.3.1
-/where/lat;Attribute;real;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.3.1
-/where/height;Attribute;real;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.3.1
-.*how;Group;;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/task;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/task_args;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/extensions;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/data_origin;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/startepochs;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/endepochs;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/system;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/TXtype;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/poltype;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/polmode;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/software;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/sw_version;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/zr_a;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/zr_b;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/zr_a_A;Attribute;real array 2D;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/zr_b_A;Attribute;real array 2D;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/kr_a;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/kr_b;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/kr_a_A;Attribute;real array 2D;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/kr_b_A;Attribute;real array 2D;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/simulated;Attribute;string;FALSE;(True)?(False)?;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/beamwidth;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/wavelength;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/rpm;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/elevspeed;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/antspeed;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/pulsewidth;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/RXbandwidth;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/lowprf;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/midprf;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/highprf;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/TXlossH;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/TXlossV;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/injectlossH;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/injectlossV;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/RXlossH;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/RXlossV;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/radomelossH;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/radomelossV;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/antgainH;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/antgainV;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/beamwH;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/beamwV;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/gasattn;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/radconstH;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/radconstV;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/nomTXpower;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/TXpower;Attribute;real array;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/powerdiff;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/phasediff;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/NI;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/Vsamples;Attribute;integer;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/astart;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/scan_optimized;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/azmethod;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/elmethod;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/binmethod;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/binmethod_avg;Attribute;integer;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/elangles;Attribute;real array;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/startazA;Attribute;real array;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/stopazA;Attribute;real array;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/startazT;Attribute;real array;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/stopazT;Attribute;real array;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/startelA;Attribute;real array;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/stopelA;Attribute;real array;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/startelT;Attribute;real array;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/stopelT;Attribute;real array;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/startT;Attribute;real array;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/stopT;Attribute;real array;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/pointaccEL;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/pointaccAZ;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/anglesync;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/anglesyncRes;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/malfunc;Attribute;string;FALSE;(True)?(False)?;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/radar_msg;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/radhoriz;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/NEZH;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/NEZV;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/OUR;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/Dclutter;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/clutterType;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/clutterMap;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/zcalH;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/zcalV;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/zdrcal;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/nsampleH;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/nsampleV;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/melting_layer_top;Attribute;real array;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/melting_layer_bottom;Attribute;real array;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/comment;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/SQI;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/CSR;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/LOG;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/VPRCorr;Attribute;string;FALSE;(True)?(False)?;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/freeze;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/min;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/max;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/step;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/levels;Attribute;integer;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/peakpwr;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/avgpwr;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/dynrange;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/RAC;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/BBC;Attribute;string;FALSE;(True)?(False)?;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/PAC;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/S2N;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/SNRT;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/SNRHCT;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/SNRHXT;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/MDS;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/SNRVCT;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/SNRVXT;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/smoothed_PHIDP;Attribute;real;FALSE;(True)?(False)?;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/polarization;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/scan_index;Attribute;integer;FALSE;>0&&<=999;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/scan_count;Attribute;integer;FALSE;>0&&<=999;OPERA_ODIM_v2.3.pdf,Section 4.4
+/;Group;;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.1
+/Conventions;Attribute;string;TRUE;ODIM_H5/V2_4;OPERA_ODIM_v2.4.pdf,Section 4.1
+/what;Group;;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.2
+/what/object;Attribute;string;TRUE;SCAN;OPERA_ODIM_v2.4.pdf,Section 4.2
+/what/version;Attribute;string;TRUE;H5rad 2.4;OPERA_ODIM_v2.4.pdf,Section 4.2
+/what/date;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.4.pdf,Section 4.2
+/what/time;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.4.pdf,Section 4.2
+/what/source;Attribute;string;TRUE;((WIGOS:.*)|(WMO:.*)|(RAD:.*)|(PLC:.*)|(ORG:.*)|(CTY:.*)|(CMT:.*))*.*NOD:.*((WIGOS:.*)|(WMO:.*)|(RAD:.*)|(PLC:.*)|(ORG:.*)|(CTY:.*)|(CMT:.*))*;OPERA_ODIM_v2.4.pdf,Section 4.2
+/where;Group;;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/where/lon;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/where/lat;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/where/height;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+.*how;Group;;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/task;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/task_args;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/extensions;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/data_origin;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/startepochs;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/endepochs;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/system;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/TXtype;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/poltype;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/polmode;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/software;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/sw_version;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/zr_a;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/zr_b;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/zr_a_A;Attribute;real array 2D;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/zr_b_A;Attribute;real array 2D;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/kr_a;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/kr_b;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/kr_a_A;Attribute;real array 2D;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/kr_b_A;Attribute;real array 2D;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/simulated;Attribute;string;FALSE;(True)?(False)?;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/platform_type;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/beamwidth;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/wavelength;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/frequency;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/antspeed;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/pulsewidth;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/RXbandwidth;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/lowprf;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/midprf;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/highprf;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/prt;Attribute;real array;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/prt_ratio;Attribute;real array;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/TXlossH;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/TXlossV;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/injectlossH;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/injectlossV;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/RXlossH;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/RXlossV;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/radomelossH;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/radomelossV;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/antgainH;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/antgainV;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/beamwH;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/beamwV;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/gasattn;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/radconstH;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/radconstV;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/nomTXpower;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/TXpower;Attribute;real array;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/powerdiff;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/phasediff;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/NI;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/Vsamples;Attribute;integer;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/scan_index;Attribute;integer;FALSE;>0&&<=999;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/scan_count;Attribute;integer;TRUE;>0&&<=999;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/scan_optimized;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/astart;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/azmethod;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/elmethod;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/binmethod;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/binmethod_avg;Attribute;integer;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/elangles;Attribute;real array;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/startazA;Attribute;real array;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/stopazA;Attribute;real array;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/startelA;Attribute;real array;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/stopelA;Attribute;real array;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/startT;Attribute;real array;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/stopT;Attribute;real array;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/pointaccEL;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/pointaccAZ;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/anglesync;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/anglesyncRes;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/malfunc;Attribute;string;FALSE;(True)?(False)?;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/radar_msg;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/radhoriz;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/NEZH;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/NEZH_A;Attribute;real array;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/NEZV;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/NEZV_A;Attribute;real array;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/OUR;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/Dclutter;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/clutterType;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/clutterMap;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/zcalH;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/zcalV;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/zdrcal;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/nsampleH;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/nsampleH_A;Attribute;real array;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/nsampleV;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/nsampleV_A;Attribute;real array;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/comment;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/SQI;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/CSR;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/LOG;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/VPRCorr;Attribute;string;FALSE;(True)?(False)?;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/melting_layer_top;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/melting_layer_top_A;Attribute;real array 2D;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/melting_layer_bottom;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/melting_layer_bottom_A;Attribute;real array 2D;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/min;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/max;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/step;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/levels;Attribute;integer;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/peakpwr;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/avgpwr;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/dynrange;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/RAC;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/BBC;Attribute;string;FALSE;(True)?(False)?;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/PAC;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/SNRT;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/SNRT_threshold;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/SNRHCT;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/SNRHC_threshold;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/SNRHXT;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/SNRHX_threshold;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/SNRVCT;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/SNRVC_threshold;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/SNRVXT;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/SNRVX_threshold;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/polarization;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/MDS;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/base_1km_hc;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/base_1km_vc;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/smoothed_PHIDP;Attribute;string;FALSE;(True)?(False)?;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/altitude_agl;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/metadata_changed;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
 /dataset[1-9][0-9]*;Group;;TRUE;;
-/dataset[1-9][0-9]*/what;Group;;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/product;Attribute;string;TRUE;SCAN;OPERA_ODIM_v2.3.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/startdate;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.3.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/starttime;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.3.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/enddate;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.3.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/endtime;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.3.pdf,Section 4.5
-/dataset[1-9][0-9]*/where;Group;;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.3.1
-/dataset[1-9][0-9]*/where/elangle;Attribute;real;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.3.1
-/dataset[1-9][0-9]*/where/a1gate;Attribute;integer;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.3.1
-/dataset[1-9][0-9]*/where/nbins;Attribute;integer;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.3.1
-/dataset[1-9][0-9]*/where/rstart;Attribute;real;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.3.1
-/dataset[1-9][0-9]*/where/rscale;Attribute;real;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.3.1
-/dataset[1-9][0-9]*/where/nrays;Attribute;integer;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.3.1
+/dataset[1-9][0-9]*/what;Group;;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset[1-9][0-9]*/what/product;Attribute;string;TRUE;SCAN;OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset[1-9][0-9]*/what/startdate;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset[1-9][0-9]*/what/starttime;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset[1-9][0-9]*/what/enddate;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset[1-9][0-9]*/what/endtime;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset[1-9][0-9]*/where;Group;;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/dataset[1-9][0-9]*/where/elangle;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/dataset[1-9][0-9]*/where/a1gate;Attribute;integer;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/dataset[1-9][0-9]*/where/nbins;Attribute;integer;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/dataset[1-9][0-9]*/where/rstart;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/dataset[1-9][0-9]*/where/rscale;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/dataset[1-9][0-9]*/where/nrays;Attribute;integer;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
 /dataset[1-9][0-9]*/data[1-9][0-9]*;Group;;TRUE;;
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what;Group;;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what/quantity;Attribute;string;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what/gain;Attribute;real;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what/offset;Attribute;real;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what/nodata;Attribute;real;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what/undetect;Attribute;real;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.5
+/dataset[1-9][0-9]*/data[1-9][0-9]*/what;Group;;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset[1-9][0-9]*/data[1-9][0-9]*/what/quantity;Attribute;string;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset[1-9][0-9]*/data[1-9][0-9]*/what/gain;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset[1-9][0-9]*/data[1-9][0-9]*/what/offset;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset[1-9][0-9]*/data[1-9][0-9]*/what/nodata;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset[1-9][0-9]*/data[1-9][0-9]*/what/undetect;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
 /dataset[1-9][0-9]*/data[1-9][0-9]*/data;Dataset;;TRUE;;
 .*/quality[1-9][0-9]*;Group;;FALSE;;
-.*/quality[1-9][0-9]*/what;Group;;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.5
-.*/quality[1-9][0-9]*/what/quantity;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.5
-.*/quality[1-9][0-9]*/what/gain;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.5
-.*/quality[1-9][0-9]*/what/offset;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.5
-.*/quality[1-9][0-9]*/what/nodata;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.5
-.*/quality[1-9][0-9]*/what/undetect;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.5
+.*/quality[1-9][0-9]*/what;Group;;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+.*/quality[1-9][0-9]*/what/quantity;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+.*/quality[1-9][0-9]*/what/gain;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+.*/quality[1-9][0-9]*/what/offset;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+.*/quality[1-9][0-9]*/what/nodata;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+.*/quality[1-9][0-9]*/what/undetect;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.5
 .*/quality[1-9][0-9]*/data;Dataset;;FALSE;;

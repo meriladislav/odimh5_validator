@@ -124,7 +124,7 @@ Node;Category;Type;IsMandatory;PossibleValues;Reference
 .*how/MDS;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
 .*how/SNRVCT;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
 .*how/SNRVXT;Attribute;real;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
-.*how/smoothed_PHIDP;Attribute;real;FALSE;(True)?(False)?;OPERA_ODIM_v2.3.pdf,Section 4.4
+.*how/smoothed_PHIDP;Attribute;string;FALSE;(True)?(False)?;OPERA_ODIM_v2.3.pdf,Section 4.4
 .*how/polarization;Attribute;string;FALSE;;OPERA_ODIM_v2.3.pdf,Section 4.4
 .*how/scan_index;Attribute;integer;FALSE;>0&&<=999;OPERA_ODIM_v2.3.pdf,Section 4.4
 .*how/scan_count;Attribute;integer;FALSE;>0&&<=999;OPERA_ODIM_v2.3.pdf,Section 4.4
