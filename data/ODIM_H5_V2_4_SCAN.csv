@@ -139,28 +139,28 @@ Node;Category;Type;IsMandatory;PossibleValues;Reference
 .*how/smoothed_PHIDP;Attribute;string;FALSE;(True)?(False)?;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/altitude_agl;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/metadata_changed;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
-/dataset[1-9][0-9]*;Group;;TRUE;;
-/dataset[1-9][0-9]*/what;Group;;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/product;Attribute;string;TRUE;SCAN;OPERA_ODIM_v2.4.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/startdate;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.4.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/starttime;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.4.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/enddate;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.4.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/endtime;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.4.pdf,Section 4.5
-/dataset[1-9][0-9]*/where;Group;;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
-/dataset[1-9][0-9]*/where/elangle;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
-/dataset[1-9][0-9]*/where/a1gate;Attribute;integer;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
-/dataset[1-9][0-9]*/where/nbins;Attribute;integer;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
-/dataset[1-9][0-9]*/where/rstart;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
-/dataset[1-9][0-9]*/where/rscale;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
-/dataset[1-9][0-9]*/where/nrays;Attribute;integer;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
-/dataset[1-9][0-9]*/data[1-9][0-9]*;Group;;TRUE;;
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what;Group;;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what/quantity;Attribute;string;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what/gain;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what/offset;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what/nodata;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what/undetect;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/data;Dataset;;TRUE;;
+/dataset1;Group;;TRUE;;
+/dataset1/what;Group;;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset1/what/product;Attribute;string;TRUE;SCAN;OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset1/what/startdate;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset1/what/starttime;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset1/what/enddate;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset1/what/endtime;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset1/where;Group;;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/dataset1/where/elangle;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/dataset1/where/a1gate;Attribute;integer;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/dataset1/where/nbins;Attribute;integer;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/dataset1/where/rstart;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/dataset1/where/rscale;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/dataset1/where/nrays;Attribute;integer;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.3.1
+/dataset1/data[1-9][0-9]*;Group;;TRUE;;
+/dataset1/data[1-9][0-9]*/what;Group;;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset1/data[1-9][0-9]*/what/quantity;Attribute;string;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset1/data[1-9][0-9]*/what/gain;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset1/data[1-9][0-9]*/what/offset;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset1/data[1-9][0-9]*/what/nodata;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset1/data[1-9][0-9]*/what/undetect;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
+/dataset1/data[1-9][0-9]*/data;Dataset;;TRUE;;
 .*/quality[1-9][0-9]*;Group;;FALSE;;
 .*/quality[1-9][0-9]*/what;Group;;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.5
 .*/quality[1-9][0-9]*/what/quantity;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.5
