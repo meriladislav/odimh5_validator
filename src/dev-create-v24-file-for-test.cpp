@@ -54,7 +54,7 @@ int main() {
 
   H5Adelete(how, "zr_a_A");
 
-  const hsize_t dims[2] = {360,22};  // 22 - because it works only for attribute size up to 512 kB
+  const hsize_t dims[2] = {360,22};  // 22 - because it works only for attribute size up to 64 kB
                                      // To create a bigger attribute one need to use the "Large Attributes Stored in Dense Attribute Storage"
                                      // To use dense attribute storage to store large attributes, set the number of attributes that will be
                                      // stored in compact storage to 0 with the H5Pset_attr_phase_change function. This will force all
