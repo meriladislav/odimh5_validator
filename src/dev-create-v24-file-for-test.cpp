@@ -11,44 +11,37 @@
 const std::string inFile = "./data/example/v2.4/T_PAZE50_C_LFPW_20190426132340.h5";
 
 
+static void saveAsFixedLenghtStringAttribute_(hid_t f, const std::string attrName, const std::string& attrValue);
+static void saveAsReal64Attribute_(hid_t f, const std::string attrName, const double attrValue);
+static void saveAsInt64Attribute_(hid_t f, const std::string attrName, const int64_t attrValue);
+static void splitAttributeToPathAndName_(const std::string& attrName, std::string& path, std::string& name);
+
+
 int main() {
+
+  H5Eset_auto( H5E_DEFAULT, NULL, NULL ); //Turn off error handling permanently
 
   hid_t f = H5Fopen(inFile.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
   if ( f < 0 ) {
     throw std::runtime_error{"ERROR - file "+inFile+" not opened"};
   }
 
-  //overwrite "/Conventions"
-  {
-    hid_t root = H5Gopen2(f, "/", H5P_DEFAULT);
-    H5Adelete(root, "Conventions");
-    auto sp  = H5Screate(H5S_SCALAR);
-    auto t = H5Tcopy(H5T_C_S1);
-    H5Tset_size(t, std::string("ODIM_H5/V2_4").length()+1);
-    H5Tset_strpad(t, H5T_STR_NULLTERM);
-    auto a = H5Acreate2(root, "Conventions", t, sp, H5P_DEFAULT, H5P_DEFAULT);
-    H5Awrite(a, t, "ODIM_H5/V2_4");
-    H5Sclose(sp);
-    H5Tclose(t);
-    H5Aclose(a);
-    H5Gclose(root);
-  }
+  //overwrite "/Conventions" and "/what/version"
+  saveAsFixedLenghtStringAttribute_(f, "/Conventions", "ODIM_H5/V2_4");
+  saveAsFixedLenghtStringAttribute_(f, "/what/version", "H5rad 2.4");
 
-  //overwrite "/what/version"
-  {
-    hid_t what = H5Gopen2(f, "/what", H5P_DEFAULT);
-    H5Adelete(what, "version");
-    auto sp  = H5Screate(H5S_SCALAR);
-    auto t = H5Tcopy(H5T_C_S1);
-    H5Tset_size(t, std::string("H5rad 2.4").length()+1);
-    H5Tset_strpad(t, H5T_STR_NULLTERM);
-    auto a = H5Acreate2(what, "version", t, sp, H5P_DEFAULT, H5P_DEFAULT);
-    H5Awrite(a, t, "H5rad 2.4");
-    H5Sclose(sp);
-    H5Tclose(t);
-    H5Aclose(a);
-    H5Gclose(what);
-  }
+  //add missing mandatory attributes
+  saveAsReal64Attribute_(f, "/how/frequency", 5656461.4717);
+  saveAsReal64Attribute_(f, "/how/RXlossH", 2.591);
+  saveAsReal64Attribute_(f, "/how/RXlossV", 2.591);
+  saveAsReal64Attribute_(f, "/how/antgainH", 45.0);
+  saveAsReal64Attribute_(f, "/how/antgainV", 45.0);
+  saveAsReal64Attribute_(f, "/how/beamwH", 0.92);
+  saveAsReal64Attribute_(f, "/how/beamwV", 0.92);
+  saveAsInt64Attribute_(f, "/how/scan_count", 1);
+
+
+  saveAsInt64Attribute_(f, "/dataset1/how/scan_index", 1);
 
   hid_t how = H5Gopen2(f, "/dataset1/how", H5P_DEFAULT);
 
@@ -67,12 +60,8 @@ int main() {
     throw std::runtime_error("ERROR - attribute zr_a_A not opened.");
   }
 
-  std::vector<double> attrValue(360*22);
-  for (int r=0; r<360; ++r) {
-    for (int b=0; b<22; ++b) {
-      attrValue[r*22+b] = r;
-    }
-  }
+  std::vector<double> attrValue(360*22, 200.0);
+
 
   H5Awrite(a, H5T_NATIVE_DOUBLE, attrValue.data());
 
@@ -85,4 +74,107 @@ int main() {
   H5Fclose(f);
 
   return 0;
+}
+
+
+void saveAsReal64Attribute_(hid_t f, const std::string attrName, const double attrValue) {
+  std::string path, name;
+  splitAttributeToPathAndName_(attrName, path, name);
+
+  auto parent = H5Oopen(f, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
+  }
+
+  H5Adelete(parent, name.c_str());
+
+  hid_t sp = H5Screate(H5S_SCALAR);
+  auto a = H5Acreate2(parent, name.c_str(), H5T_NATIVE_DOUBLE, sp, H5P_DEFAULT, H5P_DEFAULT);
+  if ( a < 0 ) {
+    throw std::runtime_error("ERROR - attribute "+name+" not opened.");
+  }
+
+  auto ret  = H5Awrite(a, H5T_NATIVE_DOUBLE, &attrValue);
+  if ( ret < 0  ) {
+    H5Aclose(a);
+    H5Oclose(parent);
+    throw std::runtime_error("ERROR - attribute "+attrName+" not written");
+  }
+  H5Sclose(sp);
+  H5Aclose(a);
+  H5Oclose(parent);
+}
+
+void splitAttributeToPathAndName_(const std::string& attrName,
+                                  std::string& path, std::string& name) {
+  auto found = attrName.find_last_of('/');
+  path = attrName.substr(0,found+1);
+  name = attrName.substr(found+1);
+}
+
+void saveAsFixedLenghtStringAttribute_(hid_t f, const std::string attrName, const std::string& attrValue) {
+  std::string path, name;
+  splitAttributeToPathAndName_(attrName, path, name);
+
+  auto parent = H5Oopen(f, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
+  }
+
+  H5Adelete(parent, name.c_str());
+
+  auto sp  = H5Screate(H5S_SCALAR);
+  auto t = H5Tcopy(H5T_C_S1);
+  H5Tset_size(t, attrValue.length()+1);
+  H5Tset_strpad(t, H5T_STR_NULLTERM);
+  auto a = H5Acreate2(parent, name.c_str(), t, sp, H5P_DEFAULT, H5P_DEFAULT);
+  if ( a < 0 ) {
+    H5Sclose(sp);
+    H5Tclose(t);
+    H5Oclose(parent);
+    throw std::runtime_error("ERROR - attribute "+name+" not opened.");
+  }
+
+  auto ret  = H5Awrite(a, t, attrValue.c_str());
+  if ( ret < 0  ) {
+    H5Sclose(sp);
+    H5Tclose(t);
+    H5Aclose(a);
+    H5Oclose(parent);
+    throw std::runtime_error("ERROR - attribute "+attrName+" not written");
+  }
+
+  H5Sclose(sp);
+  H5Tclose(t);
+  H5Aclose(a);
+  H5Oclose(parent);
+}
+
+void saveAsInt64Attribute_(hid_t f, const std::string attrName, const int64_t attrValue) {
+  std::string path, name;
+  splitAttributeToPathAndName_(attrName, path, name);
+
+  auto parent = H5Oopen(f, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
+  }
+
+  H5Adelete(parent, name.c_str());
+
+  hid_t sp = H5Screate(H5S_SCALAR);
+  auto a = H5Acreate2(parent, name.c_str(), H5T_NATIVE_INT64, sp, H5P_DEFAULT, H5P_DEFAULT);
+  if ( a < 0 ) {
+    throw std::runtime_error("ERROR - attribute "+name+" not opened.");
+  }
+
+  auto ret  = H5Awrite(a, H5T_NATIVE_INT64, &attrValue);
+  if ( ret < 0  ) {
+    H5Aclose(a);
+    H5Oclose(parent);
+    throw std::runtime_error("ERROR - attribute "+attrName+" not written");
+  }
+
+  H5Sclose(sp);
+  H5Aclose(a);
+  H5Oclose(parent);
 }
