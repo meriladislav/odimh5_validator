@@ -189,8 +189,8 @@ TEST(testH5Layout, canGetValuesOf2DArrayAttribute) {
   ASSERT_NO_THROW( h5layout.getAttributeValue("/dataset1/how/zr_a_A", values) );
   const int n = values.size();
   ASSERT_THAT( n, Eq(360*22) );
-  ASSERT_THAT( values[0], DoubleEq(0.0) );
-  ASSERT_THAT( values[n-1], DoubleEq(359.0) );
+  ASSERT_THAT( values[0], DoubleEq(200.0) );
+  ASSERT_THAT( values[n-1], DoubleEq(200.0) );
 
 }
 
@@ -199,9 +199,9 @@ TEST(testH5Layout, canReturnMinMaxMeanOf2DAttribute) {
   double first=-1.0, last=-1.0, min=-1.0, max=-1.0, mean=-1.0;
 
   ASSERT_NO_THROW( h5layout.attributeStatistics("/dataset1/how/zr_a_A", first, last, min, max, mean) );
-  ASSERT_THAT( first, DoubleEq(0.0) );
-  ASSERT_THAT( last, DoubleEq(359.0) );
-  ASSERT_THAT( min, DoubleEq(0.0) );
-  ASSERT_THAT( max, DoubleEq(359.0) );
+  ASSERT_THAT( first, DoubleEq(200.0) );
+  ASSERT_THAT( last, DoubleEq(200.0) );
+  ASSERT_THAT( min, DoubleEq(200.0) );
+  ASSERT_THAT( max, DoubleEq(200.0) );
 }
 

@@ -9,6 +9,7 @@
 #include <regex>
 #include <iostream>
 #include <cmath> //fabs
+#include <algorithm> // std::any_of
 #include "module_Compare.hpp"
 
 namespace myodim {
@@ -558,37 +559,61 @@ bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard&
           break;
       }
 
-      if ( parents.size() != entries.size() ) {
-        if ( entries.size() > 0 ) {
-          for (int i=0, j=0, n=parents.size(); i<n; ++i) {
-            if ( j >= (int)entries.size() ) break;
-            if ( entries[j].find(parents[i]) != std::string::npos ) {
-              j++;
-              continue;
+      /*
+      std::cout << "dbg - parents to search: ";
+      for (const auto& p : parents) {
+        std::cout << p << " ";
+      }
+      std::cout << std::endl;
+      std::cout << "dbg - entries found: ";
+      for (const auto& e : entries) {
+        std::cout << e << " ";
+      }
+      std::cout << std::endl;
+      */
+
+      if ( parents.size() > entries.size() ) {
+        //if it is found in /how, then it must not be in other (/datasetN/how) groups
+        if ( std::any_of(parents.begin(), parents.end(), [](std::string p){return p=="/how";}) &&
+             std::any_of(entries.begin(), entries.end(), [](std::string e){return e=="/how";})) {
+          ; //it is fine, do nothing
+        }
+        else {
+          //delete /how to see if it is in all the /datasetN/how groups
+          parents.erase(std::remove(parents.begin(), parents.end(), "/how"), parents.end());
+          if ( parents.size() > entries.size() ) {
+            if ( entries.size() > 0 ) {
+              for (int i=0, j=0, n=parents.size(); i<n; ++i) {
+                if ( j >= (int)entries.size() ) break;
+                if ( entries[j].find(parents[i]) != std::string::npos ) {
+                  j++;
+                  continue;
+                }
+                else {
+                  std::cout << "WARNING - MISSING ENTRY - mandatory entry \"" <<
+                               entry.node << "\" not found in " << parents[i] << ".";
+                  if ( !entry.reference.empty() ) std::cout << " See " << entry.reference;
+                  std::cout << std::endl;
+                  if ( failedEntries ) {
+                    std::string p, c;
+                    splitNodePath(entry.node, p, c);
+                    OdimEntry failedEntry = entry;
+                    failedEntry.node = parents[i]+"/"+c;
+                    failedEntries->entries.push_back(failedEntry);
+                  }
+                }
+              }
             }
             else {
               std::cout << "WARNING - MISSING ENTRY - mandatory entry \"" <<
-                           entry.node << "\" not found in " << parents[i] << ".";
+                               entry.node << "\" not found in any its parents" << ".";
               if ( !entry.reference.empty() ) std::cout << " See " << entry.reference;
               std::cout << std::endl;
-              if ( failedEntries ) {
-                std::string p, c;
-                splitNodePath(entry.node, p, c);
-                OdimEntry failedEntry = entry;
-                failedEntry.node = parents[i]+"/"+c;
-                failedEntries->entries.push_back(failedEntry);
-              }
+              if ( failedEntries ) failedEntries->entries.push_back(entry);
             }
+            isCompliant = false;
           }
         }
-        else {
-          std::cout << "WARNING - MISSING ENTRY - mandatory entry \"" <<
-                           entry.node << "\" not found in any its parents" << ".";
-          if ( !entry.reference.empty() ) std::cout << " See " << entry.reference;
-          std::cout << std::endl;
-          if ( failedEntries ) failedEntries->entries.push_back(entry);
-        }
-        isCompliant = false;
       }
 
     }
