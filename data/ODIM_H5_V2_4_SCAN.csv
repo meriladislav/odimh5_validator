@@ -39,7 +39,7 @@ Node;Category;Type;IsMandatory;PossibleValues;Reference
 .*how/frequency;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/antspeed;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/pulsewidth;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
-.*how/RXbandwidth;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/RXbandwidth;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/lowprf;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/midprf;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/highprf;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
@@ -66,7 +66,7 @@ Node;Category;Type;IsMandatory;PossibleValues;Reference
 .*how/phasediff;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/NI;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/Vsamples;Attribute;integer;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
-.*how/scan_index;Attribute;integer;FALSE;>0&&<=999;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/scan_index;Attribute;integer;TRUE;>0&&<=999;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/scan_count;Attribute;integer;TRUE;>0&&<=999;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/scan_optimized;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/astart;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
