@@ -8,7 +8,7 @@
 #include <vector>
 #include <hdf5.h>
 
-const std::string inFile = "./data/example/v2.4/T_PAZE50_C_LFPW_20190426132340.h5";
+const std::string inFile = "./data/test/T_PAZE50_C_LFPW_20190426132340.h5";
 
 
 static void saveAsFixedLenghtStringAttribute_(hid_t f, const std::string attrName, const std::string& attrValue);
@@ -70,7 +70,7 @@ int main() {
   std::vector<double> attrValue(360*22, 200.0);
 
 
-  //H5Awrite(a, H5T_NATIVE_DOUBLE, attrValue.data());
+  H5Awrite(a, H5T_NATIVE_DOUBLE, attrValue.data());
 
   H5Aclose(a);
 

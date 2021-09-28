@@ -9,7 +9,7 @@ using namespace myodim;
 
 const std::string TEST_ODIM_FILE = "./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf";
 const std::string WRONG_ODIM_FILE = "./data/example/T_PAGZ41_C_LZIB_20180403000000.hdfx";
-const std::string TEST_ODIM_FILE_V24 = "./data/example/v2.4/T_PAZE50_C_LFPW_20190426132340.h5";
+const std::string TEST_ODIM_FILE_V24 = "./data/test/T_PAZE50_C_LFPW_20190426132340.h5";
 
 TEST(testH5Layout, isEmptyWhenConstructed) {
   const H5Layout h5layout;
@@ -204,4 +204,5 @@ TEST(testH5Layout, canReturnMinMaxMeanOf2DAttribute) {
   ASSERT_THAT( min, DoubleEq(200.0) );
   ASSERT_THAT( max, DoubleEq(200.0) );
 }
+
 
