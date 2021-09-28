@@ -161,6 +161,8 @@ Node;Category;Type;IsMandatory;PossibleValues;Reference
 /dataset[1-9][0-9]*/data[1-9][0-9]*/what/nodata;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
 /dataset[1-9][0-9]*/data[1-9][0-9]*/what/undetect;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.5
 /dataset[1-9][0-9]*/data[1-9][0-9]*/data;Dataset;;TRUE;;
+/dataset[1-9][0-9]*/data[1-9][0-9]*/data/CLASS;Attribute;string;FALSE;IMAGE;OPERA_ODIM_v2.4.pdf,Section 5
+/dataset[1-9][0-9]*/data[1-9][0-9]*/data/IMAGE_VERSION;Attribute;string;FALSE;1.2;OPERA_ODIM_v2.4.pdf,Section 5
 .*/quality[1-9][0-9]*;Group;;FALSE;;
 .*/quality[1-9][0-9]*/what;Group;;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.5
 .*/quality[1-9][0-9]*/what/quantity;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.5
