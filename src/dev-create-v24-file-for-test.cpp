@@ -19,7 +19,7 @@ static void splitAttributeToPathAndName_(const std::string& attrName, std::strin
 
 int main() {
 
-  H5Eset_auto( H5E_DEFAULT, NULL, NULL ); //Turn off error handling permanently
+  //H5Eset_auto( H5E_DEFAULT, NULL, NULL ); //Turn off error handling permanently
 
   hid_t f = H5Fopen(inFile.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
   if ( f < 0 ) {
@@ -43,6 +43,11 @@ int main() {
 
   saveAsInt64Attribute_(f, "/dataset1/how/scan_index", 1);
 
+  //hid_t propAcc = H5Pcreate(H5P_FILE);
+  //H5Pset_libver_bounds(propAcc, H5F_LIBVER_LATEST, H5F_LIBVER_LATEST);
+  //std::cout << "dbg - prop = " << propAcc << std::endl;
+  //H5Pset_attr_phase_change(propAcc, 0, 0);
+  //std::cout << "dbg - prop = " << propAcc << std::endl;
   hid_t how = H5Gopen2(f, "/dataset1/how", H5P_DEFAULT);
 
   H5Adelete(how, "zr_a_A");
@@ -55,6 +60,8 @@ int main() {
                                      // single attribute in compact attribute storage.
   hid_t sp = H5Screate_simple (2, dims, NULL);
 
+
+
   auto a = H5Acreate2(how, "zr_a_A", H5T_NATIVE_DOUBLE, sp, H5P_DEFAULT, H5P_DEFAULT);
   if ( a < 0 ) {
     throw std::runtime_error("ERROR - attribute zr_a_A not opened.");
@@ -63,7 +70,7 @@ int main() {
   std::vector<double> attrValue(360*22, 200.0);
 
 
-  H5Awrite(a, H5T_NATIVE_DOUBLE, attrValue.data());
+  //H5Awrite(a, H5T_NATIVE_DOUBLE, attrValue.data());
 
   H5Aclose(a);
 
