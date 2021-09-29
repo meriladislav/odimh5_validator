@@ -40,6 +40,7 @@ int main() {
   saveAsReal64Attribute_(f, "/how/beamwV", 0.92);
   saveAsInt64Attribute_(f, "/how/scan_count", 1);
   saveAsReal64Attribute_(f, "/how/pulsewidth", 0.000002);
+  saveAsFixedLenghtStringAttribute_(f, "/how/simulated", "False");
 
 
   saveAsInt64Attribute_(f, "/dataset1/how/scan_index", 1);
@@ -51,7 +52,7 @@ int main() {
   //std::cout << "dbg - prop = " << propAcc << std::endl;
   hid_t how = H5Gopen2(f, "/dataset1/how", H5P_DEFAULT);
 
-  H5Adelete(how, "zr_a_A");
+  //H5Adelete(how, "zr_a_A");
 
   /*
   const hsize_t dims[2] = {360,22};  // 22 - because it works only for attribute size up to 64 kB

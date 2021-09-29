@@ -32,7 +32,7 @@ Node;Category;Type;IsMandatory;PossibleValues;Reference
 .*how/kr_b;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/kr_a_A;Attribute;real array 2D;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/kr_b_A;Attribute;real array 2D;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
-.*how/simulated;Attribute;string;FALSE;(True)?(False)?;OPERA_ODIM_v2.4.pdf,Section 4.4
+.*how/simulated;Attribute;string;TRUE;(True)?(False)?;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/platform_type;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/beamwidth;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
 .*how/wavelength;Attribute;real;FALSE;;OPERA_ODIM_v2.4.pdf,Section 4.4
