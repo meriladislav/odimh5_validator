@@ -175,7 +175,7 @@ TEST(testH5Layout, canReturnMinMaxMeanOfAttribute) {
 }
 
 TEST(testH5Layout, canSayIs2DArrayAttribute) {
-  const H5Layout h5layout(TEST_ODIM_FILE_V24);
+  const H5Layout h5layout(TEST_ODIM_FILE_V24); // this test file needs to be created with the dev-create-v24-file-for-test program
 
   ASSERT_TRUE( h5layout.is2DArrayAttribute("/dataset1/how/zr_a_A") );
   ASSERT_FALSE( h5layout.is2DArrayAttribute("/dataset1/how/startazA") );

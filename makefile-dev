@@ -8,8 +8,8 @@ include makefile-commons.in
 
 CXX_TEST_FLAGS = -std=gnu++11 -O2 -Wall -Wextra -DH5_USE_18_API
 
-TEST_INC_FLAGS = $(INC_FLAGS) -I ~/wrk/inc
-TEST_LIB_FLAGS = $(LIB_FLAGS) ~/wrk/lib/libmygmock.a
+TEST_INC_FLAGS = $(INC_FLAGS) -I ~/inc 
+TEST_LIB_FLAGS = $(LIB_FLAGS) ~/lib/libgmock_main.a  ~/lib/libgtest.a ~/lib/libgmock.a 
 
 LIB_LIST = $(LIB_DIR)/libmyodimh5.a 
            
