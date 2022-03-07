@@ -411,3 +411,39 @@ TEST(testCompare, canCheckWhatSourceInV24) {
   ASSERT_FALSE( checkValue(whatSourceWrong, basicRegex, errorMessage) );
   ASSERT_THAT( errorMessage, Not(IsEmpty()) );
 }
+
+TEST(testCompare, canCheckConcreteIDInWhatSource) {
+  const std::string whatSource = "WMO:11812,NOD:skjav";
+  const std::string basicRegex = "((WIGOS:.*)|"  //WIGOS format
+                           "(WMO:.*)|"  //WMO format
+                           "(RAD:.*)|"
+                           "(PLC:.*)|"
+                           "(ORG:.*)|"
+                           "(CTY:.*)|"
+                           "(CMT:.*))*"
+                           ".*NOD:skjav.*"
+                           "((WIGOS:.*)|"  //WIGOS format
+                           "(WMO:.*)|"  //WMO format
+                           "(RAD:.*)|"
+                           "(PLC:.*)|"
+                           "(ORG:.*)|"
+                           "(CTY:.*)|"
+                           "(CMT:.*))*";
+  std::string errorMessage = "";
+  ASSERT_TRUE( checkValue(whatSource, basicRegex, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  const std::string whatSourceOpposite = "NOD:skjav,WMO:11812";
+  ASSERT_TRUE( checkValue(whatSourceOpposite, basicRegex, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  const std::string whatSourceWrong = "WMO:11812,NOD:skkoj";  // wrong NOD
+  ASSERT_FALSE( checkValue(whatSourceWrong, basicRegex, errorMessage) );
+  ASSERT_THAT( errorMessage, Not(IsEmpty()) );
+
+  errorMessage = "";
+  const std::string specificRegex = "(.*WMO:11812.*:skjav.*)|(.*:skjav.*WMO:11812.*)";
+  ASSERT_TRUE( checkValue(whatSource, specificRegex, errorMessage) );
+  ASSERT_TRUE( checkValue(whatSourceOpposite, specificRegex, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+}
