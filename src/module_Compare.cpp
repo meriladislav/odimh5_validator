@@ -10,6 +10,7 @@
 #include <iostream>
 #include <cmath> //fabs
 #include <algorithm> // std::any_of
+#include <limits>
 #include "module_Compare.hpp"
 
 namespace myodim {
