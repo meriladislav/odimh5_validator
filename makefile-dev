@@ -54,6 +54,9 @@ clean:
 	       $(OBJ_DIR)/* 
 	       
 createv24: $(BIN_DIR)/dev-create-v24-file-for-test
+
+gtest_Compare : $(BIN_DIR)/gtest_Compare
+	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_Compare --gtest_filter=*BUG*
 	       
 $(LIB_DIR)/libmyodimh5.a: $(OBJ_LIST)
 	@echo ""

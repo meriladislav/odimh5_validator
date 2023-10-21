@@ -1,0 +1,2 @@
+Node;Category;Type;IsMandatory;PossibleValues;Reference
+.*how/radconstH;Attribute;real;TRUE;;OPERA_ODIM_v2.4.pdf,Section 4.4

@@ -447,3 +447,14 @@ TEST(testCompare, canCheckConcreteIDInWhatSource) {
   ASSERT_TRUE( checkValue(whatSourceOpposite, specificRegex, errorMessage) );
   ASSERT_THAT( errorMessage, IsEmpty() );
 }
+
+TEST(BUGCompare, canFindHowRadconstHInFMIData) {
+  const std::string fmiDataFile = "./data/test/test_fivim_v2.4.h5";
+  const std::string fmiCsvTable = "./data/test/test_fivim_v2.4.csv";
+  H5Layout h5Lay(fmiDataFile);
+  OdimStandard oStand(fmiCsvTable);
+  const bool checkOptional = false;
+  const bool checkExtras = false;
+
+  ASSERT_TRUE( compare(h5Lay, oStand, checkOptional, checkExtras) );
+}

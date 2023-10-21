@@ -5,12 +5,12 @@
 
 #include <cstdlib>  // getenv
 #include <stdexcept>
-#include <algorithm> // replace, count
+#include <algorithm> // replace, count, find
 #include <regex>
 #include <iostream>
 #include <cmath> //fabs
 #include <algorithm> // std::any_of
-#include <limits>
+#include <limits> //std::numeric_limits<int>::max()
 #include "module_Compare.hpp"
 
 namespace myodim {
@@ -51,6 +51,10 @@ static void getArrayStatistics(const std::vector<double>& values, double& first,
 static double valueFromStatistics(std::string& comparison,
                                   double first, double last, double min, double max, double mean);
 static void splitPlusMinus(std::string pmString, double& center, double& interval);
+static bool entryFoundInDocTree(const std::vector<std::string>& parentsFound,
+                                const std::vector<std::string>& entriesFound);
+static bool allBaseParentsFoundInEntries(const std::vector<std::string>& baseParents,
+                                        const std::vector<std::string>& entriesFound);
 
 std::string getCsvFileNameFrom(const myodim::H5Layout& h5layout) {
   std::string csvFileName;
@@ -115,7 +119,9 @@ bool compare(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
              OdimStandard* failedEntries) {
   
   bool isCompliant = checkCompliance(h5layout, odimStandard, checkOptional, failedEntries) ;
+  //std::cout << "DBG - isCompliant = " << isCompliant << std::endl;
   bool mandatoryExistsInAll = checkMandatoryExitenceInAll(h5layout, odimStandard, failedEntries);
+  //std::cout << "DBG - mandatoryExistsInAll = " << mandatoryExistsInAll << std::endl;
   isCompliant = isCompliant && mandatoryExistsInAll;
 
   if ( checkExtras ) checkExtraFeatures(h5layout, odimStandard);
@@ -497,18 +503,22 @@ bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard&
   bool isCompliant = true;
 
   for (const auto& entry : odimStandard.entries) {
+
     if ( !entry.isMandatory ) continue;
+
     //if node contains some wildcard, check ALL h5layout elements which fulfill the given regex
     if ( entry.node.find('*') != std::string::npos ||
          entry.node.find('[') != std::string::npos ||
          entry.node.find('?') != std::string::npos ) {
-
+      //std::cout << "DBG - processing a wildcard enrty: " << entry.node << std::endl;
       std::string parent{""}, child{""};
       splitNodePath(entry.node, parent, child);
+      //std::cout << "DBG - parent = " << parent << ", child = " << child << std::endl;
       if ( parent.empty() ) continue;
 
       std::regex nodeRegex{entry.node};
       std::string parentEnxtended = parent + "/[0-z]*";
+      //std::cout << "DBG - parentEnxtended = " << parentEnxtended << std::endl;
       std::regex parentRegex{parentEnxtended};
 
       std::vector<std::string> parents;
@@ -543,13 +553,18 @@ bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard&
           }
           break;
         case OdimEntry::Attribute :
+          //std::cout << "DBG - searching for attribute ..." << std::endl;
           for (auto& a : h5layout.attributes) {
+            //std::cout << "DBG - a.name = " << a.name() << ", parentRegex = " << parentEnxtended << std::endl;
             if ( std::regex_match(a.name(), parentRegex) ) {
+              //std::cout << "DBG - match " << std::endl;
               std::string p, c;
               splitNodePath(a.name(), p, c);
               addIfUnique(parents, p);
             }
+            //std::cout << "DBG - a.name = " << a.name() << ", nodeRegex = " << entry.node << std::endl;
             if ( std::regex_match(a.name(), nodeRegex)  ) {
+              //std::cout << "DBG - match " << std::endl;
               std::string p, c;
               splitNodePath(a.name(), p, c);
               addIfUnique(entries, p);
@@ -573,48 +588,19 @@ bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard&
       std::cout << std::endl;
       */
 
-      if ( parents.size() > entries.size() ) {
-        //if it is found in /how, then it must not be in other (/datasetN/how) groups
-        if ( std::any_of(parents.begin(), parents.end(), [](std::string p){return p=="/how";}) &&
-             std::any_of(entries.begin(), entries.end(), [](std::string e){return e=="/how";})) {
-          ; //it is fine, do nothing
-        }
-        else {
-          //delete /how to see if it is in all the /datasetN/how groups
-          parents.erase(std::remove(parents.begin(), parents.end(), "/how"), parents.end());
-          if ( parents.size() > entries.size() ) {
-            if ( entries.size() > 0 ) {
-              for (int i=0, j=0, n=parents.size(); i<n; ++i) {
-                if ( j >= (int)entries.size() ) break;
-                if ( entries[j].find(parents[i]) != std::string::npos ) {
-                  j++;
-                  continue;
-                }
-                else {
-                  std::cout << "WARNING - MISSING ENTRY - mandatory entry \"" <<
-                               entry.node << "\" not found in " << parents[i] << ".";
-                  if ( !entry.reference.empty() ) std::cout << " See " << entry.reference;
-                  std::cout << std::endl;
-                  if ( failedEntries ) {
-                    std::string p, c;
-                    splitNodePath(entry.node, p, c);
-                    OdimEntry failedEntry = entry;
-                    failedEntry.node = parents[i]+"/"+c;
-                    failedEntries->entries.push_back(failedEntry);
-                  }
-                }
-              }
-            }
-            else {
-              std::cout << "WARNING - MISSING ENTRY - mandatory entry \"" <<
-                               entry.node << "\" not found in any its parents" << ".";
-              if ( !entry.reference.empty() ) std::cout << " See " << entry.reference;
-              std::cout << std::endl;
-              if ( failedEntries ) failedEntries->entries.push_back(entry);
-            }
-            isCompliant = false;
-          }
-        }
+      const bool entryFound = entryFoundInDocTree(parents, entries);
+      //std::cout << "DBG - entryFoundInDocTree = " << entryFound << std::endl;
+
+      if ( entryFound ) {
+        ; //it is fine, do nothing
+      }
+      else {
+        std::cout << "WARNING - MISSING ENTRY - mandatory entry \"" <<
+                         entry.node << "\" not found in any its parents" << ".";
+        if ( !entry.reference.empty() ) std::cout << " See " << entry.reference;
+        std::cout << std::endl;
+        if ( failedEntries ) failedEntries->entries.push_back(entry);
+        isCompliant = false;
       }
 
     }
@@ -989,4 +975,73 @@ void splitPlusMinus(std::string pmString, double& center, double& interval) {
   }
 }
 
+bool entryFoundInDocTree(const std::vector<std::string>& parentsFound,
+                         const std::vector<std::string>& entriesFound) {
+  bool foundInDocTree = false;
+
+  if ( parentsFound.empty() || entriesFound.empty() ) {
+    return foundInDocTree;
+  }
+
+  int maxParentDepth = 0;
+  for (const auto& p : parentsFound) {
+    const int depth = std::count(p.begin(), p.end(), '/');
+    if ( depth > maxParentDepth ) maxParentDepth = depth;
+  }
+  //std::cout << "DBG - maxParentDepth = " << maxParentDepth << std::endl;
+
+  int parentStrSizeBefore = 0;
+  for (int depth = 0; depth < maxParentDepth; ++depth) {
+    int minParentStrSize = std::numeric_limits<int>::max();
+    for (const auto& parent : parentsFound) {
+      const int pSize = parent.length();
+      if ( pSize < minParentStrSize && pSize > parentStrSizeBefore ) {
+        minParentStrSize = pSize;
+      }
+    }
+    std::vector<std::string> baseParents;
+    for (const auto& parent : parentsFound) {
+      if ( (int)parent.length() == minParentStrSize ) {
+        baseParents.push_back(parent);
+      }
+    }
+    /*
+    std::cout << "DBG - baseParents : ";
+    for (const auto& p : baseParents) std::cout << p << ", ";
+    std::cout << std::endl;
+
+    std::cout << "DBG - entriesFound : ";
+    for (const auto& e : entriesFound) std::cout << e << ", ";
+    std::cout << std::endl;
+    */
+    foundInDocTree = allBaseParentsFoundInEntries(baseParents, entriesFound);
+    if ( foundInDocTree ) break;
+
+    parentStrSizeBefore = minParentStrSize;
+  }
+
+  return foundInDocTree;
 }
+
+bool allBaseParentsFoundInEntries(const std::vector<std::string>& baseParents,
+                                  const std::vector<std::string>& entriesFound) {
+  bool allFound = false;
+
+  if ( baseParents.empty() || entriesFound.empty() ) {
+    return allFound;
+  }
+
+  int foundNum = 0;
+  for (const auto& p : baseParents) {
+    if ( std::find(entriesFound.begin(), entriesFound.end(), p) != entriesFound.end() ) {
+      foundNum++;
+    }
+  }
+
+  allFound = (int)baseParents.size() == foundNum;
+  //std::cout << "DBG - baseParents.size() = " << baseParents.size() << ", foundNum = " << foundNum << ", allFound = " << allFound << std::endl;
+
+  return allFound;
+}
+
+} // end namespace myodim
