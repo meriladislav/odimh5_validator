@@ -1,0 +1,2 @@
+Node;Category;Type;IsMandatory;PossibleValues;Reference
+/what/object;Attribute;string;TRUE;PVOL;OPERA_ODIM_v2.1.pdf,Section 4.4
