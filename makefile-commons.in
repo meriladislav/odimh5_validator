@@ -21,7 +21,6 @@ CXX_FLAGS += -std=c++11 -O2 -Wall -Wextra -DH5_USE_18_API
 ##############################################################
 AR = ar
 ARFLAGS = -rv
-ARFLAGS_H5 = 
 
 SRC_DIR = $(HOME_DIR)/src
 OBJ_DIR = $(HOME_DIR)/obj
