@@ -14,8 +14,9 @@ namespace myodim {
 static herr_t fillGroupsAndDatasets(hid_t loc_id, const char* name, 
                                     const H5O_info_t* info, void* ph5layout);
 static herr_t getAttribueName(hid_t loc_id, const char* name, const H5A_info_t* ainfo, void* pNameStr);
-void splitAttributeToPathAndName(const std::string& attrName, 
-                                 std::string& path, std::string& name);
+static void splitAttributeToPathAndName(const std::string& attrName, 
+                                        std::string& path, std::string& name);
+static void closeAll(const std::vector<hid_t>& ids);
 
 H5Layout::H5Layout() {
   H5Eset_auto( H5E_DEFAULT, NULL, NULL ); //Turn off error handling permanently
@@ -85,13 +86,20 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::string& value
   }
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
   if ( attr < 0  ) {
+    closeAll({parent});
     throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
   }
   auto type = H5Aget_type(attr);
+  if ( type < 0 ) {
+    closeAll({attr, parent});
+    throw std::runtime_error("ERROR - attribute type not found");
+  }
   if ( H5Tget_class(type) != H5T_STRING ) {
+    closeAll({type, attr, parent});
     throw std::runtime_error("ERROR - attribute "+attrName+" is not a STRING attribute");
   }
   if ( H5Tis_variable_str(type) ) {
+    closeAll({type, attr, parent});
 	  throw std::runtime_error("WARNING - NON-STANDARD DATA TYPE - attribute "+
 			                   attrName+" is a variable-length string attribute,"+
 			                   " which is not supported by the ODIM standard.");
@@ -104,14 +112,23 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::string& value
   str[sz] = '\0';
   auto ret  = H5Aread(attr, type, str);
   if ( ret < 0  ) {
+    closeAll({type, attr, parent});
     throw std::runtime_error("ERROR - attribute "+attrName+" not read");
   }
   value = str;
   free(str);
 
-  H5Tclose(type);
-  H5Aclose(attr);
-  H5Oclose(parent);
+  if ( value.length()+1 != sz ) {
+    closeAll({type, attr, parent});
+	  throw std::runtime_error("WARNING - STRSIZE error - attribute "+
+			                   attrName+"`s size is set to "+std::to_string(sz)+", but it should be "+
+                         std::to_string(value.length()+1)+ " (value.length+1) - value is now: "+value);
+  }
+
+  closeAll({type, attr, parent});
+  //H5Tclose(type);
+  //H5Aclose(attr);
+  //H5Oclose(parent);
 }
 
 void H5Layout::getAttributeValue(const std::string& attrName, double& value) const {
@@ -123,14 +140,17 @@ void H5Layout::getAttributeValue(const std::string& attrName, double& value) con
   }
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
   if ( attr < 0  ) {
+    H5Oclose(parent);
     throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
   }
   auto ret  = H5Aread(attr, H5T_NATIVE_DOUBLE, &value);
   if ( ret < 0  ) {
+    closeAll({attr, parent});
     throw std::runtime_error("ERROR - attribute "+attrName+" not read");
   }
-  H5Aclose(attr);
-  H5Oclose(parent);
+  closeAll({attr, parent});
+  //H5Aclose(attr);
+  //H5Oclose(parent);
 }
 
 void H5Layout::getAttributeValue(const std::string& attrName, int64_t& value) const {
@@ -142,14 +162,17 @@ void H5Layout::getAttributeValue(const std::string& attrName, int64_t& value) co
   }
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
   if ( attr < 0  ) {
+    H5Oclose(parent);
     throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
   }
   auto ret  = H5Aread(attr, H5T_NATIVE_INT64, &value);
   if ( ret < 0  ) {
+    closeAll({attr, parent});
     throw std::runtime_error("ERROR - attribute "+attrName+" not read");
   }
-  H5Aclose(attr);
-  H5Oclose(parent);
+  closeAll({attr, parent});
+  //H5Aclose(attr);
+  //H5Oclose(parent);
 }
 
 
@@ -163,6 +186,7 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::vector<double
     }
     auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
     if ( attr < 0  ) {
+      H5Oclose(parent);
       throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
     }
     auto space = H5Aget_space(attr);
@@ -171,11 +195,13 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::vector<double
     values.resize(size, 0.0);
     auto ret = H5Aread(attr, H5T_NATIVE_DOUBLE, values.data());
     if ( ret < 0  ) {
+      closeAll({space, attr, parent});
       throw std::runtime_error("ERROR - attribute "+attrName+" not read");
     }
-    H5Sclose(space);
-    H5Aclose(attr);
-    H5Oclose(parent);
+    closeAll({space, attr, parent});
+    //H5Sclose(space);
+    //H5Aclose(attr);
+    //H5Oclose(parent);
   }
   else if ( is2DArrayAttribute(attrName) ) {
     std::string path, name;
@@ -186,6 +212,7 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::vector<double
     }
     auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
     if ( attr < 0  ) {
+      H5Oclose(parent);
       throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
     }
     auto space = H5Aget_space(attr);
@@ -196,12 +223,13 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::vector<double
     values.resize(sizes[0]*sizes[1], 0.0);
     auto ret = H5Aread(attr, H5T_NATIVE_DOUBLE, values.data());
     if ( ret < 0  ) {
+      closeAll({space, attr, parent});
       throw std::runtime_error("ERROR - attribute "+attrName+" not read");
     }
-
-    H5Sclose(space);
-    H5Aclose(attr);
-    H5Oclose(parent);
+    closeAll({space, attr, parent});
+    //H5Sclose(space);
+    //H5Aclose(attr);
+    //H5Oclose(parent);
   }
   else {
     values.resize(1);
@@ -219,6 +247,7 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::vector<int64_
     }
     auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
     if ( attr < 0  ) {
+      H5Oclose(parent);
       throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
     }
     auto space = H5Aget_space(attr);
@@ -227,11 +256,13 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::vector<int64_
     values.resize(size, 0.0);
     auto ret = H5Aread(attr, H5T_NATIVE_INT64, values.data());
     if ( ret < 0  ) {
+      closeAll({space, attr, parent});
       throw std::runtime_error("ERROR - attribute "+attrName+" not read");
     }
-    H5Sclose(space);
-    H5Aclose(attr);
-    H5Oclose(parent);
+    closeAll({space, attr, parent});
+    //H5Sclose(space);
+    //H5Aclose(attr);
+    //H5Oclose(parent);
   }
   else if ( is2DArrayAttribute(attrName) ) {
     std::string path, name;
@@ -242,6 +273,7 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::vector<int64_
     }
     auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
     if ( attr < 0  ) {
+      H5Oclose(parent);
       throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
     }
     auto space = H5Aget_space(attr);
@@ -250,11 +282,13 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::vector<int64_
     values.resize(sizes[0]*sizes[1], 0.0);
     auto ret = H5Aread(attr, H5T_NATIVE_INT64, values.data());
     if ( ret < 0  ) {
+      closeAll({space, attr, parent});
       throw std::runtime_error("ERROR - attribute "+attrName+" not read");
     }
-    H5Sclose(space);
-    H5Aclose(attr);
-    H5Oclose(parent);
+    closeAll({space, attr, parent});
+    //H5Sclose(space);
+    //H5Aclose(attr);
+    //H5Oclose(parent);
   }
   else {
     values.resize(1);
@@ -271,13 +305,15 @@ bool H5Layout::isStringAttribute(const std::string& attrName) const {
   }
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
   if ( attr < 0  ) {
+    H5Oclose(parent);
     throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
   }
   auto type = H5Aget_type(attr);
-  bool isString{H5Tget_class(type) == H5T_STRING};
-  H5Tclose(type);
-  H5Aclose(attr);
-  H5Oclose(parent);
+  bool isString{H5Tget_class(type) == H5T_STRING && !H5Tis_variable_str(type)};
+  closeAll({type, attr, parent});
+  //H5Tclose(type);
+  //H5Aclose(attr);
+  //H5Oclose(parent);
   return isString;
 }
 
@@ -290,13 +326,15 @@ bool H5Layout::isFixedLenghtStringAttribute(const std::string& attrName) const {
   }
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
   if ( attr < 0  ) {
+    H5Oclose(parent);
     throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
   }
   auto type = H5Aget_type(attr);
   bool isString{H5Tget_class(type) == H5T_STRING && !H5Tis_variable_str(type)};
-  H5Tclose(type);
-  H5Aclose(attr);
-  H5Oclose(parent);
+  closeAll({type, attr, parent});
+  //H5Tclose(type);
+  //H5Aclose(attr);
+  //H5Oclose(parent);
   return isString;
 }
 
@@ -309,13 +347,15 @@ bool H5Layout::isReal64Attribute(const std::string& attrName) const {
   }
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
   if ( attr < 0  ) {
+    H5Oclose(parent);
     throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
   }
   auto type = H5Aget_type(attr);
   bool isReal64{H5Tget_class(type) == H5T_FLOAT && H5Tget_precision(type) == 64};
-  H5Tclose(type);
-  H5Aclose(attr);
-  H5Oclose(parent);
+  closeAll({type, attr, parent});
+  //H5Tclose(type);
+  //H5Aclose(attr);
+  //H5Oclose(parent);
   return isReal64;
 }
 
@@ -328,13 +368,15 @@ bool H5Layout::isInt64Attribute(const std::string& attrName) const {
   }
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
   if ( attr < 0  ) {
+    H5Oclose(parent);
     throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
   }
   auto type = H5Aget_type(attr);
   bool isInt64{H5Tget_class(type) == H5T_INTEGER && H5Tget_precision(type) == 64};
-  H5Tclose(type);
-  H5Aclose(attr);
-  H5Oclose(parent);
+  closeAll({type, attr, parent});
+  //H5Tclose(type);
+  //H5Aclose(attr);
+  //H5Oclose(parent);
   return isInt64;
 }
 
@@ -347,13 +389,15 @@ bool H5Layout::isBooleanAttribute(const std::string& attrName) const {
   }
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
   if ( attr < 0  ) {
+    H5Oclose(parent);
     throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
   }
   auto type = H5Aget_type(attr);
   bool isBool{H5Tget_class(type) == H5T_NATIVE_HBOOL};
-  H5Tclose(type);
-  H5Aclose(attr);
-  H5Oclose(parent);
+  closeAll({type, attr, parent});
+  //H5Tclose(type);
+  //H5Aclose(attr);
+  //H5Oclose(parent);
   return isBool;
 }
 
@@ -367,8 +411,9 @@ bool H5Layout::isUcharDataset(const std::string& dsetName) const {
   isUchar = H5Tget_class(type) == H5T_INTEGER &&
 		        H5Tget_precision(type) == 8 &&
 			      H5Tget_sign(type) == H5T_SGN_NONE;
-  H5Tclose(type);
-  H5Dclose(dset);
+  closeAll({type, dset});
+  //H5Tclose(type);
+  //H5Dclose(dset);
   return isUchar;
 }
 
@@ -381,14 +426,16 @@ bool H5Layout::is1DArrayAttribute(const std::string& attrName) const {
   }
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
   if ( attr < 0  ) {
+    H5Oclose(parent);
     throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
   }
   auto space = H5Aget_space(attr);
   auto rank = H5Sget_simple_extent_ndims(space);
   bool isArray = rank == 1;
-  H5Sclose(space);
-  H5Aclose(attr);
-  H5Oclose(parent);
+  closeAll({space, attr, parent});
+  //H5Sclose(space);
+  //H5Aclose(attr);
+  //H5Oclose(parent);
   return isArray;
 }
 
@@ -401,14 +448,16 @@ bool H5Layout::is2DArrayAttribute(const std::string& attrName) const {
   }
   auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
   if ( attr < 0  ) {
+    H5Oclose(parent);
     throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
   }
   auto space = H5Aget_space(attr);
   auto rank = H5Sget_simple_extent_ndims(space);
   bool is2DArray = rank == 2;
-  H5Sclose(space);
-  H5Aclose(attr);
-  H5Oclose(parent);
+  closeAll({space, attr, parent});
+  //H5Sclose(space);
+  //H5Aclose(attr);
+  //H5Oclose(parent);
   return is2DArray;
 }
 
@@ -560,6 +609,11 @@ void splitAttributeToPathAndName(const std::string& attrName,
   name = attrName.substr(found+1);
 }
 
+void closeAll(const std::vector<hid_t>& ids) {
+  for (size_t i=0; i<ids.size(); ++i) {
+    H5Oclose(ids[i]);
+  }
+}
 
 } // end namespace myh5
 
