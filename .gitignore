@@ -6,6 +6,7 @@
 */.ptp-sync-folder
 */*/.ptp-sync-folder
 */*/*/.ptp-sync-folder
+.vscode
 
 #ignore all binaries, but track directories
 obj/*
