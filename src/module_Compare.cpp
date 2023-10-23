@@ -182,29 +182,30 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
             entryExists = true;
             a.wasFound() = true;
             switch (entry.type) {
-              case OdimEntry::String :
+              case OdimEntry::String : 
+                {
                 hasProperDatatype = h5layout.isStringAttribute(a.name());
+                std::string value;
+                // load the value to see wether the size of it is good - it throws when not
+                try {
+                  h5layout.getAttributeValue(a.name(), value);
+                }
+                catch (const std::exception& e) {
+                  hasProperDatatype = false;
+                  std::string message(e.what());
+                  if ( failedEntries ) {
+                    OdimEntry eFailed = entry;
+                    eFailed.node = a.name();
+                    failedEntries->entries.push_back(eFailed);
+                  }
+                  if ( message.find("WARNING") != std::string::npos ) {
+                    std::cout << message << std::endl;
+                  }
+                  else {
+                    throw(e);
+                  }
+                }
                 if ( !entry.possibleValues.empty() ) {
-                  std::string value;
-                  try {
-                    h5layout.getAttributeValue(a.name(), value);
-                  }
-                  catch (const std::exception& e) {
-                	  hasProperDatatype = false;
-                	  std::string message(e.what());
-                	  if ( failedEntries ) {
-                      OdimEntry eFailed = entry;
-                      eFailed.node = a.name();
-                      failedEntries->entries.push_back(eFailed);
-                    }
-                	  if ( message.find("WARNING") != std::string::npos ) {
-                	    if ( !entry.reference.empty() ) message += "see "+entry.reference;
-                	    std::cout << message << std::endl;
-                  	}
-                   	else {
-                      throw(e);
-                	  }
-                  }
                   if ( hasProperDatatype ) {
                     std::regex valueRegex{entry.possibleValues};
                     hasProperValue = checkValue(value, entry.possibleValues, failedValueMessage);
@@ -239,6 +240,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                       failedEntries->entries.push_back(eFailed);
                     }
                   }
+                }
                 }
                 break;
               case OdimEntry::Real :

@@ -205,4 +205,22 @@ TEST(testH5Layout, canReturnMinMaxMeanOf2DAttribute) {
   ASSERT_THAT( max, DoubleEq(200.0) );
 }
 
+TEST(BUGH5Layout, shouldThrowOnWrongSTRSIZEOfHowSystem) {
+  const H5Layout h5layout("./data/test/T_PAJZ41_C_LZIB_20231023000000.hdf");
+  std::string attrName = "/how/system";
+  std::string stringValue;
+
+  //ASSERT_FALSE( h5layout.stringAttributeHasProperSize(attrName) );
+
+  ASSERT_THROW( {
+    try {
+      h5layout.getAttributeValue(attrName, stringValue);
+    }
+    catch (const std::runtime_error& e) {
+      ASSERT_THAT( e.what(), HasSubstr("STRSIZE") );
+      throw;
+    }
+  },std::runtime_error);
+}
+
 

@@ -458,3 +458,14 @@ TEST(BUGCompare, canFindHowRadconstHInFMIData) {
 
   ASSERT_TRUE( compare(h5Lay, oStand, checkOptional, checkExtras) );
 }
+
+TEST(BUGCompare, compareShouldFailDueToWrongSTRSZIEOfHowSystem) {
+  const std::string dataFile = "./data/test/T_PAJZ41_C_LZIB_20231023000000.hdf";
+  const std::string csvTable = "./data/ODIM_H5_V2_1_PVOL.csv";
+  H5Layout h5Lay(dataFile);
+  OdimStandard oStand(csvTable);
+  const bool checkOptional = true;
+  const bool checkExtras = false;
+
+  ASSERT_FALSE( compare(h5Lay, oStand, checkOptional, checkExtras) );
+}
