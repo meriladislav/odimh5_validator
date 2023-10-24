@@ -26,8 +26,8 @@ static void saveAsInt64Attribute_(hid_t f, const std::string attrName, const int
 static void replaceAsInt64Attribute_(hid_t f, const H5Layout& source, const std::string attrName);
 static void saveAsInt64ArrayAttribute_(hid_t f, const std::string attrName, const std::vector<int64_t>& attrValue);
 static void replaceAsInt64ArrayAttribute_(hid_t f, const H5Layout& source, const std::string attrName);
-static void saveAsFixedLenghtStringAttribute_(hid_t f, const std::string attrName, const std::string& attrValue);
-static void replaceAsFixedLenghtStringAttribute_(hid_t f, const H5Layout& source, const std::string attrName);
+static void saveAsFixedLengthStringAttribute_(hid_t f, const std::string attrName, const std::string& attrValue);
+static void replaceAsFixedLengthStringAttribute_(hid_t f, const H5Layout& source, const std::string attrName);
 static void addGroup_(hid_t f, const std::string& name);
 static void splitAttributeToPathAndName_(const std::string& attrName,
                                          std::string& path, std::string& name);
@@ -35,8 +35,8 @@ static double parseRealValue_(const std::string& valStr, const std::string attrN
 static std::vector<double> parseRealArrayValue_(std::string valStr, const std::string attrName);
 static int64_t parseIntValue_(const std::string& valStr, const std::string attrName);
 static std::vector<int64_t> parseIntArrayValue_(std::string valStr, const std::string attrName);
-static std::vector<OdimEntry> subsituteWildcards_(const H5Layout& h5Layout, const OdimEntry& wildcardEntry);
-static OdimStandard subsituteWildcards_(const H5Layout& h5Layout, const OdimStandard& wildcardStandard);
+static std::vector<OdimEntry> substituteWildcards_(const H5Layout& h5Layout, const OdimEntry& wildcardEntry);
+static OdimStandard substituteWildcards_(const H5Layout& h5Layout, const OdimStandard& wildcardStandard);
 static bool hasWildcard_(const std::string& str);
 static void splitByWildcard_(const std::string& str, std::string& wildcardPart, std::string& noWildcardPart);
 static std::string getMatchingPart_(const std::string str, const std::regex& r);
@@ -81,7 +81,7 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
   checkH5File_(sourceFile);
   copyFile(sourceFile, targetFile);
   H5Layout source(sourceFile);
-  OdimStandard toCorrectWithoutWildcards = subsituteWildcards_(source, toCorrect);
+  OdimStandard toCorrectWithoutWildcards = substituteWildcards_(source, toCorrect);
   std::vector<std::string> metadataChanged;
   auto f = openH5File_(targetFile, H5F_ACC_RDWR);
   for (const auto& entry : toCorrectWithoutWildcards.entries) {
@@ -130,18 +130,18 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
         case OdimEntry::Type::String :
           if ( source.hasAttribute(entry.node) ){
             if ( !source.isFixedLengthStringAttribute(entry.node) ) {
-              replaceAsFixedLenghtStringAttribute_(f, source, entry.node);
+              replaceAsFixedLengthStringAttribute_(f, source, entry.node);
               metadataChanged.push_back(entry.node);
             }
             else {
               if ( !entry.possibleValues.empty() ) {
-                saveAsFixedLenghtStringAttribute_(f, entry.node, entry.possibleValues);
+                saveAsFixedLengthStringAttribute_(f, entry.node, entry.possibleValues);
                 metadataChanged.push_back(entry.node);
               }
             }
           }
           else {
-            saveAsFixedLenghtStringAttribute_(f, entry.node, entry.possibleValues);
+            saveAsFixedLengthStringAttribute_(f, entry.node, entry.possibleValues);
             metadataChanged.push_back(entry.node);
           }
           break;
@@ -366,7 +366,7 @@ void replaceAsInt64ArrayAttribute_(hid_t f, const H5Layout& source, const std::s
   saveAsInt64ArrayAttribute_(f, attrName, attrValue);
 }
 
-void saveAsFixedLenghtStringAttribute_(hid_t f, const std::string attrName, const std::string& attrValue) {
+void saveAsFixedLengthStringAttribute_(hid_t f, const std::string attrName, const std::string& attrValue) {
   std::string path, name;
   splitAttributeToPathAndName_(attrName, path, name);
 
@@ -404,10 +404,10 @@ void saveAsFixedLenghtStringAttribute_(hid_t f, const std::string attrName, cons
   H5Oclose(parent);
 }
 
-void replaceAsFixedLenghtStringAttribute_(hid_t f, const H5Layout& source, const std::string attrName) {
+void replaceAsFixedLengthStringAttribute_(hid_t f, const H5Layout& source, const std::string attrName) {
   std::string attrValue;
   source.getAttributeValue(attrName, attrValue);
-  saveAsFixedLenghtStringAttribute_(f, attrName, attrValue);
+  saveAsFixedLengthStringAttribute_(f, attrName, attrValue);
 }
 
 void addGroup_(hid_t f, const std::string& name) {
@@ -498,7 +498,7 @@ std::vector<int64_t> parseIntArrayValue_(std::string valStr, const std::string a
   return result;
 }
 
-std::vector<OdimEntry> subsituteWildcards_(const H5Layout& h5Layout, const OdimEntry& wildcardEntry) {
+std::vector<OdimEntry> substituteWildcards_(const H5Layout& h5Layout, const OdimEntry& wildcardEntry) {
   std::vector<OdimEntry> resultEntries;
 
   if ( hasWildcard_(wildcardEntry.node) ) {
@@ -547,10 +547,10 @@ std::vector<OdimEntry> subsituteWildcards_(const H5Layout& h5Layout, const OdimE
   return resultEntries;
 }
 
-OdimStandard subsituteWildcards_(const H5Layout& h5Layout, const OdimStandard& wildcardStandard) {
+OdimStandard substituteWildcards_(const H5Layout& h5Layout, const OdimStandard& wildcardStandard) {
   OdimStandard result;
   for (const auto& e : wildcardStandard.entries) {
-    std::vector<OdimEntry> entries = subsituteWildcards_(h5Layout, e);
+    std::vector<OdimEntry> entries = substituteWildcards_(h5Layout, e);
     for (const auto& ee : entries) {
       result.entries.push_back(ee);
     }
@@ -629,7 +629,7 @@ void addHowMetadataChanged_(hid_t f, const H5Layout& source,
     }
   }
   if ( !value.empty() ) value.pop_back(); //remove last ','
-  saveAsFixedLenghtStringAttribute_(f, "/how/metadata_changed", value);
+  saveAsFixedLengthStringAttribute_(f, "/how/metadata_changed", value);
 }
 
 bool hasIntervalSigns_(const std::string& assumedValueStr) {
