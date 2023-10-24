@@ -70,7 +70,8 @@ all : $(LIB_LIST) $(BIN_LIST)
 	@echo ""
 	@echo "################################################################################"
 	@echo "# Congratulation! The odimh5_validator build was SUCCESSFULL.  "
-	@echo "# IMPORTANT : Consider setting env variable: ODIMH5_VALIDATOR_CSV_DIR=$(PWD)/data - see also in the Readme.md file"
+	@echo "# !!! IMPORTANT !!! : Consider setting env variable: "
+	@echo "#    ODIMH5_VALIDATOR_CSV_DIR=$(PWD)/data - see also in the Readme.md file"
 	@echo "################################################################################"
 	@echo ""
 	

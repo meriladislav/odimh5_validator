@@ -52,7 +52,7 @@ LIB_FLAGS += -lpthread -Wl,--end-group
 
 CXX_TEST_FLAGS = -std=gnu++11 -O2 -Wall -Wextra -DH5_USE_18_API
 
-TEST_INC_FLAGS = $(INC_FLAGS) -I ~/inc 
+TEST_INC_FLAGS = $(INC_FLAGS) -I ~/inc -I $(SRC_DIR)
 TEST_LIB_FLAGS = $(LIB_FLAGS) ~/lib/libgmock_main.a  ~/lib/libgtest.a ~/lib/libgmock.a 
 
 LIB_LIST = $(LIB_DIR)/libmyodimh5.a 
@@ -131,20 +131,20 @@ $(BIN_DIR)/odimh5-correct: $(SRC_DIR)/odimh5-correct.cpp $(LIB_LIST)
 	@echo "Compiling odimh5-correct ... OK"
 	@echo ""
 
-$(BIN_DIR)/dev-create-v24-file-for-test: $(SRC_DIR)/dev-create-v24-file-for-test.cpp 
-	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -o $@ $(SRC_DIR)/dev-create-v24-file-for-test.cpp $(LIB_FLAGS) 
+$(BIN_DIR)/dev-create-v24-file-for-test: $(SRC_DIR)/test/dev-create-v24-file-for-test.cpp 
+	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -o $@ $(SRC_DIR)/test/dev-create-v24-file-for-test.cpp $(LIB_FLAGS) 
 
-$(BIN_DIR)/gtest_H5Layout: $(SRC_DIR)/gtest_H5Layout.cpp $(LIB_LIST)
-	$(CXX) $(CXX_TEST_FLAGS) $(TEST_INC_FLAGS) -o $@ $(SRC_DIR)/gtest_H5Layout.cpp $(TEST_LIB_FLAGS) 
+$(BIN_DIR)/gtest_H5Layout: $(SRC_DIR)/test/gtest_H5Layout.cpp $(LIB_LIST)
+	$(CXX) $(CXX_TEST_FLAGS) $(TEST_INC_FLAGS) -o $@ $(SRC_DIR)/test/gtest_H5Layout.cpp $(TEST_LIB_FLAGS) 
 	
-$(BIN_DIR)/gtest_OdimStandard: $(SRC_DIR)/gtest_OdimStandard.cpp $(LIB_LIST)
-	$(CXX) $(CXX_TEST_FLAGS) $(TEST_INC_FLAGS) -o $@ $(SRC_DIR)/gtest_OdimStandard.cpp $(TEST_LIB_FLAGS) 
+$(BIN_DIR)/gtest_OdimStandard: $(SRC_DIR)/test/gtest_OdimStandard.cpp $(LIB_LIST)
+	$(CXX) $(CXX_TEST_FLAGS) $(TEST_INC_FLAGS) -o $@ $(SRC_DIR)/test/gtest_OdimStandard.cpp $(TEST_LIB_FLAGS) 
 	
-$(BIN_DIR)/gtest_Compare: $(SRC_DIR)/gtest_Compare.cpp $(LIB_LIST)
-	$(CXX) $(CXX_TEST_FLAGS) $(TEST_INC_FLAGS) -o $@ $(SRC_DIR)/gtest_Compare.cpp $(TEST_LIB_FLAGS) 
+$(BIN_DIR)/gtest_Compare: $(SRC_DIR)/test/gtest_Compare.cpp $(LIB_LIST)
+	$(CXX) $(CXX_TEST_FLAGS) $(TEST_INC_FLAGS) -o $@ $(SRC_DIR)/test/gtest_Compare.cpp $(TEST_LIB_FLAGS) 
 	
-$(BIN_DIR)/gtest_Correct: $(SRC_DIR)/gtest_Correct.cpp $(LIB_LIST)
-	$(CXX) $(CXX_TEST_FLAGS) $(TEST_INC_FLAGS) -o $@ $(SRC_DIR)/gtest_Correct.cpp $(TEST_LIB_FLAGS) 
+$(BIN_DIR)/gtest_Correct: $(SRC_DIR)/test/gtest_Correct.cpp $(LIB_LIST)
+	$(CXX) $(CXX_TEST_FLAGS) $(TEST_INC_FLAGS) -o $@ $(SRC_DIR)/test/gtest_Correct.cpp $(TEST_LIB_FLAGS) 
 	
 $(OBJ_DIR)/class_H5Layout.o: $(SRC_DIR)/class_H5Layout.cpp $(SRC_DIR)/class_H5Layout.hpp 
 	$(CXX) $(CXX_FLAGS) $(INC_FLAGS) -c -o $@ $(SRC_DIR)/class_H5Layout.cpp
