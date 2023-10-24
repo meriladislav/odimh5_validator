@@ -308,7 +308,9 @@ bool H5Layout::isFixedLengthStringAttribute(const std::string& attrName) const {
     throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
   }
   auto type = H5Aget_type(attr);
-  bool isString{H5Tget_class(type) == H5T_STRING && !H5Tis_variable_str(type)};
+  bool isString{ H5Tget_class(type) == H5T_STRING && 
+                !H5Tis_variable_str(type) && 
+                H5Tget_strpad(type) == H5T_STR_NULLTERM };
   closeAll({type, attr, parent});
   return isString;
 }
