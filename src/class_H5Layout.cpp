@@ -126,9 +126,6 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::string& value
   }
 
   closeAll({type, attr, parent});
-  //H5Tclose(type);
-  //H5Aclose(attr);
-  //H5Oclose(parent);
 }
 
 void H5Layout::getAttributeValue(const std::string& attrName, double& value) const {
@@ -149,8 +146,6 @@ void H5Layout::getAttributeValue(const std::string& attrName, double& value) con
     throw std::runtime_error("ERROR - attribute "+attrName+" not read");
   }
   closeAll({attr, parent});
-  //H5Aclose(attr);
-  //H5Oclose(parent);
 }
 
 void H5Layout::getAttributeValue(const std::string& attrName, int64_t& value) const {
@@ -171,8 +166,6 @@ void H5Layout::getAttributeValue(const std::string& attrName, int64_t& value) co
     throw std::runtime_error("ERROR - attribute "+attrName+" not read");
   }
   closeAll({attr, parent});
-  //H5Aclose(attr);
-  //H5Oclose(parent);
 }
 
 
@@ -199,9 +192,6 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::vector<double
       throw std::runtime_error("ERROR - attribute "+attrName+" not read");
     }
     closeAll({space, attr, parent});
-    //H5Sclose(space);
-    //H5Aclose(attr);
-    //H5Oclose(parent);
   }
   else if ( is2DArrayAttribute(attrName) ) {
     std::string path, name;
@@ -227,9 +217,6 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::vector<double
       throw std::runtime_error("ERROR - attribute "+attrName+" not read");
     }
     closeAll({space, attr, parent});
-    //H5Sclose(space);
-    //H5Aclose(attr);
-    //H5Oclose(parent);
   }
   else {
     values.resize(1);
@@ -260,9 +247,6 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::vector<int64_
       throw std::runtime_error("ERROR - attribute "+attrName+" not read");
     }
     closeAll({space, attr, parent});
-    //H5Sclose(space);
-    //H5Aclose(attr);
-    //H5Oclose(parent);
   }
   else if ( is2DArrayAttribute(attrName) ) {
     std::string path, name;
@@ -286,9 +270,6 @@ void H5Layout::getAttributeValue(const std::string& attrName, std::vector<int64_
       throw std::runtime_error("ERROR - attribute "+attrName+" not read");
     }
     closeAll({space, attr, parent});
-    //H5Sclose(space);
-    //H5Aclose(attr);
-    //H5Oclose(parent);
   }
   else {
     values.resize(1);
@@ -311,9 +292,6 @@ bool H5Layout::isStringAttribute(const std::string& attrName) const {
   auto type = H5Aget_type(attr);
   bool isString{H5Tget_class(type) == H5T_STRING && !H5Tis_variable_str(type)};
   closeAll({type, attr, parent});
-  //H5Tclose(type);
-  //H5Aclose(attr);
-  //H5Oclose(parent);
   return isString;
 }
 
@@ -332,9 +310,6 @@ bool H5Layout::isFixedLenghtStringAttribute(const std::string& attrName) const {
   auto type = H5Aget_type(attr);
   bool isString{H5Tget_class(type) == H5T_STRING && !H5Tis_variable_str(type)};
   closeAll({type, attr, parent});
-  //H5Tclose(type);
-  //H5Aclose(attr);
-  //H5Oclose(parent);
   return isString;
 }
 
@@ -353,9 +328,6 @@ bool H5Layout::isReal64Attribute(const std::string& attrName) const {
   auto type = H5Aget_type(attr);
   bool isReal64{H5Tget_class(type) == H5T_FLOAT && H5Tget_precision(type) == 64};
   closeAll({type, attr, parent});
-  //H5Tclose(type);
-  //H5Aclose(attr);
-  //H5Oclose(parent);
   return isReal64;
 }
 
@@ -374,9 +346,6 @@ bool H5Layout::isInt64Attribute(const std::string& attrName) const {
   auto type = H5Aget_type(attr);
   bool isInt64{H5Tget_class(type) == H5T_INTEGER && H5Tget_precision(type) == 64};
   closeAll({type, attr, parent});
-  //H5Tclose(type);
-  //H5Aclose(attr);
-  //H5Oclose(parent);
   return isInt64;
 }
 
@@ -395,9 +364,6 @@ bool H5Layout::isBooleanAttribute(const std::string& attrName) const {
   auto type = H5Aget_type(attr);
   bool isBool{H5Tget_class(type) == H5T_NATIVE_HBOOL};
   closeAll({type, attr, parent});
-  //H5Tclose(type);
-  //H5Aclose(attr);
-  //H5Oclose(parent);
   return isBool;
 }
 
@@ -412,8 +378,6 @@ bool H5Layout::isUcharDataset(const std::string& dsetName) const {
 		        H5Tget_precision(type) == 8 &&
 			      H5Tget_sign(type) == H5T_SGN_NONE;
   closeAll({type, dset});
-  //H5Tclose(type);
-  //H5Dclose(dset);
   return isUchar;
 }
 
@@ -433,9 +397,6 @@ bool H5Layout::is1DArrayAttribute(const std::string& attrName) const {
   auto rank = H5Sget_simple_extent_ndims(space);
   bool isArray = rank == 1;
   closeAll({space, attr, parent});
-  //H5Sclose(space);
-  //H5Aclose(attr);
-  //H5Oclose(parent);
   return isArray;
 }
 
@@ -455,9 +416,6 @@ bool H5Layout::is2DArrayAttribute(const std::string& attrName) const {
   auto rank = H5Sget_simple_extent_ndims(space);
   bool is2DArray = rank == 2;
   closeAll({space, attr, parent});
-  //H5Sclose(space);
-  //H5Aclose(attr);
-  //H5Oclose(parent);
   return is2DArray;
 }
 
