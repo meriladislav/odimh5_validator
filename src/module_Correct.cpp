@@ -129,7 +129,7 @@ void correct(const std::string& sourceFile, const std::string& targetFile,
 
         case OdimEntry::Type::String :
           if ( source.hasAttribute(entry.node) ){
-            if ( !source.isFixedLenghtStringAttribute(entry.node) ) {
+            if ( !source.isFixedLengthStringAttribute(entry.node) ) {
               replaceAsFixedLenghtStringAttribute_(f, source, entry.node);
               metadataChanged.push_back(entry.node);
             }

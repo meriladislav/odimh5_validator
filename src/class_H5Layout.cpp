@@ -13,7 +13,7 @@ namespace myodim {
 
 static herr_t fillGroupsAndDatasets(hid_t loc_id, const char* name, 
                                     const H5O_info_t* info, void* ph5layout);
-static herr_t getAttribueName(hid_t loc_id, const char* name, const H5A_info_t* ainfo, void* pNameStr);
+static herr_t getAttributeName(hid_t loc_id, const char* name, const H5A_info_t* ainfo, void* pNameStr);
 static void splitAttributeToPathAndName(const std::string& attrName, 
                                         std::string& path, std::string& name);
 static void closeAll(const std::vector<hid_t>& ids);
@@ -68,7 +68,7 @@ std::vector<std::string> H5Layout::getAttributeNames(const std::string& objPath)
     isGroup = false;
   }
   std::vector<std::string> attrNames;
-  auto status = H5Aiterate2(object, H5_INDEX_NAME, H5_ITER_INC, NULL, getAttribueName, &attrNames);
+  auto status = H5Aiterate2(object, H5_INDEX_NAME, H5_ITER_INC, NULL, getAttributeName, &attrNames);
   if ( status < 0 ) throw std::runtime_error{"ERROR - error while iterating attributes in object "+objPath};
   if ( isGroup ) status = H5Gclose(object);
   else status = H5Dclose(object);
@@ -295,7 +295,7 @@ bool H5Layout::isStringAttribute(const std::string& attrName) const {
   return isString;
 }
 
-bool H5Layout::isFixedLenghtStringAttribute(const std::string& attrName) const {
+bool H5Layout::isFixedLengthStringAttribute(const std::string& attrName) const {
   std::string path, name;
   splitAttributeToPathAndName(attrName, path, name);
   auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
@@ -553,7 +553,7 @@ herr_t fillGroupsAndDatasets(hid_t loc_id, const char* name,
   return 0;
 }
 
-herr_t getAttribueName(hid_t loc_id, const char* name, const H5A_info_t* ainfo, void* pNames) {
+herr_t getAttributeName(hid_t loc_id, const char* name, const H5A_info_t* ainfo, void* pNames) {
   if ( loc_id < 0 || ainfo->data_size <= 0 ) return -1;
   std::vector<std::string>* names = static_cast<std::vector<std::string>*>(pNames);
   names->emplace_back(std::string(name));
