@@ -50,7 +50,7 @@ LIB_FLAGS += $(shell $(H5CC) -showconfig | \
                      awk -F': ' '{print $$2}' ) 
 LIB_FLAGS += -lpthread -Wl,--end-group
 
-CXX_TEST_FLAGS = -std=gnu++11 -O2 -Wall -Wextra -DH5_USE_18_API
+CXX_TEST_FLAGS = -std=c++14 -O2 -Wall -Wextra -DH5_USE_18_API
 
 TEST_INC_FLAGS = $(INC_FLAGS) -I ~/inc -I $(SRC_DIR)
 TEST_LIB_FLAGS = $(LIB_FLAGS) ~/lib/libgmock_main.a  ~/lib/libgtest.a ~/lib/libgmock.a 
