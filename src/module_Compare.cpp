@@ -184,7 +184,7 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
             switch (entry.type) {
               case OdimEntry::String : 
                 {
-                hasProperDatatype = h5layout.isStringAttribute(a.name());
+                hasProperDatatype = h5layout.isFixedLengthStringAttribute(a.name());
                 std::string value;
                 // load the value to see wether the size of it is good - it throws when not
                 try {
@@ -491,7 +491,7 @@ bool checkExtraFeatures(const myodim::H5Layout& h5layout, const OdimStandard& od
       extrasPresent = true;
       if ( !(h5layout.isInt64Attribute(attribute.name()) || 
              h5layout.isReal64Attribute(attribute.name()) || 
-             h5layout.isStringAttribute(attribute.name()) ) ) {
+             h5layout.isFixedLengthStringAttribute(attribute.name()) ) ) {
         if ( printInfo) std::cout << "INFO - extra feature - entry \"" + attribute.name() + "\" has non-standard datatype." << std::endl;
       }
     }

@@ -57,7 +57,7 @@ int main(int argc, const char* argv[]) {
   std::string errorMessage="";
   try {
   if ( strAssumedType == "string" ) {
-    if ( h5layout.isStringAttribute(attrName) ) {
+    if ( h5layout.isFixedLengthStringAttribute(attrName) ) {
       std::string attrValue = "";
       h5layout.getAttributeValue(attrName, attrValue);
       valueIsOK = myodim::checkValue(attrValue, strAssumedValue, errorMessage);
