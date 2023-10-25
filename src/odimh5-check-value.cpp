@@ -58,11 +58,16 @@ int main(int argc, const char* argv[]) {
   try {
   if ( strAssumedType == "string" ) {
     std::string errmsg;
-    if ( h5layout.isFixedLengthStringAttribute(attrName, errmsg) ) {
-      std::string attrValue = "";
-      h5layout.getAttributeValue(attrName, attrValue);
-      valueIsOK = myodim::checkValue(attrValue, strAssumedValue, errorMessage);
-      actualValueStr = attrValue;
+    if ( h5layout.isStringAttribute(attrName) ) {
+      if ( h5layout.isFixedLengthStringAttribute(attrName, errmsg) ) {
+        std::string attrValue = "";
+        h5layout.getAttributeValue(attrName, attrValue);
+        valueIsOK = myodim::checkValue(attrValue, strAssumedValue, errorMessage);
+        actualValueStr = attrValue;
+      }
+      else {
+        std::cout << "WARNING - NON-STANDARD DATA TYPE - " << attrName << " - " << errmsg << std::endl;
+      }
     }
     else {
       std::cout << "WARNING - NON-STANDARD DATA TYPE - the type of " << attrName << " attribute is not string, " <<
