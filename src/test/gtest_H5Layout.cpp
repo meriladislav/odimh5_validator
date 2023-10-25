@@ -99,8 +99,9 @@ TEST(testH5Layout, getAttributeValuesThrowsOnError) {
 
 TEST(testH5Layout, canCheckAttributeTypes) {
   const H5Layout h5layout(TEST_ODIM_FILE);
+  std::string errmsg;
 
-  ASSERT_TRUE( h5layout.isFixedLengthStringAttribute("/what/object") );
+  ASSERT_TRUE( h5layout.isFixedLengthStringAttribute("/what/object", errmsg) );
   ASSERT_TRUE( h5layout.isReal64Attribute("/where/lon") );
   ASSERT_TRUE( h5layout.isInt64Attribute("/dataset1/where/nbins") );
   ASSERT_FALSE( h5layout.isReal64Attribute("/how/startepochs") );
@@ -108,8 +109,9 @@ TEST(testH5Layout, canCheckAttributeTypes) {
 
 TEST(testH5Layout, isXXXAttributeThrowsOnError) {
   const H5Layout h5layout(TEST_ODIM_FILE);
+  std::string errmsg;
 
-  ASSERT_ANY_THROW( h5layout.isFixedLengthStringAttribute("/what/objectx") );
+  ASSERT_ANY_THROW( h5layout.isFixedLengthStringAttribute("/what/objectx", errmsg) );
   ASSERT_ANY_THROW( h5layout.isReal64Attribute("/where/lonx") );
   ASSERT_ANY_THROW( h5layout.isInt64Attribute("/dataset1/where/nbinsx") );
   ASSERT_ANY_THROW( h5layout.isReal64Attribute("/how/startepochsx") );
@@ -205,6 +207,15 @@ TEST(testH5Layout, canReturnMinMaxMeanOf2DAttribute) {
   ASSERT_THAT( max, DoubleEq(200.0) );
 }
 
+TEST(testH5Layout, isFixedLengthStringAttributeWorks) {
+  H5Layout h5layoutWithSTRNULLPAD("./data/test/raa01-ry_10000-2310161645-dwd---bin.hdf5");
+  std::string errmsg;
+
+  ASSERT_FALSE( h5layoutWithSTRNULLPAD.isFixedLengthStringAttribute("/what/source", errmsg) );
+  ASSERT_THAT( errmsg, HasSubstr("H5T_STR_NULLTERM") );
+  
+}
+
 TEST(BUGH5Layout, shouldThrowOnWrongSTRSIZEOfHowSystem) {
   const H5Layout h5layout("./data/test/T_PAJZ41_C_LZIB_20231023000000.hdf");
   std::string attrName = "/how/system";
@@ -222,5 +233,7 @@ TEST(BUGH5Layout, shouldThrowOnWrongSTRSIZEOfHowSystem) {
     }
   },std::runtime_error);
 }
+
+
 
 

@@ -76,7 +76,8 @@ TEST(testRepair, canAddAttributesAndGroups) {
   ASSERT_TRUE( h5LayOut.hasAttribute("/testGroup/testString") );
   ASSERT_TRUE( h5LayOut.isInt64Attribute("/testGroup/testInt") );
   ASSERT_TRUE( h5LayOut.isReal64Attribute("/testGroup/testReal") );
-  ASSERT_TRUE( h5LayOut.isFixedLengthStringAttribute("/testGroup/testString") );
+  std::string errmsg;
+  ASSERT_TRUE( h5LayOut.isFixedLengthStringAttribute("/testGroup/testString", errmsg) );
   int64_t i64;
   ASSERT_NO_THROW( h5LayOut.getAttributeValue("/testGroup/testInt", i64) );
   ASSERT_THAT( (int)i64, Eq(5678) );

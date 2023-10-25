@@ -80,13 +80,13 @@ all : $(LIB_LIST) $(BIN_LIST) $(TEST_LIST)
 	@echo "###############################################################"
 	@echo ""
 	
-test : $(TEST_LIST)
+test : $(LIB_LIST) $(TEST_LIST)
 	export ODIMH5_VALIDATOR_CSV_DIR=./data && $(BIN_DIR)/gtest_H5Layout
 	export ODIMH5_VALIDATOR_CSV_DIR=./data && $(BIN_DIR)/gtest_OdimStandard
 	export ODIMH5_VALIDATOR_CSV_DIR=./data && $(BIN_DIR)/gtest_Compare
 	export ODIMH5_VALIDATOR_CSV_DIR=./data && $(BIN_DIR)/gtest_Correct
 
-bug : $(TEST_LIST)
+bug : $(LIB_LIST) $(TEST_LIST)
 	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_H5Layout --gtest_filter=*BUG*
 	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_OdimStandard --gtest_filter=*BUG*
 	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_Compare --gtest_filter=*BUG*
@@ -101,6 +101,9 @@ createv24: $(BIN_DIR)/dev-create-v24-file-for-test
 
 gtest_Compare : $(BIN_DIR)/gtest_Compare
 	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_Compare --gtest_filter=*BUG*
+
+gtest_H5Layout : $(BIN_DIR)/gtest_H5Layout
+	export ODIMH5_VALIDATOR_CSV_DIR="./data" && $(BIN_DIR)/gtest_H5Layout #--gtest_filter=*BUG*
 	       
 $(LIB_DIR)/libmyodimh5.a: $(OBJ_LIST)
 	@echo ""

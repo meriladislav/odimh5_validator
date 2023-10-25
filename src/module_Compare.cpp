@@ -31,7 +31,7 @@ static const std::string csvDirPathEnv{"ODIMH5_VALIDATOR_CSV_DIR"};
 static bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
                             const bool checkOptional, OdimStandard* failedEntries=nullptr);
 static bool checkExtraFeatures(const myodim::H5Layout& h5layout, const OdimStandard& odimStandard);
-static bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
+static bool checkMandatoryExistenceInAll(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
                                         OdimStandard* failedEntries=nullptr);
 static void splitNodePath(const std::string& node, std::string& parent, std::string& child);
 static void addIfUnique(std::vector<std::string>& list, const std::string& str);
@@ -39,7 +39,7 @@ static bool hasIntervalSigns(const std::string& assumedValueStr);
 static bool checkValueInterval(const double attrValue, const std::string& assumedValueStr);
 static bool checkWhatSourceParts(const std::string& whatSource, std::string& errorMessage);
 static std::vector<std::string> splitString(std::string str, const std::string& delimiter);
-static void printWrongTypeMessage(const OdimEntry& entry, const h5Entry& attr);
+static void printWrongTypeMessage(const OdimEntry& entry, const h5Entry& attr, const std::string errmsg="");
 static void printIncorrectValueMessage(const OdimEntry& entry, const h5Entry& attr,
                                        const std::string& failedValueMessage);
 static void printWrongImageAttributes(const OdimEntry& entry);
@@ -120,7 +120,7 @@ bool compare(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
   
   bool isCompliant = checkCompliance(h5layout, odimStandard, checkOptional, failedEntries) ;
   //std::cout << "DBG - isCompliant = " << isCompliant << std::endl;
-  bool mandatoryExistsInAll = checkMandatoryExitenceInAll(h5layout, odimStandard, failedEntries);
+  bool mandatoryExistsInAll = checkMandatoryExistenceInAll(h5layout, odimStandard, failedEntries);
   //std::cout << "DBG - mandatoryExistsInAll = " << mandatoryExistsInAll << std::endl;
   isCompliant = isCompliant && mandatoryExistsInAll;
 
@@ -184,7 +184,17 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
             switch (entry.type) {
               case OdimEntry::String : 
                 {
-                hasProperDatatype = h5layout.isFixedLengthStringAttribute(a.name());
+                std::string errmsg = "";
+                hasProperDatatype = h5layout.isFixedLengthStringAttribute(a.name(), errmsg);
+                if ( !hasProperDatatype ) {
+                  isCompliant = false;
+                  printWrongTypeMessage(entry, a, errmsg);
+                  if ( failedEntries ) {
+                    OdimEntry eFailed = entry;
+                    eFailed.node = a.name();
+                    failedEntries->entries.push_back(eFailed);
+                  }
+                }
                 std::string value;
                 // load the value to see wether the size of it is good - it throws when not
                 try {
@@ -229,15 +239,6 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                           failedEntries->entries.push_back(eFailed);
                         }
                       }
-                    }
-                  }
-                  else {
-                    isCompliant = false;
-                    printWrongTypeMessage(entry, a);
-                    if ( failedEntries ) {
-                      OdimEntry eFailed = entry;
-                      eFailed.node = a.name();
-                      failedEntries->entries.push_back(eFailed);
                     }
                   }
                 }
@@ -489,10 +490,32 @@ bool checkExtraFeatures(const myodim::H5Layout& h5layout, const OdimStandard& od
     if ( isExtra ) {
       if ( printInfo) std::cout << "INFO - extra feature - entry \"" + attribute.name() + "\" is not mentioned in the standard." << std::endl;
       extrasPresent = true;
-      if ( !(h5layout.isInt64Attribute(attribute.name()) || 
-             h5layout.isReal64Attribute(attribute.name()) || 
-             h5layout.isFixedLengthStringAttribute(attribute.name()) ) ) {
-        if ( printInfo) std::cout << "INFO - extra feature - entry \"" + attribute.name() + "\" has non-standard datatype." << std::endl;
+      if ( h5layout.isInt64Attribute(attribute.name()) ) {
+        ;
+      }
+      else if ( h5layout.isReal64Attribute(attribute.name()) ) {
+        ;
+      }
+      else if ( h5layout.isStringAttribute(attribute.name()) ) {
+        std::string errmsg = "";
+        if ( !h5layout.isFixedLengthStringAttribute(attribute.name(), errmsg) ) {
+          std::cout << "WARNING - extra feature - entry \"" + attribute.name() + "\" has non-standard datatype - " << errmsg << std::endl;
+        }
+        else {
+          std::string val;
+          try {
+            h5layout.getAttributeValue(attribute.name(), val);
+          }
+          catch (const std::exception& e) {
+            const std::string msg = e.what();
+            if ( msg.find("WARNING") != std::string::npos ) {
+              std::cout << msg << std::endl;
+            }
+          }
+        }
+      }
+      else {
+        std::cout << "WARNING - extra feature - entry \"" + attribute.name() + "\" has non-standard datatype " << std::endl;
       }
     }
   }
@@ -500,8 +523,8 @@ bool checkExtraFeatures(const myodim::H5Layout& h5layout, const OdimStandard& od
   return extrasPresent;
 }
 
-bool checkMandatoryExitenceInAll(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
-                                 OdimStandard* failedEntries) {
+bool checkMandatoryExistenceInAll(myodim::H5Layout& h5layout, const OdimStandard& odimStandard,
+                                  OdimStandard* failedEntries) {
   bool isCompliant = true;
 
   for (const auto& entry : odimStandard.entries) {
@@ -851,13 +874,14 @@ std::vector<std::string> splitString(std::string str, const std::string& delimit
   return result;
 }
 
-void printWrongTypeMessage(const OdimEntry& entry, const h5Entry& attr) {
+void printWrongTypeMessage(const OdimEntry& entry, const h5Entry& attr, const std::string errmsg) {
   std::string message = "WARNING - NON-STANDARD DATA TYPE - ";
   message += entry.isMandatory ? "mandatory" : "optional";
   switch (entry.type) {
     case OdimEntry::String :
       message += " entry \"" + attr.name() + "\" has non-standard datatype - " +
-                 "it`s supposed to be a fixed-length string, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documentation.";
+                 "it`s supposed to be a fixed-length H5T_STR_NULLTERM string, but isn`t. - " + 
+                 errmsg + ". See section 3.1 in v2.1 (or higher) ODIM-H5 documentation.";
       break;
     case OdimEntry::Real :
       message += " entry \"" + attr.name() + "\" has non-standard datatype - " +

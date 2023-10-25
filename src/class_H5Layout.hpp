@@ -44,7 +44,8 @@ class H5Layout {
     void getAttributeValue(const std::string& attrName, int64_t& value) const;
     void getAttributeValue(const std::string& attrName, std::vector<double>& values) const;
     void getAttributeValue(const std::string& attrName, std::vector<int64_t>& values) const;
-    bool isFixedLengthStringAttribute(const std::string& attrName) const;
+    bool isStringAttribute(const std::string& attrName) const;
+    bool isFixedLengthStringAttribute(const std::string& attrName, std::string& errMsg) const;
     bool isReal64Attribute(const std::string& attrName) const;
     bool isInt64Attribute(const std::string& attrName) const;
     bool isBooleanAttribute(const std::string& attrName) const;
