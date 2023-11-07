@@ -68,25 +68,19 @@ Node;Category;Type;IsMandatory;PossibleValues;Reference
 .*how/nodes;Attribute;string;FALSE;;OPERA_ODIM_v2.0.pdf,Section 4.4
 .*how/ACCnum;Attribute;string;FALSE;;OPERA_ODIM_v2.0.pdf,Section 4.4
 /dataset[1-9][0-9]*;Group;;TRUE;;
-/dataset[1-9][0-9]*/what;Group;;TRUE;;OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/product;Attribute;string;TRUE;PPI|CAPPI|PCAPPI|ETOP|MAX|RR|VIL|COMP|VP|RHI|XSEC|VSP|HSP|QUAL;OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/prodpar;Attribute;string;FALSE;CAPPI|PPI|ETOP|VIL;OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/startdate;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/starttime;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/enddate;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/endtime;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/quantity;Attribute;string;TRUE;TH|TV|DBZH|DBZV|ZDR|RHOHV|LDR|PHIDP|KDP|SQI|SNR|RATE|ACRR|HGHT|VIL|VRAD|WRAD|UWIND|VWIND|BRDR|QIND|CLASS;OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/gain;Attribute;real;TRUE;;OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/offset;Attribute;real;TRUE;;OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/nodata;Attribute;real;TRUE;;OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/what/undetect;Attribute;real;TRUE;;OPERA_ODIM_v2.1.pdf,Section 4.5
+/dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what;Group;;TRUE;;OPERA_ODIM_v2.1.pdf,Section 4.5
+/dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/product;Attribute;string;TRUE;PPI|CAPPI|PCAPPI|ETOP|MAX|RR|VIL|COMP|VP|RHI|XSEC|VSP|HSP|QUAL;OPERA_ODIM_v2.1.pdf,Section 4.5
+/dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/prodpar;Attribute;string;FALSE;CAPPI|PPI|ETOP|VIL;OPERA_ODIM_v2.1.pdf,Section 4.5
+/dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/startdate;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.1.pdf,Section 4.5
+/dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/starttime;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.1.pdf,Section 4.5
+/dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/enddate;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.1.pdf,Section 4.5
+/dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/endtime;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.1.pdf,Section 4.5
+/dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/quantity;Attribute;string;TRUE;TH|TV|DBZH|DBZV|ZDR|RHOHV|LDR|PHIDP|KDP|SQI|SNR|RATE|ACRR|HGHT|VIL|VRAD|WRAD|UWIND|VWIND|BRDR|QIND|CLASS;OPERA_ODIM_v2.1.pdf,Section 4.5
+/dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/gain;Attribute;real;TRUE;;OPERA_ODIM_v2.1.pdf,Section 4.5
+/dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/offset;Attribute;real;TRUE;;OPERA_ODIM_v2.1.pdf,Section 4.5
+/dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/nodata;Attribute;real;TRUE;;OPERA_ODIM_v2.1.pdf,Section 4.5
+/dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/undetect;Attribute;real;TRUE;;OPERA_ODIM_v2.1.pdf,Section 4.5
 /dataset[1-9][0-9]*/data[1-9][0-9]*;Group;;TRUE;;
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what;Group;;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what/quantity;Attribute;string;FALSE;TH|TV|DBZH|DBZV|ZDR|RHOHV|LDR|PHIDP|KDP|SQI|SNR|RATE|ACRR|HGHT|VIL|VRAD|WRAD|UWIND|VWIND|BRDR|QIND|CLASS;OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what/gain;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what/offset;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what/nodata;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.5
-/dataset[1-9][0-9]*/data[1-9][0-9]*/what/undetect;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.5
 /dataset[1-9][0-9]*/data[1-9][0-9]*/data;Dataset;;TRUE;;
 /dataset[1-9][0-9]*/data[1-9][0-9]*/data/CLASS;Attribute;string;FALSE;IMAGE;OPERA_ODIM_v2.1.pdf,Section 5
 /dataset[1-9][0-9]*/data[1-9][0-9]*/data/IMAGE_VERSION;Attribute;string;FALSE;1.2;OPERA_ODIM_v2.1.pdf,Section 5
