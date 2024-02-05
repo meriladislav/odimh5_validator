@@ -35,12 +35,12 @@ HDF_INST_DIR = $(shell $(H5CC) -showconfig | \
 HDF_FLAVOR_DIR = $(shell $(H5CC) -showconfig | \
                  grep "Flavor name:" | \
                  awk -F': ' '{print $$2}' )
-INC_FLAGS = -I$(HDF_INST_DIR)/include/hdf5/$(HDF_FLAVOR_DIR) -I$(INC_DIR)
+INC_FLAGS = -I$(HDF_INST_DIR)/include -I$(HDF_INST_DIR)/include/hdf5/$(HDF_FLAVOR_DIR) -I$(INC_DIR)
 
-ifeq ($(HDF_DIR),'')
+ifeq ($(HDF_INST_DIR),'')
   LIB_FLAGS = 
 else
-  LIB_FLAGS = -L$(HDF_DIR)/lib
+  LIB_FLAGS = -L$(HDF_INST_DIR)/lib
 endif
 LIB_FLAGS += -L$(LIB_DIR) \
             -Wl,--start-group \
