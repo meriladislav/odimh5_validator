@@ -62,8 +62,8 @@ Node;Category;Type;IsMandatory;PossibleValues;Reference
 .*how/PAC;Attribute;real;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
 .*how/S2N;Attribute;string;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
 .*how/polarization;Attribute;string;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
-.*how/angles;Attribute;string;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
-.*how/arotation;Attribute;string;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
+.*how/angles;Attribute;real array;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
+.*how/arotation;Attribute;real array;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
 .*how/camethod;Attribute;string;FALSE;NEAREST|INTERPOL|AVERAGE|RANDOM|MDE|LATEST|MAXIMUM|DOMAIN|VAD|VVP|RGA;OPERA_ODIM_v2.1.pdf,Section 4.4
 .*how/nodes;Attribute;string;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
 .*how/ACCnum;Attribute;string;FALSE;;OPERA_ODIM_v2.1.pdf,Section 4.4
