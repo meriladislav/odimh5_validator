@@ -267,4 +267,4 @@ You can find some example ODIM-H5 volumes in the odimh5_validator/data/examples 
 
 
 ### Contact ###
-I case of any wishes, ideas, suggestions, bugs or contribution please contact me at ladislav.meri@shmu.sk.
+I case of any wishes, ideas, suggestions, bugs or contribution please contact me at ladislav.meri@shmu.sk or use the issue tracker.
