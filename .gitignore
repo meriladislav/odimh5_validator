@@ -1,4 +1,4 @@
-#ignore eclipse files and folders
+#ignore IDE files and folders
 .cproject
 .project
 .ptp-sync
@@ -23,5 +23,8 @@ out/*
 #!data/.gitkeep
 tmp/*
 !tmp/.gitkeep
+
+#ignore TODO
+*TODO*
 
 
