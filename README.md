@@ -5,7 +5,7 @@ This documentation describes the installation and usage of the odimh5-validator 
 ### What is this repository for? ###
 
 The odimh5-validator is a command-line tool to check whether a given file is compliant with the EUMETNET-OPERA ODIM-H5 format standard
-(OPERA Data Information Model for HDF5). The validator is currently supporting polar volume (PVOL), polar scan (SCAN) and cartesian 2D (COMP) objects.
+(OPERA Data Information Model for HDF5). The validator is currently supporting polar volume (PVOL), polar scan (SCAN) and cartesian 2D (COMP, IMAGE) objects.
 
 
 ### How do I get set up? ###
