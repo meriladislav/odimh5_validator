@@ -86,3 +86,8 @@ Node;Category;Type;IsMandatory;PossibleValues;Reference
 /dataset[1-9][0-9]*/data[1-9][0-9]*/data;Dataset;;TRUE;;
 /dataset[1-9][0-9]*/data[1-9][0-9]*/data/CLASS;Attribute;string;FALSE;IMAGE;OPERA_ODIM_v2.4.pdf,Section 5
 /dataset[1-9][0-9]*/data[1-9][0-9]*/data/IMAGE_VERSION;Attribute;string;FALSE;1.2;OPERA_ODIM_v2.4.pdf,Section 5
+/dataset[1-9][0-9]*/data[1-9][0-9]*/data/IMAGE_SUBCLASS;Attribute;string;FALSE;1.2;OPERA_ODIM_v2.4.pdf,Section 6
+/dataset[1-9][0-9]*/data[1-9][0-9]*/data/PALETTE;Attribute;link;FALSE;;OPERA_ODIM_v2.4.pdf,Section 6
+/dataset[1-9][0-9]*/data[1-9][0-9]*/palette;Dataset;;FALSE;;OPERA_ODIM_v2.4.pdf,Section 6
+/dataset[1-9][0-9]*/data[1-9][0-9]*/palette/CLASS;Attribute;string;FALSE;;OPERA_ODIM_v2.4.pdf,Section 6
+/dataset[1-9][0-9]*/data[1-9][0-9]*/palette/PAL_VERSION;Attribute;string;FALSE;1.2;OPERA_ODIM_v2.4.pdf,Section 6
