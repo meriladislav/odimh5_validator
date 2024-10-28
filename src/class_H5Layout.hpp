@@ -49,6 +49,7 @@ class H5Layout {
     bool isReal64Attribute(const std::string& attrName) const;
     bool isInt64Attribute(const std::string& attrName) const;
     bool isBooleanAttribute(const std::string& attrName) const;
+    bool isLinkAttribute(const std::string& attrName) const;
     bool isUcharDataset(const std::string& dsetName) const;
     bool is1DArrayAttribute(const std::string& attrName) const;
     bool is2DArrayAttribute(const std::string& attrName) const;

@@ -64,6 +64,9 @@ std::string OdimEntry::typeToString() const {
     case OdimEntry::Type::IntegerArray2D :
       return "integer array 2d";
       break;
+    case OdimEntry::Type::Link :
+      return "link";
+      break;
     case OdimEntry::Type::Undefined :
       return "";
       break;
@@ -87,22 +90,30 @@ void OdimEntry::parseType_(const std::string typeStr) {
     return;
   }
   const std::string lowerTypeStr = toLower(typeStr);
-  if ( containsSubString(lowerTypeStr, "string") )
+  if ( containsSubString(lowerTypeStr, "string") ) {
     if ( containsSubString(lowerTypeStr, "array") )
       type = containsSubString(lowerTypeStr, "2d") ? Type::StringArray2D : Type::StringArray;
     else
       type = Type::String;
-  else if ( containsSubString(lowerTypeStr, "real") )
+  }
+  else if ( containsSubString(lowerTypeStr, "real") ) {
     if ( containsSubString(lowerTypeStr, "array") )
       type = containsSubString(lowerTypeStr, "2d") ? Type::RealArray2D : Type::RealArray;
     else
       type = Type::Real;
-  else if ( containsSubString(lowerTypeStr, "integer") )
+  }
+  else if ( containsSubString(lowerTypeStr, "integer") ) {
     if ( containsSubString(lowerTypeStr, "array") )
       type = containsSubString(lowerTypeStr, "2d") ? Type::IntegerArray2D : Type::IntegerArray;
     else
       type = Type::Integer;
-  else throw std::invalid_argument{"Unknown type - "+typeStr};
+  }
+  else if ( containsSubString(lowerTypeStr, "link") ) {
+    type = Type::Link;
+  }
+  else {
+    throw std::invalid_argument{"Unknown type - "+typeStr};
+  }
 }
     
 void OdimEntry::parseIsMandatory_(const std::string isMandatoryStr) {

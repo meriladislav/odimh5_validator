@@ -16,7 +16,7 @@ class OdimEntry {
     enum Type { String, Real, Integer,
                 StringArray, RealArray, IntegerArray,
                 StringArray2D, RealArray2D, IntegerArray2D,
-                Undefined };
+                Link, Undefined };
     
     std::string node{""};
     Category    category{Group};

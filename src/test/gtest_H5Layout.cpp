@@ -10,6 +10,7 @@ using namespace myodim;
 const std::string TEST_ODIM_FILE = "./data/example/T_PAGZ41_C_LZIB_20180403000000.hdf";
 const std::string WRONG_ODIM_FILE = "./data/example/T_PAGZ41_C_LZIB_20180403000000.hdfx";
 const std::string TEST_ODIM_FILE_V24 = "./data/test/T_PAZE50_C_LFPW_20190426132340.h5";
+const std::string TEST_PALETTE_FILE = "./data/test/test_palette.h5";
 
 TEST(testH5Layout, isEmptyWhenConstructed) {
   const H5Layout h5layout;
@@ -214,6 +215,16 @@ TEST(testH5Layout, isFixedLengthStringAttributeWorks) {
   ASSERT_FALSE( h5layoutWithSTRNULLPAD.isFixedLengthStringAttribute("/what/source", errmsg) );
   ASSERT_THAT( errmsg, HasSubstr("H5T_STR_NULLTERM") );
   
+}
+
+TEST(testH5Layout, canWorkWithPalette) {
+  H5Layout h5layout(TEST_PALETTE_FILE);
+  std::string errmsg;
+
+  ASSERT_TRUE( h5layout.hasDataset("/01-PALETTE") );
+  ASSERT_TRUE( h5layout.isStringAttribute("/01-PALETTE/CLASS") );
+  ASSERT_TRUE( h5layout.hasAttribute("/CT/PALETTE") );
+  ASSERT_TRUE( h5layout.isLinkAttribute("/CT/PALETTE") );
 }
 
 TEST(BUGH5Layout, shouldThrowOnWrongSTRSIZEOfHowSystem) {

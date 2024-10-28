@@ -383,6 +383,24 @@ bool H5Layout::isBooleanAttribute(const std::string& attrName) const {
   return isBool;
 }
 
+bool H5Layout::isLinkAttribute(const std::string& attrName) const {
+  std::string path, name;
+  splitAttributeToPathAndName(attrName, path, name);
+  auto parent = H5Oopen(h5FileID_, path.c_str(), H5P_DEFAULT);
+  if ( parent < 0  ) {
+    throw std::runtime_error("ERROR - node "+path+" not opened");
+  }
+  auto attr = H5Aopen(parent, name.c_str(), H5P_DEFAULT);
+  if ( attr < 0  ) {
+    H5Oclose(parent);
+    throw std::runtime_error("ERROR - attribute "+attrName+" not opened");
+  }
+  auto type = H5Aget_type(attr);
+  bool isBool{H5Tget_class(type) == H5T_REFERENCE};
+  closeAll({type, attr, parent});
+  return isBool;
+}
+
 bool H5Layout::isUcharDataset(const std::string& dsetName) const {
   bool isUchar = false;
   auto dset = H5Dopen(h5FileID_, dsetName.c_str(), H5P_DEFAULT);

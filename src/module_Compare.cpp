@@ -411,6 +411,17 @@ bool checkCompliance(myodim::H5Layout& h5layout, const OdimStandard& odimStandar
                   }
                 }
                 break;
+              case OdimEntry::Link :
+                hasProperDatatype = h5layout.isLinkAttribute(a.name());
+                if ( !hasProperDatatype ) {
+                  isCompliant = false;
+                  printWrongTypeMessage(entry, a);
+                  if ( failedEntries ) {
+                    OdimEntry eFailed = entry;
+                    eFailed.node = a.name();
+                    failedEntries->entries.push_back(eFailed);
+                  }
+                }
               default :
                 break;
             }
@@ -898,6 +909,10 @@ void printWrongTypeMessage(const OdimEntry& entry, const h5Entry& attr, const st
     case OdimEntry::IntegerArray :
       message += " entry \"" + attr.name() + "\" has non-standard datatype - " +
                  "it`s supposed to be a 64-bit integer array, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documentation.";
+      break;
+    case OdimEntry::Link :
+      message += " entry \"" + attr.name() + "\" has non-standard datatype - " +
+                 "it`s supposed to be a link, but isn`t. See section 3.1 in v2.1 (or higher) ODIM-H5 documentation.";
       break;
     default :
       break;

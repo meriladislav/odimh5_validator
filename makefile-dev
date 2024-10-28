@@ -52,8 +52,8 @@ LIB_FLAGS += -lpthread -Wl,--end-group
 
 CXX_TEST_FLAGS = -std=c++14 -O2 -Wall -Wextra -DH5_USE_18_API
 
-TEST_INC_FLAGS = $(INC_FLAGS) -I ~/inc -I $(SRC_DIR)
-TEST_LIB_FLAGS = $(LIB_FLAGS) ~/lib/libgmock_main.a  ~/lib/libgtest.a ~/lib/libgmock.a 
+TEST_INC_FLAGS = $(INC_FLAGS) -I $(HOME)/inc -I $(SRC_DIR)
+TEST_LIB_FLAGS = $(LIB_FLAGS) $(HOME)/lib/libgmock_main.a  $(HOME)/lib/libgtest.a $(HOME)/lib/libgmock.a 
 
 LIB_LIST = $(LIB_DIR)/libmyodimh5.a 
            
