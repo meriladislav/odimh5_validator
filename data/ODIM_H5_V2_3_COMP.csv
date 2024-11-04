@@ -77,7 +77,7 @@ Node;Category;Type;IsMandatory;PossibleValues;Reference
 /dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/starttime;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.3.pdf,Section 4.5
 /dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/enddate;Attribute;string;TRUE;[1-2][0-9]{3}[0-1][0-9][0-3][0-9];OPERA_ODIM_v2.3.pdf,Section 4.5
 /dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/endtime;Attribute;string;TRUE;[0-2][0-9][0-5][0-9][0-5][0-9];OPERA_ODIM_v2.3.pdf,Section 4.5
-/dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/quantity;Attribute;string;TRUE;TH|TV|DBZH|DBZV|ZDR|RHOHV|LDR|PHIDP|KDP|SQI|SNR|RATE|ACRR|HGHT|VIL|VRAD|WRAD|UWIND|VWIND|BRDR|QIND|CLASS;OPERA_ODIM_v2.3.pdf,Section 4.5
+/dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/quantity;Attribute;string;TRUE;TH|TV|DBZH|DBZV|ZDR|UZDR|RHOHV|URHOHV|LDR|ULDR|PHIDP|UPHIDP|PIA|KDP|UKDP|SQIH|USQIH|SQIV|USQIV|SNRH|SNRV|SNR|SNRHC|SNRHX|SNRVC|SNRVX|CCORH|CCORV|CPA|RATE|URATE|POR|HI|HP|POH|POSH|ACRR|HGHT|VIL|VRADH|UVRADH|VRADV|UVRADV|VRADDH|VRADDV|WRADH|WRADV|UWRADH|UWRADV|UWIND|VWIND|RSHR|ASHR|CSHR|ESHR|OSHR|HSHR|VSHR|TSHR|PSPH|PSPV|UPSPH|UPSPV|BRDR|QIND|CLASS;OPERA_ODIM_v2.3.pdf,Section 4.5
 /dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/gain;Attribute;real;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.5
 /dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/offset;Attribute;real;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.5
 /dataset[1-9][0-9]*(/data[1-9][0-9]*)?/what/nodata;Attribute;real;TRUE;;OPERA_ODIM_v2.3.pdf,Section 4.5
