@@ -17,14 +17,14 @@ namespace myodim {
 
 bool printInfo{true};
 static const double MAX_DOUBLE_DIFF = 0.0001;
-static const std::string WMO_REGEX = "(WMO:[0-9]{5})|(WMO:[0-9]{7})";
-static const std::string NOD_REGEX = "NOD:[\\x00-\\x7F]*";  //only ASCII
-static const std::string RAD_REGEX = "RAD:.*";
-static const std::string PLC_REGEX = "PLC:.*";
-static const std::string ORG_REGEX = "ORG:.[0-9]*";
-static const std::string CTY_REGEX = "CTY:.[0-9]*";
-static const std::string CMT_REGEX = "CMT:.*";
-static const std::string WIGOS_REGEX = "WIGOS:[0-9]*-[0-9]*-[0-9]*-[\\x00-\\x7F]*";
+static const std::string WMO_REGEX = ".*(WMO:[0-9]{5})|(WMO:[0-9]{7}).*";
+static const std::string NOD_REGEX = ".*NOD:[\\x00-\\x7F]*.*";  //only ASCII
+static const std::string RAD_REGEX = ".*RAD:.*";
+static const std::string PLC_REGEX = ".*PLC:.*";
+static const std::string ORG_REGEX = ".*ORG:.[0-9]*.*";
+static const std::string CTY_REGEX = ".*CTY:.[0-9]*.*";
+static const std::string CMT_REGEX = ".*CMT:.*";
+static const std::string WIGOS_REGEX = ".*WIGOS:[0-9]*-[0-9]*-[0-9]*-[\\x00-\\x7F]*.*";
 
 
 static const std::string csvDirPathEnv{"ODIMH5_VALIDATOR_CSV_DIR"};

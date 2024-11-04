@@ -469,3 +469,13 @@ TEST(BUGCompare, compareShouldFailDueToWrongSTRSZIEOfHowSystem) {
 
   ASSERT_FALSE( compare(h5Lay, oStand, checkOptional, checkExtras) );
 }
+
+TEST(BUGCompare, checkValueForWhatSourceStringsNOTWorkingForSwissData) {
+  std::string myStr = "ORG:215, CTY:644, CMT:MeteoSwiss (Switzerland)";
+  std::string assumedStr = ".*CTY:.[0-9]*.*";
+  std::string errorMessage = "";
+  ASSERT_TRUE( checkValue(myStr, assumedStr, errorMessage) );
+  ASSERT_THAT( errorMessage, IsEmpty() );
+
+  ASSERT_TRUE(checkWhatSource(myStr, assumedStr, errorMessage) );
+}
